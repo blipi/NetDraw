@@ -1,6 +1,6 @@
 var _ = _ || {};
 
-define([], function(){
+define(['Style'], function(){
 
 	var App = function()
 	{
@@ -19,7 +19,7 @@ define([], function(){
 		};
 
 		this.layers = [];
-
+		this.menu = {};
 		this.groups = {
 			'Vision Layers': {
 				'convolution' : {
@@ -179,84 +179,6 @@ define([], function(){
 				'slice' : {},
 			},
 		};
-
-		this.featuresMapping = {
-			'convolutional': {
-	    		fillStyle: '#256fb3',
-	    		strokeWidth: 4,
-	    		strokeStyle: '#000',
-
-	    		text : {
-	    			name: 'Conv',
-	        		fillStyle: '#000',
-		    		strokeWidth: 1,
-		    		strokeStyle: '#000',
-		    		x: 50, y: 25,
-		    	},
-
-	    		top: {
-		    		fillStyle: '#FFF',
-		    		strokeWidth: 2,
-		    		strokeStyle: '#000',	    			
-	    		},
-
-	    		bottom: {
-		    		fillStyle: '#000',
-		    		strokeWidth: 2,
-		    		strokeStyle: '#FFF',	    			
-	    		}
-	    	},
-	    	'relu': {
-	    		fillStyle: '#d7dadd',
-	    		strokeWidth: 3,
-	    		strokeStyle: '#000',
-
-	    		text : {
-	    			name: 'ReLU',
-	        		fillStyle: '#000',
-		    		strokeWidth: 1,
-		    		strokeStyle: '#000',
-		    		x: 50, y: 25,
-		    	},
-
-	    		top: {
-		    		fillStyle: '#FFF',
-		    		strokeWidth: 2,
-		    		strokeStyle: '#000',	    			
-	    		},
-
-	    		bottom: {
-		    		fillStyle: '#000',
-		    		strokeWidth: 2,
-		    		strokeStyle: '#FFF',	    			
-	    		}
-	    	},
-	    	'relu': {
-	    		fillStyle: '#d7dadd',
-	    		strokeWidth: 3,
-	    		strokeStyle: '#000',
-
-	    		text : {
-	    			name: 'ReLU',
-	        		fillStyle: '#000',
-		    		strokeWidth: 1,
-		    		strokeStyle: '#000',
-		    		x: 50, y: 25,
-		    	},
-
-	    		top: {
-		    		fillStyle: '#FFF',
-		    		strokeWidth: 2,
-		    		strokeStyle: '#000',	    			
-	    		},
-
-	    		bottom: {
-		    		fillStyle: '#000',
-		    		strokeWidth: 2,
-		    		strokeStyle: '#FFF',	    			
-	    		}
-	    	},
-		};
 	};
 
 	App.prototype.__window_onresize = function(e) {
@@ -389,12 +311,6 @@ define([], function(){
 		    layer: true
 		});
 
-		/*
-		_.App.createLayer(10, 10, 'convolutional');
-		_.App.createLayer(10, 70, 'relu');
-		_.App.createLayer(10, 10, 'slicing');
-		*/
-
 		var ey = 15;
 		for (group in _.App.groups) {
 
@@ -404,14 +320,16 @@ define([], function(){
 				draggable: false,
 				fromCenter: false,
 				x: -3, y: -3 + ey,
-				width: 138,
+				width: 153,
 				height: 20,
 				cornerRadius: 0,
 
-				strokeStyle: "#826c30",
-				strokeWidth: 3,
-				fillStyle: "#eadebc",
+				strokeStyle: "#000000",
+				strokeWidth: 2,
+				fillStyle: "#ea940e",
 			});
+
+			var box = _.App.canvas.getLayer(-1);
 
 			/* Text */
 			_.App.canvas.drawText({
@@ -427,7 +345,99 @@ define([], function(){
 				text: group,
 			});
 
+			var text = _.App.canvas.getLayer(-1);
 
+			// Draw a shield-like shape
+			$('canvas').drawPolygon({
+				layer: true,
+				fillStyle: '#eadebc',
+				strokeStyle: '#000000',
+				strokeWidth: 1,
+				x: 138, y: ey + 7,
+				radius: 5,
+				sides: 3,
+				concavity: -0.5,
+				rotate: 180,
+
+				b: box,
+				g: group,
+				t: text,
+
+				click: function(layer){
+					if (layer.rotate == 180) {
+						/* Expand */
+						for (g in _.App.menu) {
+							$(this).animateLayer(_.App.menu[g][0], {
+								y: 12
+							}, 'medium', 'swing');
+							$(this).animateLayer(_.App.menu[g][1], {
+								y: 23
+							}, 'medium', 'swing');
+							$(this).animateLayer(_.App.menu[g][2], {
+								y: 15
+							}, 'medium', 'swing');
+						}
+
+						$(this).animateLayer(layer, {
+							fillStyle: '#eaae0e',
+							rotate: 0
+						}, 'slow', 'swing');
+
+						var top = _.App.canvas.getLayers().length;
+						_.App.canvas.moveLayer(layer.b, top);
+						_.App.canvas.moveLayer(layer, top);
+						_.App.canvas.moveLayer(layer.t, top);
+
+						for (l in _.App.menu[layer.g][3]) {
+							_.App.menu[layer.g][3][l].visible = true;
+							_.App.menu[layer.g][3][l].node.textElement.visible = true;
+						}
+					} else {
+						var ey = 15;
+						
+						for (l in _.App.menu[layer.g][3]) {
+							_.App.menu[layer.g][3][l].visible = false;
+							_.App.menu[layer.g][3][l].node.textElement.visible = false;
+						}
+
+						/* Expand */
+						for (g in _.App.menu) {
+
+							$(this).animateLayer(_.App.menu[g][0], {
+								y: ey - 3
+							}, 'medium', 'swing');
+							$(this).animateLayer(_.App.menu[g][1], {
+								y: ey + 7
+							}, 'medium', 'swing');
+							$(this).animateLayer(_.App.menu[g][2], {
+								y: ey
+							}, 'medium', 'swing');
+						
+							ey += 25;
+						}
+
+						$(this).animateLayer(layer, {
+							fillStyle: '#eadebc',
+							rotate: 180
+						}, 'slow', 'swing');
+					}
+				}
+			});
+
+			var poly = _.App.canvas.getLayer(-1);
+
+			var layers = [];
+			var i = 0;
+			console.log("================");
+			console.log(group);
+			for (layer in _.App.groups[group]) {
+				console.log(layer);
+				layers.push(_.App.createLayer(25, 40 + 60*i, layer, false));
+				i += 1;
+			}
+
+			var items = [box, poly, text, layers];
+			_.App.menu[group] = items;
 
 			ey += 25;
 		}
@@ -436,21 +446,19 @@ define([], function(){
 			strokeStyle: '#000',
 			layer: true,
 			strokeWidth: 3,
-			x1: 135, y1: 0,
-			x2: 135, y2: 9000,
+			x1: 150, y1: 0,
+			x2: 150, y2: 9000,
 		});
 	};
 	
-	App.prototype.createLayer = function(x, y, type)
+	App.prototype.createLayer = function(x, y, type, visibility)
 	{
 		console.log("[createLayer] {" + x + "," + y + "," + type + "}");
 
-		var faetures = _.App.featuresMapping[type];
+		var faetures = _.Style.featuresMapping[type];
 
 		/* Forward declaration of handlers */
 		var rect_ondragstart = function(layer) {
-			_.App.createLayer(layer.x, layer.y, layer.node.name);
-
 			layer.dragstart = function(layer){
 				var front = _.App.canvas.getLayers().length;
 				_.App.canvas.moveLayer(layer, front);
@@ -488,11 +496,17 @@ define([], function(){
 		};
 
 		var rect_dragstop = function(layer) {
-			_.App.createTopPoint(layer);
-			layer.node.textElement.text = layer.node.netName;
-			layer.node.func = 'main';
+			canvasLayer = _.App.createLayer(layer.x, layer.y, layer.node.name, true);
+			_.App.createTopPoint(canvasLayer);
+			canvasLayer.node.textElement.text = canvasLayer.node.netName;
+			canvasLayer.node.func = 'main';
 
-			layer.dragstop = function(layer){
+			layer.x = layer.ox;
+			layer.y = layer.oy;
+			layer.node.textElement.x = layer.node.textElement.ox;
+			layer.node.textElement.y = layer.node.textElement.oy;
+
+			canvasLayer.dragstop = function(layer){
 			}
 		};
 
@@ -504,9 +518,11 @@ define([], function(){
 			bringToFront: true,
 			fromCenter: false,
 			x: x, y: y,
+			ox: x, oy: y,
 			width: 100,
 			height: 50,
 			cornerRadius: 2,
+			visible: visibility,
 
 			strokeStyle: faetures['strokeStyle'],
 			strokeWidth: faetures['strokeWidth'],
@@ -543,9 +559,11 @@ define([], function(){
 			strokeStyle: textFeatures['strokeStyle'],
 			strokeWidth: textFeatures['strokeWidth'],
 			x: currentLayer.x + textFeatures['x'], y: currentLayer.y + textFeatures['y'],
+			ox: currentLayer.x + textFeatures['x'], oy: currentLayer.y + textFeatures['y'],
 			fontSize: 16,
 			fontFamily: 'Verdana, sans-serif',
 			text: textFeatures['name'],
+			visible: visibility,
 
 			node: {
 				parent: currentLayer
@@ -562,11 +580,12 @@ define([], function(){
 		currentLayer.node.textElement = _.App.canvas.getLayer(-1);
 
 		++_.App.counter;
+		return currentLayer;
 	};
 
 	App.prototype.createTopPoint = function(layer) {
 		console.log('[createTopPoint] {' + layer.node.id + '}');
-	    var features = _.App.featuresMapping[layer.node.name];
+	    var features = _.Style.featuresMapping[layer.node.name];
 
 	    var top_onclick = function(layer) {
 			layer.draggable = true;
@@ -707,7 +726,7 @@ define([], function(){
 
 	App.prototype.createBottomPoint = function(layer, ex, ey) {
 		console.log('[createBottomPoint] {' + layer.node.id + '}');
-	    var features = _.App.featuresMapping[layer.node.name];
+	    var features = _.Style.featuresMapping[layer.node.name];
 
 		var bottom_onclick = function(layer) {
 			layer.draggable = true;
