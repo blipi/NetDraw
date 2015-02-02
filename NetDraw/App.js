@@ -7,10 +7,12 @@ define(['Style'], function(){
 		this.canvas = null;
 		this.wrapper = null;
 		this.counter = 0;
+		this.realCounter = 0;
 
 		this.doubleClick = false;
 		this.doubleClick_last = 0;
 
+		this.selection = null;
 		this.drawingLine = null;
 
 		this.layersMapping = {
@@ -18,7 +20,6 @@ define(['Style'], function(){
 			'to': {},
 		};
 
-		this.layers = [];
 		this.menu = {};
 		this.groups = {
 			'Vision Layers': {
@@ -275,6 +276,11 @@ define(['Style'], function(){
 	    var canvas_onclick = function(e){
 	    	_.App.doubleClick = false;
 	    	_.App.doubleClick_last = e.timeStamp;
+
+	    	if (_.App.selection != null) {
+	    		_.App.selection.strokeStyle = "#000";
+	    		_.App.selection = null;
+	    	}
 	    };
 
 	    var canvas_onmousedown = function(e){
@@ -292,7 +298,72 @@ define(['Style'], function(){
 	    	}
 	    };
 
+	    var window_onkeydown = function(e) {
+			var code = e.keyCode || e.which;
+			console.log("KEY " + code);
+			if (code == 46 && _.App.selection != null) {
+				var layer = _.App.selection;
+
+				console.log("[deleteLayer] {" + layer.node.id + '}');
+				console.log(_.App.layersMapping);
+
+				if (layer.node.func == 'line') {
+					var line = layer;
+					_.App.canvas.removeLayer(line.node.bottom);
+
+					/* Remove from relationship */
+					var index = _.App.layersMapping['from'][line.node.from.node.id].indexOf(line);
+					_.App.layersMapping['from'][line.node.from.node.id].splice(index, 1);
+
+					/* Remove to relationship */
+					var index = _.App.layersMapping['to'][line.node.to.node.id].indexOf(line);
+					_.App.layersMapping['to'][line.node.to.node.id].splice(index, 1);
+				} else {
+					_.App.canvas.removeLayer(layer.node.textElement);
+					_.App.canvas.removeLayer(layer.node.top);
+
+					var fromRelationships = _.App.layersMapping['from'][layer.node.id];
+					var toRelationships = _.App.layersMapping['to'][layer.node.id];
+
+					var n = fromRelationships.length;
+					var i = 0;
+				
+					for (; i < n; ++i) {
+						var line = fromRelationships[i];
+						_.App.canvas.removeLayer(line);
+						_.App.canvas.removeLayer(line.node.bottom);
+
+						/* Remove to relationship */
+						var index = _.App.layersMapping['to'][line.node.to.node.id].indexOf(line);
+						_.App.layersMapping['to'][line.node.to.node.id].splice(index, 1);
+					}
+
+					n = toRelationships.length;
+					i = 0;
+
+					for (; i < n; ++i) {
+						var line = toRelationships[i];
+						_.App.canvas.removeLayer(line);
+						_.App.canvas.removeLayer(line.node.bottom);
+
+						/* Remove from relationship */
+						var index = _.App.layersMapping['from'][line.node.from.node.id].indexOf(line);
+						_.App.layersMapping['from'][line.node.from.node.id].splice(index, 1);
+					}
+
+					_.App.layersMapping['from'][layer.node.id] = [];
+					_.App.layersMapping['to'][layer.node.id] = [];
+				}
+
+				_.App.canvas.removeLayer(layer);
+				_.App.selection = null;
+	    		_.App.canvas.drawLayers();
+			}
+	    };
+
 	    $(window).resize(_.App.__window_onresize);
+	    $(window).keydown(window_onkeydown);
+
 	    _.App.canvas.click(canvas_onclick);
 	    _.App.canvas.mousedown(canvas_onmousedown);
 	    _.App.canvas.mousemove(canvas_onmousemove);
@@ -457,6 +528,11 @@ define(['Style'], function(){
 
 		var faetures = _.Style.featuresMapping[type];
 
+		var rect_click = function(layer) {
+			_.App.selection = layer;
+			layer.strokeStyle = "#a23";
+		}
+
 		/* Forward declaration of handlers */
 		var rect_ondragstart = function(layer) {
 			layer.dragstart = function(layer){
@@ -498,8 +574,12 @@ define(['Style'], function(){
 		var rect_dragstop = function(layer) {
 			canvasLayer = _.App.createLayer(layer.x, layer.y, layer.node.name, true);
 			_.App.createTopPoint(canvasLayer);
-			canvasLayer.node.textElement.text = canvasLayer.node.netName;
+			canvasLayer.node.counter = _.App.realCounter;
+			canvasLayer.node.netName = canvasLayer.node.name + '_' + _.App.realCounter;
+			canvasLayer.node.textElement.text = canvasLayer.node.id;
 			canvasLayer.node.func = 'main';
+
+			++_.App.realCounter;
 
 			layer.x = layer.ox;
 			layer.y = layer.oy;
@@ -535,12 +615,13 @@ define(['Style'], function(){
 				func: 'reserved',
 				name: type,
 				id: type + '_' + _.App.counter,
-				netName: type + '_' + _.App.counter,
+				netName: '',
 
 				textElement: null,
 				top: null,
 			},
 
+			click: rect_click,
 			dragstart: rect_ondragstart,
 			drag: rect_drag,
 			dragstop: rect_dragstop
@@ -548,7 +629,6 @@ define(['Style'], function(){
 
 		var currentLayer = _.App.canvas.getLayer(-1);
 
-		_.App.layers.push(currentLayer);
 		_.App.layersMapping['from'][currentLayer.node.id] = [];
 		_.App.layersMapping['to'][currentLayer.node.id] = [];
 
@@ -569,6 +649,7 @@ define(['Style'], function(){
 				parent: currentLayer
 			},
 
+			click: function(layer) { layer.node.parent.click(layer.node.parent); },
 			dragstart: function(layer) { layer.node.parent.dragstart(layer.node.parent); },
 			drag: function(layer) { layer.node.parent.drag(layer.node.parent); },
 			dragstop: function(layer) { layer.node.parent.dragstop(layer.node.parent); },
@@ -590,6 +671,7 @@ define(['Style'], function(){
 	    var top_onclick = function(layer) {
 			layer.draggable = true;
 			layer.node.parent.draggable = true;
+			layer.node.parent.click(layer.node.parent);
 	    };
 
 	    var top_mousedown = function(layer) {
@@ -598,6 +680,12 @@ define(['Style'], function(){
 
 			layer.draggable = false;
 			layer.node.parent.draggable = false;
+
+
+			var line_click = function(layer) {
+				_.App.selection = layer;
+				layer.strokeStyle = "#a23";
+			}
 
 			_.App.canvas.drawLine({
 				strokeStyle: '#000',
@@ -612,10 +700,13 @@ define(['Style'], function(){
 				x2: layer.x, y2: layer.y,
 
 				node: {
+					func: 'line',
 					from: layer.node.parent,
 					to: null,
 					bottom: null,
 				},
+
+				click: line_click
 			});
 
 			_.App.drawingLine = _.App.canvas.getLayer(-1);
