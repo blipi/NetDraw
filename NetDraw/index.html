@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>NetDraw</title>
+	
+	<style type="text/css">
+		hml, body, div, canvas {
+		    margin: 0;
+		    padding: 0;
+		}
+
+		#wrapper {
+			margin: 5px;
+			padding: 0px;
+			overflow: hidden;
+			height: calc(100% - 12px);
+			width: calc(100% - 12px);
+			position: absolute;
+			border:1px solid #000000;
+		}
+
+		#canvas {
+			margin: 0px;
+			padding: 0px;
+		}
+	</style>
+
+	<script type="text/javascript" src="jquery-2.1.3.min.js"></script>
+	<script type="text/javascript" src="jcanvas.min.js"></script>
+	<script type="text/javascript" data-main="./"  src="require.js"></script>
+
+	<script type="text/javascript">
+		$(function(){
+			var BasicLibraries = ['App'];
+			require(BasicLibraries, function(){
+				console.log(arguments);
+				for (var i = 0; i < BasicLibraries.length; ++i)
+				{
+					arguments[i].initialize();
+				}
+			});
+		});
+	</script>
+
+</head>
+<body>
+
+	<div id="wrapper">
+		<canvas id="canvas" height="50px" width="50px">
+			Your browser does not support the HTML5 canvas tag. <br /> Please update to a newer browser.
+		</canvas>
+	</div>
+
+</body>
+</html>
