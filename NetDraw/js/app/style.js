@@ -1,6 +1,6 @@
 define([], function(){
     return {
-	   featuresMapping: {
+       featuresMapping: {
             'convolution' : {
                 fillStyle: '#256fb3',
                 strokeWidth: 4,

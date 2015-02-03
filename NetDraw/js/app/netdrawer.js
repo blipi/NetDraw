@@ -8,69 +8,69 @@ define(function (require) {
         canvasObj = require('app/canvas'),
         mouse = require('utils/mousehelper');
 
-	var wrapper = controller.getWrapper();
-	var canvas = controller.getCanvas();
+    var wrapper = controller.getWrapper();
+    var canvas = controller.getCanvas();
 
     function initialize()
-	{
-	    var canvas_onmousemove = function(e) {
-	    	var drawingLine = controller.getDrawingLine();
+    {
+        var canvas_onmousemove = function(e) {
+            var drawingLine = controller.getDrawingLine();
 
-	    	if (drawingLine != null) {
-	    		drawingLine.x2 = e.pageX;
-	    		drawingLine.y2 = e.pageY;
-	    		canvas.drawLayers();
-	    	}
-	    };
+            if (drawingLine != null) {
+                drawingLine.x2 = e.pageX;
+                drawingLine.y2 = e.pageY;
+                canvas.drawLayers();
+            }
+        };
 
-	    var window_onkeydown = function(e) {
-			var code = e.keyCode || e.which;
-			var selection = controller.getSelection();
+        var window_onkeydown = function(e) {
+            var code = e.keyCode || e.which;
+            var selection = controller.getSelection();
 
-			if (code == 46 && selection != null) {
+            if (code == 46 && selection != null) {
 
-				if (relationship.is(selection)) {
-					relationship.remove(selection);
-				} else {
-					layer.remove(selection);
-				}
+                if (relationship.is(selection)) {
+                    relationship.remove(selection);
+                } else {
+                    layer.remove(selection);
+                }
 
-				controller.clearSelection();
-	    		canvas.drawLayers();
-			}
-	    };
+                controller.clearSelection();
+                canvas.drawLayers();
+            }
+        };
 
-	    var window_onscroll = function(e) {
-	    	var layers = canvas.getLayers();
-    		var n = layers.length;
-    		var i = 0;
+        var window_onscroll = function(e) {
+            var layers = canvas.getLayers();
+            var n = layers.length;
+            var i = 0;
 
-    		for (; i < n; ++i) {
-    			if ('node' in layers[i]) {
-    				if ('func' in layers[i].node && layers[i].node.func != 'reserved') {
-    					if ('y1' in layers[i]) {
-    						layers[i].y1 += 10 * e.originalEvent.wheelDelta / 120;
-    						layers[i].y2 += 10 * e.originalEvent.wheelDelta / 120;
-    					} else {
-    						layers[i].y += 10 * e.originalEvent.wheelDelta / 120;
-    					}
-    				}
-    			}
-    		}
+            for (; i < n; ++i) {
+                if ('node' in layers[i]) {
+                    if ('func' in layers[i].node && layers[i].node.func != 'reserved') {
+                        if ('y1' in layers[i]) {
+                            layers[i].y1 += 10 * e.originalEvent.wheelDelta / 120;
+                            layers[i].y2 += 10 * e.originalEvent.wheelDelta / 120;
+                        } else {
+                            layers[i].y += 10 * e.originalEvent.wheelDelta / 120;
+                        }
+                    }
+                }
+            }
 
-    		canvas.drawLayers();
-	    };
+            canvas.drawLayers();
+        };
 
-	    $(window).keydown(window_onkeydown);
-	    $(window).bind('mousewheel', window_onscroll);
-	    canvas.mousemove(canvas_onmousemove);
+        $(window).keydown(window_onkeydown);
+        $(window).bind('mousewheel', window_onscroll);
+        canvas.mousemove(canvas_onmousemove);
 
-	    canvasObj.fitToScreen();
+        canvasObj.fitToScreen();
 
-		menu.create();
+        menu.create();
 
-		relationship.initialize();
-	};
+        relationship.initialize();
+    };
 
-	initialize();
+    initialize();
 });
