@@ -29,6 +29,12 @@ define(['jquery', 'app/controller'], function ($, controller) {
 	    		MouseHelper()._doubleClick = true;
 	    	}
 			MouseHelper()._doubleClick_last = e.timeStamp;
+
+			var selection = controller.getSelection();
+	    	if (selection != null) {
+	    		selection.strokeStyle = "#000";
+	    		controller.clearSelection();
+	    	}
 	    };
 
 		this._window_onmousedown = function(e) {

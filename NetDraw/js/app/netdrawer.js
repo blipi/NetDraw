@@ -41,8 +41,6 @@ define(function (require) {
 	    };
 
 	    var window_onscroll = function(e) {
-	    	console.log(e);
-	    	
 	    	var layers = canvas.getLayers();
     		var n = layers.length;
     		var i = 0;
@@ -50,13 +48,21 @@ define(function (require) {
     		for (; i < n; ++i) {
     			if ('node' in layers[i]) {
     				if ('func' in layers[i].node && layers[i].node.func != 'reserved') {
-    					layers[i].translateY += transformAmount;
+    					if ('y1' in layers[i]) {
+    						layers[i].y1 += 10 * e.originalEvent.wheelDelta / 120;
+    						layers[i].y2 += 10 * e.originalEvent.wheelDelta / 120;
+    					} else {
+    						layers[i].y += 10 * e.originalEvent.wheelDelta / 120;
+    					}
     				}
     			}
     		}
-	    }
+
+    		canvas.drawLayers();
+	    };
 
 	    $(window).keydown(window_onkeydown);
+	    $(window).bind('mousewheel', window_onscroll);
 	    canvas.mousemove(canvas_onmousemove);
 
 	    canvasObj.fitToScreen();
