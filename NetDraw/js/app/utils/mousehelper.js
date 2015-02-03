@@ -1,0 +1,47 @@
+define(function (require) {
+    "use strict";
+    
+    var $ = require('jquery'),
+        controller = require('app/controller');
+
+	var MouseHelper = function() {
+
+		if ( MouseHelper.prototype._instance ) {
+			return MouseHelper.prototype._instance;
+		}
+		
+		MouseHelper.prototype._instance = this;
+
+		this._doubleClick = false;
+		this._doubleClick_last = 0;
+
+		this._canvas_onclick = function(e) {
+	    	MouseHelper()._doubleClick = false;
+	    	MouseHelper()._doubleClick_last = e.timeStamp;
+
+	    	var selection = controller.getSelection();
+	    	if (selection != null) {
+	    		selection.strokeStyle = "#000";
+	    		controller.clearSelection();
+	    	}
+	    };
+
+	    this._canvas_onmousedown = function(e){
+	    	if (e.timeStamp - MouseHelper()._doubleClick_last < 200) {
+	    		MouseHelper()._doubleClick = true;
+	    	}
+			MouseHelper()._doubleClick_last = e.timeStamp;
+	    };
+
+	    this.isDoubleClick = function() {
+			return this._doubleClick;
+		}
+	};
+
+	var mouseHelper = new MouseHelper();
+    var canvas = controller.getCanvas();
+    canvas.click(mouseHelper._canvas_onclick);
+    canvas.mousedown(mouseHelper._canvas_onmousedown);
+
+    return mouseHelper;
+});
