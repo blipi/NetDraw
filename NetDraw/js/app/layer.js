@@ -37,6 +37,10 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
 
             // Remove line itself
             canvas.removeLayer(layer);
+
+            if ('input' in layer.node) {
+                layer.node.input.remove();
+            }
         },
 
         create: function(x, y, type, visibility) {
@@ -93,8 +97,7 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
                 canvasLayer = Layer.create(layer.x, layer.y, layer.node.name, true);
                 Layer.createTopPoint(canvasLayer);
                 canvasLayer.node.counter = _realCounter;
-                canvasLayer.node.netName = canvasLayer.node.name + '_' + _realCounter;
-                canvasLayer.node.textElement.text = canvasLayer.node.netName;
+                canvasLayer.node.textElement.text = canvasLayer.node.name + '_' + _realCounter;
                 canvasLayer.node.textElement.node.func = 'text';
                 canvasLayer.node.func = 'main';
 
@@ -134,7 +137,6 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
                     func: 'reserved',
                     name: type,
                     id: type + '_' + _counter,
-                    netName: '',
 
                     textElement: null,
                     top: null,
@@ -147,6 +149,43 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
 
             var currentLayer = canvas.getLayer(-1);
             controller.createLayerMappings(currentLayer);
+
+            var text_onclick = function(layer) {
+                if (mouse.isDoubleClick() && layer.node.func == 'text') {
+                    var input = $('<input>');
+                    input.attr({
+                        id: layer.node.parent.node.id,
+                        type: 'text',
+                        value: layer.text
+                    })
+                    .css({
+                        position: 'absolute',
+                        left: layer.x - 45,
+                        top: layer.y - 7,
+                        width: 100,
+                        height: 20,
+                        'text-align': 'center'
+                    })
+                    .keydown(function(e){
+                        var code = e.keyCode || e.which;
+                        if (code == 13){
+                            if ($(this).val()) {
+                                layer.text = $(this).val();
+                                $(this).remove();
+                                canvas.drawLayers();
+                            }
+                        }
+
+                        // Avoid keys such as "DEL" to reach window
+                        e.stopPropagation();
+                    })
+                    .appendTo('body')
+                    .select();
+
+                    layer.node.input = input;
+                    controller.clearSelection();
+                }
+            };
 
             var textFeatures = faetures['text'];
             canvas.drawText({
@@ -166,7 +205,12 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
                     func: 'reserved'
                 },
 
-                click: function(layer) { layer.node.parent.click(layer.node.parent); },
+                click: function(layer) {
+                    text_onclick(layer);
+                    if (layer.node.parent.click) {
+                        layer.node.parent.click(layer.node.parent);
+                    }
+                },
                 dragstart: function(layer) { layer.node.parent.dragstart(layer.node.parent); },
                 drag: function(layer) { layer.node.parent.drag(layer.node.parent); },
                 dragstop: function(layer) { layer.node.parent.dragstop(layer.node.parent); },

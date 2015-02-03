@@ -14,9 +14,6 @@ define(['jquery', 'app/controller'], function ($, controller) {
         this._down = false;
 
         this._canvas_onclick = function(e) {
-            MouseHelper()._doubleClick = false;
-            MouseHelper()._doubleClick_last = e.timeStamp;
-
             var selection = controller.getSelection();
             if (selection != null) {
                 selection.strokeStyle = "#000";
@@ -27,6 +24,8 @@ define(['jquery', 'app/controller'], function ($, controller) {
         this._canvas_onmousedown = function(e) {
             if (e.timeStamp - MouseHelper()._doubleClick_last < 200) {
                 MouseHelper()._doubleClick = true;
+            } else {
+                MouseHelper()._doubleClick = false;
             }
             MouseHelper()._doubleClick_last = e.timeStamp;
 

@@ -27,7 +27,7 @@ define(function (require) {
             var code = e.keyCode || e.which;
             var selection = controller.getSelection();
 
-            if (code == 46 && selection != null) {
+            if (code == 46 && selection) {
 
                 if (relationship.is(selection)) {
                     relationship.remove(selection);
