@@ -1,23 +1,21 @@
-define(function (require) {
-    var $ = require('jquery'),
-        style = require('app/style'),
-        controller = require('app/controller'),
-        relationship = require('app/relationship'),
-        mouse = require('utils/mousehelper');
+define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mousehelper'], function($, style, controller, relationship, mouse) {
 
 	var canvas = controller.getCanvas();
 	var _counter = 0;
+	var _realCounter = 0;
 
     var Layer = {
     	remove: function(layer) {
+
+			console.log("[layer.remove] {" + layer.node.id + '}');
+
     		// Remove layer's text and top point
 			canvas.removeLayer(layer.node.textElement);
 			canvas.removeLayer(layer.node.top);
 
-			var mappings = controller.getMappings();
-			var fromRelationships = mappings['from'][layer.node.id];
-			var toRelationships = mappings['to'][layer.node.id];
-
+			var fromRelationships = controller.getMappingsFor('from', layer);
+			var toRelationships = controller.getMappingsFor('to', layer);
+			
 			var n = fromRelationships.length;
 			var i = 0;
 
@@ -31,18 +29,18 @@ define(function (require) {
 
 			// Delete all relationships ending to this node
 			for (; i < n; ++i) {
-				relationship.remove(fromRelationships[i]);
+				relationship.remove(toRelationships[i]);
 			}
 
 			// Remove layer mappings
-			controller.removeLayerMappings(selection);
+			controller.removeLayerMappings(layer);
 
 			// Remove line itself
-			canvas.removeLayer(line);
+			canvas.removeLayer(layer);
     	},
 
     	create: function(x, y, type, visibility) {
-			console.log("[createLayer] {" + x + "," + y + "," + type + "}");
+			console.log("[layer.create] {" + x + "," + y + "," + type + "}");
 
 			var faetures = style.featuresMapping[type];
 
@@ -56,6 +54,7 @@ define(function (require) {
 				layer.dragstart = function(layer){
 					var front = canvas.getLayers().length;
 					canvas.moveLayer(layer, front);
+					controller.setSelection(layer);
 				}
 			};
 
@@ -93,20 +92,21 @@ define(function (require) {
 			var rect_dragstop = function(layer) {
 				canvasLayer = Layer.create(layer.x, layer.y, layer.node.name, true);
 				Layer.createTopPoint(canvasLayer);
-				canvasLayer.node.counter = _.App.realCounter;
-				canvasLayer.node.netName = canvasLayer.node.name + '_' + _.App.realCounter;
-				canvasLayer.node.textElement.text = canvasLayer.node.id;
+				canvasLayer.node.counter = _realCounter;
+				canvasLayer.node.netName = canvasLayer.node.name + '_' + _realCounter;
+				canvasLayer.node.textElement.text = canvasLayer.node.netName;
+				canvasLayer.node.textElement.node.func = 'text';
 				canvasLayer.node.func = 'main';
 
-				++_.App.realCounter;
+				++_realCounter;
 
 				layer.x = layer.ox;
 				layer.y = layer.oy;
 				layer.node.textElement.x = layer.node.textElement.ox;
 				layer.node.textElement.y = layer.node.textElement.oy;
 
-				canvasLayer.dragstop = function(layer){
-				}
+				canvasLayer.dragstop = function(layer){}
+				canvasLayer.click = rect_click;
 			};
 
 
@@ -140,17 +140,13 @@ define(function (require) {
 					top: null,
 				},
 
-				click: rect_click,
 				dragstart: rect_ondragstart,
 				drag: rect_drag,
 				dragstop: rect_dragstop
 			});
 
 			var currentLayer = canvas.getLayer(-1);
-			var mappings = controller.getMappings();
-			
-			mappings['from'][currentLayer.node.id] = [];
-			mappings['to'][currentLayer.node.id] = [];
+			controller.createLayerMappings(currentLayer);
 
 			var textFeatures = faetures['text'];
 			canvas.drawText({
@@ -166,7 +162,8 @@ define(function (require) {
 				visible: visibility,
 
 				node: {
-					parent: currentLayer
+					parent: currentLayer,
+					func: 'reserved'
 				},
 
 				click: function(layer) { layer.node.parent.click(layer.node.parent); },
@@ -182,6 +179,281 @@ define(function (require) {
 
 			++_counter;
 			return currentLayer;
+		},
+
+		createTopPoint: function(layer) {
+			console.log('[layer.createTopPoint] {' + layer.node.id + '}');
+		    var features = style.featuresMapping[layer.node.name];
+
+		    var top_onclick = function(layer) {
+				layer.draggable = true;
+				layer.node.parent.draggable = true;
+				layer.node.parent.click(layer.node.parent);
+		    };
+
+		    var top_mousedown = function(layer) {
+				if (!mouse.isDoubleClick())
+					return;
+
+				layer.draggable = false;
+				layer.node.parent.draggable = false;
+
+
+				var line_click = function(layer) {
+					controller.setSelection(layer);
+					layer.strokeStyle = "#a23";
+				}
+
+				canvas.drawLine({
+					strokeStyle: '#000',
+					layer: true,
+					endArrow: true,
+					strokeWidth: 2,
+					rounded: true,
+					arrowRadius: 15,
+					arrowAngle: 90,
+					x: 0, y: 0,
+					x1: layer.x, y1: layer.y,
+					x2: layer.x, y2: layer.y,
+
+					node: {
+						func: 'line',
+						from: layer.node.parent,
+						to: null,
+						bottom: null,
+					},
+
+					click: line_click
+				});
+
+				controller.setDrawingLine(canvas.getLayer(-1));
+			};
+
+			var top_mouseout = function(layer) {
+				if (!mouse.isDoubleClick())
+					return;
+
+				layer.draggable = true;
+				layer.node.parent.draggable = true;
+			};
+
+			var top_dragstart = function(layer) {
+				if (mouse.isDoubleClick()) {
+					return;
+				}
+
+				layer.groups = [];
+				layer.dragGroups = [];
+			};
+
+			var top_drag = function(layer) {
+				if (mouse.isDoubleClick()) {
+					return;
+				}
+
+				var rx = layer.x - layer.node.parent.x;
+				var ry = layer.y - layer.node.parent.y;
+				var d = layer.strokeMid;
+
+				// Left border?
+				if (rx <= d) {
+					layer.x = layer.node.parent.x + d;
+					if (ry < 0) {
+						layer.y = layer.node.parent.y + d;
+					}
+					else if (ry > 50) {
+						layer.y = layer.node.parent.y + 50 - d;	
+					}
+				}
+				// Right border?
+				else if (rx >= 100 - d) {
+					layer.x = layer.node.parent.x + 100 - d;
+					if (ry < 0) {
+						layer.y = layer.node.parent.y + d;
+					}
+					else if (ry > 50) {
+						layer.y = layer.node.parent.y + 50 - d;	
+					}
+				}
+				else if (ry < 25) {
+					layer.y = layer.node.parent.y + d;
+				}
+				else {
+					layer.y = layer.node.parent.y + 50 - d;	
+				}
+
+				var fromRelationships = controller.getMappingsFor('from', layer.node.parent);
+
+				var n = fromRelationships.length;
+				var i = 0;
+
+				for (; i < n; ++i) {
+					var line = fromRelationships[i];
+					line.x1 = layer.x;
+					line.y1 = layer.y;
+				}
+			};
+
+			var top_dragstop = function(layer) {
+				if (mouse.isDoubleClick())
+					return;
+
+				layer.groups = [layer.node.parent.node.id];
+				layer.dragGroups = [layer.node.parent.node.id];
+			};
+
+			var circleFeatures = features['top'];
+			canvas.drawArc({
+				layer: true,
+				bringToFront: true,
+				strokeStyle: circleFeatures['strokeStyle'],
+				strokeWidth: circleFeatures['strokeWidth'],
+				strokeMid: features['strokeWidth'] / 2 - 1.5,
+				fillStyle: circleFeatures['fillStyle'],
+
+				x: layer.x + 100/2 - 1.5, y: layer.y + features['strokeWidth'] / 2 - 1.5,
+				radius: 5,
+
+				groups: [layer.node.id],
+				dragGroups: [layer.node.id],
+
+				node: {
+					parent: layer,
+					func: 'top'
+				},
+
+				click: top_onclick,
+				mousedown: top_mousedown,
+				mouseout: top_mouseout,
+				dragstart: top_dragstart,
+				drag: top_drag,
+				dragstop: top_dragstop,
+			});
+
+			layer.node.top = canvas.getLayer(-1);
+		},
+
+		createBottomPoint: function(layer, ex, ey) {
+			console.log('[createBottomPoint] {' + layer.node.id + '}');
+		    var features = style.featuresMapping[layer.node.name];
+
+			var bottom_onclick = function(layer) {
+				layer.draggable = true;
+				layer.node.parent.draggable = true;
+		    };
+
+		    var bottom_onmousedown = function(layer) {
+				if (!mouse.isDoubleClick())
+					return;
+
+				layer.draggable = false;
+				layer.node.parent.draggable = false;
+			};
+
+			var bottom_onmouseout = function(layer) {
+				if (!mouse.isDoubleClick())
+					return;
+
+				layer.draggable = true;
+				layer.node.parent.draggable = true;
+			};
+
+			var bottom_ondragstart = function(layer) {
+				if (mouse.isDoubleClick()) {
+					return;
+				}
+
+				layer.groups = [];
+				layer.dragGroups = [];
+			};
+
+			var bottom_ondrag = function(layer) {
+				if (mouse.isDoubleClick()) {
+					return;
+				}
+
+				var rx = layer.x - layer.node.parent.x;
+				var ry = layer.y - layer.node.parent.y;
+				var d = layer.strokeMid;
+
+				// Left border?
+				if (rx <= d) {
+					layer.x = layer.node.parent.x + d;
+					if (ry < 0) {
+						layer.y = layer.node.parent.y + d;
+					}
+					else if (ry > 50) {
+						layer.y = layer.node.parent.y + 50 - d;	
+					}
+				}
+				// Right border?
+				else if (rx >= 100 - d) {
+					layer.x = layer.node.parent.x + 100 - d;
+					if (ry < 0) {
+						layer.y = layer.node.parent.y + d;
+					}
+					else if (ry > 50) {
+						layer.y = layer.node.parent.y + 50 - d;	
+					}
+				}
+				else if (ry < 25) {
+					layer.y = layer.node.parent.y + d;
+				}
+				else {
+					layer.y = layer.node.parent.y + 50 - d;	
+				}
+
+				var toRelationships = controller.getMappingsFor('to', layer.node.parent);
+
+				var n = toRelationships.length;
+				var i = 0;
+
+				for (; i < n; ++i) {
+					var line = toRelationships[i];
+					if (line.node.bottom == layer) {
+						line.x2 = layer.x;
+						line.y2 = layer.y;
+					}
+				}
+			};
+
+			var bottom_ondragstop = function(layer) {
+				if (mouse.isDoubleClick())
+					return;
+
+				layer.groups = [layer.node.parent.node.id];
+				layer.dragGroups = [layer.node.parent.node.id];
+			};
+
+			var circleFeatures = features['bottom'];
+			canvas.drawArc({
+				layer: true,
+				bringToFront: true,
+				strokeStyle: circleFeatures['strokeStyle'],
+				strokeWidth: circleFeatures['strokeWidth'],
+				strokeMid: features['strokeWidth'] / 2 - 1.5,
+				fillStyle: circleFeatures['fillStyle'],
+
+				x: ex, y: ey + features['strokeWidth'] / 2 - 1.5,
+				radius: 5,
+
+				groups: [layer.node.id],
+				dragGroups: [layer.node.id],
+
+				node: {
+					parent: layer,
+					func: 'bottom'
+				},
+
+				click: bottom_onclick,
+				mousedown: bottom_onmousedown,
+				mouseout: bottom_onmouseout,
+				dragstart: bottom_ondragstart,
+				drag: bottom_ondrag,
+				dragstop: bottom_ondragstop,
+			});
+
+			return canvas.getLayer(-1);
 		}
     };
 

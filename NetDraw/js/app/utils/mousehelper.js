@@ -1,8 +1,5 @@
-define(function (require) {
+define(['jquery', 'app/controller'], function ($, controller) {
     "use strict";
-    
-    var $ = require('jquery'),
-        controller = require('app/controller');
 
 	var MouseHelper = function() {
 
@@ -14,6 +11,7 @@ define(function (require) {
 
 		this._doubleClick = false;
 		this._doubleClick_last = 0;
+		this._down = false;
 
 		this._canvas_onclick = function(e) {
 	    	MouseHelper()._doubleClick = false;
@@ -26,15 +24,27 @@ define(function (require) {
 	    	}
 	    };
 
-	    this._canvas_onmousedown = function(e){
+	    this._canvas_onmousedown = function(e) {
 	    	if (e.timeStamp - MouseHelper()._doubleClick_last < 200) {
 	    		MouseHelper()._doubleClick = true;
 	    	}
 			MouseHelper()._doubleClick_last = e.timeStamp;
 	    };
 
+		this._window_onmousedown = function(e) {
+	    	MouseHelper()._down = true;
+	    }
+
+	    this._window_onmouseup = function(e) {
+	    	MouseHelper()._down = false;
+	    }
+
 	    this.isDoubleClick = function() {
 			return this._doubleClick;
+		}
+
+	    this.isDown = function() {
+			return this._down;
 		}
 	};
 
@@ -42,6 +52,10 @@ define(function (require) {
     var canvas = controller.getCanvas();
     canvas.click(mouseHelper._canvas_onclick);
     canvas.mousedown(mouseHelper._canvas_onmousedown);
+
+    $(window).mousedown(mouseHelper._window_onmousedown);
+    $(window).mouseup(mouseHelper._window_onmouseup);
+
 
     return mouseHelper;
 });

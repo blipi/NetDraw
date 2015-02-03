@@ -1,4 +1,7 @@
-define(['jquery', 'jcanvas'], function ($) {
+define(function (require) {
+
+	var $ = require('jquery');
+	require('jcanvas');
 
 	var Controller = function() {
 
@@ -28,8 +31,8 @@ define(['jquery', 'jcanvas'], function ($) {
 			return this._selection;
 		}
 
-		this.setSelection = function(s) {
-			this._selection = s;
+		this.setSelection = function(selection) {
+			this._selection = selection;
 		}
 
 		this.clearSelection = function() {
@@ -40,8 +43,20 @@ define(['jquery', 'jcanvas'], function ($) {
 			return this._drawingLine;
 		}
 
+		this.setDrawingLine = function(drawingLine) {
+			this._drawingLine = drawingLine;
+		}
+
+		this.clearDrawingLine = function() {
+			this._drawingLine = null;
+		}
+
 		this.getMappings = function() {
 			return this._mappings;
+		}
+
+		this.getMappingsFor = function(origin, layer) {
+			return this._mappings[origin][layer.node.id];
 		}
 
 		this.removeMapping = function(origin, id, line) {
@@ -62,6 +77,10 @@ define(['jquery', 'jcanvas'], function ($) {
 		this.removeLayerMappings = function(layer) {
 			this._mappings['from'][layer.node.id] = [];
 			this._mappings['to'][layer.node.id] = [];
+		}
+
+		this.createLayerMappings = function(layer) {
+			this.removeLayerMappings(layer);
 		}
 	};
 
