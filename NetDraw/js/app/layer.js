@@ -1,4 +1,4 @@
-define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mousehelper'], function($, style, controller, relationship, mouse) {
+define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship', 'utils/mousehelper'], function($, pb, style, controller, relationship, mouse) {
 
     var canvas = controller.getCanvas();
     var _counter = 0;
@@ -38,19 +38,62 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
             // Remove line itself
             canvas.removeLayer(layer);
 
-            if ('input' in layer.node) {
+            if ('input' in layer.node && layer.node.input) {
                 layer.node.input.remove();
+            }
+
+            if ('params_input' in layer.node && layer.node.params_input) {
+                layer.node.params_input.remove();
             }
         },
 
         create: function(x, y, type, visibility) {
             console.log("[layer.create] {" + x + "," + y + "," + type + "}");
 
-            var faetures = style.featuresMapping[type];
+            var features = style.featuresMapping[type];
 
             var rect_click = function(layer) {
                 controller.setSelection(layer);
                 layer.strokeStyle = "#a23";
+
+                if (mouse.isDoubleClick() && layer.node.func == 'main') {
+                    if (layer.node.params_input)
+                        return;
+
+                    var input = $('<textarea>');
+                    input.attr({
+                        id: layer.node.id
+                    })
+                    .css({
+                        position: 'absolute',
+                        left: layer.x + 110,
+                        top: layer.y - 20,
+                        width: 200,
+                        height: 100,
+                        border: '2px solid #000',
+                        'border-radius': '2px'
+                    })
+                    .keydown(function(e){
+                        var code = e.keyCode || e.which;
+                        if (code == 13 && e.ctrlKey){
+                            layer.node.params = $(this).val();
+                            $(this).remove();
+                            layer.node.params_input = null;
+
+                            console.log(pb.getJSON(layer.node.params));
+                        }
+
+                        // Avoid keys such as "DEL" to reach window
+                        e.stopPropagation();
+                    })
+                    .bind('mousewheel', function(e){
+                        e.stopPropagation();
+                    })
+                    .appendTo('body')
+                    .val(layer.node.params);
+
+                    layer.node.params_input = input;
+                }
             }
 
             /* Forward declaration of handlers */
@@ -85,6 +128,20 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
                     var line = toRelationships[i];
                     line.x2 = line.node.bottom.x;
                     line.y2 = line.node.bottom.y;
+                }
+
+                if ('input' in layer.node.textElement.node && layer.node.textElement.node.input) {
+                    layer.node.textElement.node.input.css({
+                        left: layer.node.textElement.x - 45,
+                        top: layer.node.textElement.y - 7
+                    });
+                }
+
+                if ('params_input' in layer.node && layer.node.params_input) {
+                    layer.node.params_input.css({
+                        left: layer.x + 110,
+                        top: layer.y - 20
+                    });
                 }
 
 
@@ -126,9 +183,9 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
                 cornerRadius: 2,
                 visible: visibility,
 
-                strokeStyle: faetures['strokeStyle'],
-                strokeWidth: faetures['strokeWidth'],
-                fillStyle: faetures['fillStyle'],
+                strokeStyle: features['strokeStyle'],
+                strokeWidth: features['strokeWidth'],
+                fillStyle: features['fillStyle'],
 
                 groups: [type + '_' + _counter],
                 dragGroups: [type + '_' + _counter],
@@ -150,8 +207,17 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
             var currentLayer = canvas.getLayer(-1);
             controller.createLayerMappings(currentLayer);
 
+            if ('default' in features) {
+                currentLayer.node.params = pb.getProto(features['default']);
+            } else {
+                currentLayer.node.params = currentLayer.node.name + '_param {\n}';
+            }
+
             var text_onclick = function(layer) {
-                if (mouse.isDoubleClick() && layer.node.func == 'text') {
+                if (mouse.isDoubleClick() && layer.node.func == 'text') { 
+                    if (layer.node.input)
+                        return;
+
                     var input = $('<input>');
                     input.attr({
                         id: layer.node.parent.node.id,
@@ -173,6 +239,7 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
                                 layer.text = $(this).val();
                                 $(this).remove();
                                 canvas.drawLayers();
+                                layer.node.input = null;
                             }
                         }
 
@@ -184,10 +251,14 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
 
                     layer.node.input = input;
                     controller.clearSelection();
+
+                    return true;
                 }
+
+                return false;
             };
 
-            var textFeatures = faetures['text'];
+            var textFeatures = features['text'];
             canvas.drawText({
                 layer: true,
                 fillStyle: textFeatures['fillStyle'],
@@ -206,8 +277,7 @@ define(['jquery', 'app/style', 'app/controller', 'app/relationship', 'utils/mous
                 },
 
                 click: function(layer) {
-                    text_onclick(layer);
-                    if (layer.node.parent.click) {
+                    if (!text_onclick(layer) && layer.node.parent.click) {
                         layer.node.parent.click(layer.node.parent);
                     }
                 },

@@ -24,6 +24,25 @@ define([], function(){
                     fillStyle: '#000',
                     strokeWidth: 2,
                     strokeStyle: '#FFF',                    
+                },
+
+                default: {
+                    convolution_param: {
+                        num_output: 0,
+                        kernel_size: 0,
+                        weight_filter: {
+                            type: 'constant',
+                            value: 0
+                        },
+                        bias_term: true,
+                        pad: 0,
+                        stride: 1,
+                        group: 1,
+                        bias_filler: {
+                            type: "constant",
+                            value: 0.2
+                        }
+                    }
                 }
             },
 
@@ -50,6 +69,15 @@ define([], function(){
                     fillStyle: '#000',
                     strokeWidth: 2,
                     strokeStyle: '#FFF',                    
+                },
+
+                default: {
+                    pooling_param: {
+                        kernel_size: 0,
+                        pool: 'MAX',
+                        pad: 0,
+                        stride: 1
+                    }
                 }
             },
 

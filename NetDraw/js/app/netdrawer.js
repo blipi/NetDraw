@@ -45,18 +45,28 @@ define(function (require) {
             var n = layers.length;
             var i = 0;
 
+            var offset = 10 * e.originalEvent.wheelDelta / 120;
+
             for (; i < n; ++i) {
                 if ('node' in layers[i]) {
                     if ('func' in layers[i].node && layers[i].node.func != 'reserved') {
                         if ('y1' in layers[i]) {
-                            layers[i].y1 += 10 * e.originalEvent.wheelDelta / 120;
-                            layers[i].y2 += 10 * e.originalEvent.wheelDelta / 120;
+                            layers[i].y1 += offset;
+                            layers[i].y2 += offset;
                         } else {
-                            layers[i].y += 10 * e.originalEvent.wheelDelta / 120;
+                            layers[i].y += offset;
                         }
                     }
                 }
             }
+
+            $('input').each(function(){
+                $(this).css('top', '+=' + offset)
+            })
+
+            $('textarea').each(function(){
+                $(this).css('top', '+=' + offset)
+            })
 
             canvas.drawLayers();
         };

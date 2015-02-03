@@ -1,6 +1,10 @@
 define(['jquery', 'app/controller'], function ($, controller) {
     "use strict";
 
+    if (!Date.now) {
+        Date.now = function() { return new Date().getTime(); }
+    }
+
     var MouseHelper = function() {
 
         if ( MouseHelper.prototype._instance ) {
@@ -45,7 +49,7 @@ define(['jquery', 'app/controller'], function ($, controller) {
         }
 
         this.isDoubleClick = function() {
-            return this._doubleClick;
+            return this._doubleClick && Date.now() - this._doubleClick_last < 500;
         }
 
         this.isDown = function() {
