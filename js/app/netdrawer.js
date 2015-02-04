@@ -1,5 +1,6 @@
 define(function (require) {
     var $ = require('jquery'),
+        pb = require('protobuf'),
         style = require('app/style'),
         menu = require('app/menu'),
         controller = require('app/controller'),

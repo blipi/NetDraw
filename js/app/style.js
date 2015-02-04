@@ -133,7 +133,7 @@ define([], function(){
                 }
             },
 
-            'softmax': {
+            'softmax_loss': {
                 fillStyle: '#d7dadd',
                 strokeWidth: 3,
                 strokeStyle: '#000',
@@ -296,6 +296,32 @@ define([], function(){
 
                 text : {
                     name: 'ReLU',
+                    fillStyle: '#000',
+                    strokeWidth: 1,
+                    strokeStyle: '#000',
+                    x: 50, y: 25,
+                },
+
+                top: {
+                    fillStyle: '#FFF',
+                    strokeWidth: 2,
+                    strokeStyle: '#000',                    
+                },
+
+                bottom: {
+                    fillStyle: '#000',
+                    strokeWidth: 2,
+                    strokeStyle: '#FFF',                    
+                }
+            },
+
+            'dropout': {
+                fillStyle: '#d7dadd',
+                strokeWidth: 3,
+                strokeStyle: '#000',
+
+                text : {
+                    name: 'Dropout',
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',

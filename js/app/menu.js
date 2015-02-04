@@ -1,9 +1,11 @@
-define(['jquery', 'app/layer', 'app/controller'], function($, layer, controller){
+define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller'], function($, pb, layer, relationship, controller){
 
     var canvas = controller.getCanvas();
     var instances = {};
+    var menuY = 50;
+    var menuSeparatorX = 150;
 
-    return {
+    var Menu = {
         groups: {
             'Vision Layers': {
                 'convolution' : {
@@ -57,7 +59,7 @@ define(['jquery', 'app/layer', 'app/controller'], function($, layer, controller)
 
 
             'Loss Layers': {
-                'softmax': {},
+                'softmax_loss': {},
                 'euclidean': {},
                 'hinge': {},
                 'sigmoid_gain': {},
@@ -69,6 +71,9 @@ define(['jquery', 'app/layer', 'app/controller'], function($, layer, controller)
                 'relu' : {
                     'in': ['n', 'c', 'h', 'w'],
                     'out': ['n', 'c', 'h', 'w']
+                },
+                'dropout': {
+
                 },
                 'sigmoid' : {
                     'in': ['n', 'c', 'h', 'w'],
@@ -164,8 +169,194 @@ define(['jquery', 'app/layer', 'app/controller'], function($, layer, controller)
             },
         },
 
+        createNet: function(net) {
+            console.log("[createNet] "); console.log(net);
+
+            var levelMapper = {};
+
+            var findLayer = function(search) {
+                var i = net['layers'].length;
+                while (--i >= 0) {
+                    var layer = net['layers'][i];
+
+                    if (('top' in layer && 
+                                ((typeof layer.top === 'string' && search == layer.top) || 
+                                ($.isArray(layer.top) && $.inArray(search, layer.top) >= 0))
+                            ) && 
+                        /*layer.top != layer.bottom &&*/
+                        layer.name in levelMapper) {
+
+                        console.log("FOUND " + search + " in " + layer.name + "(" + levelMapper[layer.name][0] + ")");
+                        console.log(layer);
+                        return layer;
+                    }
+                }
+
+                return null;
+            }
+
+            var i = 0;
+            var n = net['layers'].length;
+            var levels = {};
+            var currentLevel = 0;
+            for (; i < n; ++i) {
+                var current = net['layers'][i];
+                var found = false;
+
+                if (current.bottom && current.bottom != current.name) {
+                    var top = findLayer(current.bottom);
+                    if (top != null) {
+                        currentLevel = levelMapper[top.name][0] + 1;
+                        found = true;
+                    }
+                }
+
+                levelMapper[current.name] = [currentLevel, current];
+
+                if (!(currentLevel in levels)) {
+                    levels[currentLevel] = [];
+                }
+
+                levels[currentLevel].push(i);
+            }
+
+            console.log(levelMapper);
+
+            var netToLayers = {};
+            var y = parseInt(canvas.css('height'));
+            for (level in levels) {
+                var layersInLevel = levels[level];
+
+                console.log("===============");
+                console.log("Level " + level);
+
+                var x = 170;
+                for (var i = 0, len = levels[level].length; i < len; ++i) {
+                    var current = net['layers'][levels[level][i]];
+                    var outLayer = layer.createDefinitive(x, y, current.type.toLowerCase(), current.name, "{}");
+
+                    if (typeof current.top === 'string') {
+                        netToLayers[current.top] = outLayer;
+                    }
+                    else if ($.isArray(current.top))
+                    {
+                        for (i in current.top) {
+                            netToLayers[current.top[i]] = outLayer;
+                        }
+                    }
+
+                    if (typeof current.bottom === 'string') {
+                        console.log("Relationship " + current.bottom + "->" + current.name)
+                        relationship.create(netToLayers[current.bottom], outLayer);
+                    }
+                    else if ($.isArray(current.bottom))
+                    {
+                        for (k in current.bottom) {
+                            console.log("Relationship " + current.bottom[k] + "->" + current.name)
+                            relationship.create(netToLayers[current.bottom[k]], outLayer);
+                        }
+                    }                
+
+                    x += 160;
+                }
+
+                y -= 100;
+            }
+
+            console.log(netToLayers);
+
+            for (level in levels) {
+                var layersInLevel = levels[level];
+                for (var i = 0, current = null; current = levels[level][i]; ++i) {
+                    current = net['layers'][current];
+
+
+                }
+            }
+
+            canvas.drawLayers();
+        },
+
         create: function() {
-            var ey = 15;
+
+            var showImport = function() {
+                if ($('#import_prototxt').is(':visible'))
+                    return;
+
+                var textX = menuSeparatorX + 10;
+                var input = $('<textarea>');
+                input.attr({
+                    id: 'import_prototxt'
+                })
+                .css({
+                    position: 'absolute',
+                    left: textX,
+                    top: 10,
+                    width: 'calc(100% - ' + (textX + 20) + 'px)',
+                    height: 'calc(100% - 28px)',
+                    border: '2px solid #000',
+                    'border-radius': '2px'
+                })
+                .keydown(function(e){
+                    var code = e.keyCode || e.which;
+                    if (code == 13 && e.ctrlKey){
+                            var net = pb.parseProto($(this).val());
+                            Menu.createNet(net);
+                        try {
+                        }
+                        catch (err) {
+                            alert("Could not parse net prototxt file");
+                        }
+
+                        $(this).remove();
+                    }
+
+                    // Avoid keys such as "DEL" to reach window
+                    e.stopPropagation();
+                })
+                .bind('mousewheel', function(e){
+                    e.stopPropagation();
+                })
+                .appendTo('body');
+            }
+
+            // Import button
+            canvas.drawRect({
+                layer: true,
+                draggable: false,
+                fromCenter: false,
+                x: -3, y: 12,
+                width: 153,
+                height: 20,
+                cornerRadius: 0,
+
+                strokeStyle: "#000000",
+                strokeWidth: 2,
+                fillStyle: "#63ab2a",
+
+                click: showImport
+            });
+
+            var box = canvas.getLayer(-1);
+
+            /* Text */
+            canvas.drawText({
+                layer: true,
+                draggable: false,
+                fillStyle: "#000",
+                strokeStyle: "#000",
+                strokeWidth: 0,
+                fromCenter: false,
+                x: 20, y: 15,
+                fontSize: 13,
+                fontFamily: 'Verdana, sans-serif',
+                text: "Import prototxt",
+
+                click: showImport
+            });
+
+
+            var ey = menuY;
             for (group in this.groups) {
 
                 /* Box */
@@ -222,13 +413,13 @@ define(['jquery', 'app/layer', 'app/controller'], function($, layer, controller)
                             /* Expand */
                             for (g in instances) {
                                 $(this).animateLayer(instances[g][0], {
-                                    y: 12
+                                    y: menuY - 3
                                 }, 'medium', 'swing');
                                 $(this).animateLayer(instances[g][1], {
-                                    y: 23
+                                    y: menuY + 7
                                 }, 'medium', 'swing');
                                 $(this).animateLayer(instances[g][2], {
-                                    y: 15
+                                    y: menuY
                                 }, 'medium', 'swing');
                             }
 
@@ -247,7 +438,7 @@ define(['jquery', 'app/layer', 'app/controller'], function($, layer, controller)
                                 instances[layer.g][3][l].node.textElement.visible = true;
                             }
                         } else {
-                            var ey = 15;
+                            var ey = menuY;
                             
                             for (l in instances[layer.g][3]) {
                                 instances[layer.g][3][l].visible = false;
@@ -287,7 +478,7 @@ define(['jquery', 'app/layer', 'app/controller'], function($, layer, controller)
                 console.log(group);
 
                 for (l in this.groups[group]) {
-                    layers.push(layer.create(25, 40 + 60*i, l, false));
+                    layers.push(layer.create(25, menuY + 25 + 60*i, l, false));
                     i += 1;
                 }
 
@@ -300,9 +491,11 @@ define(['jquery', 'app/layer', 'app/controller'], function($, layer, controller)
                 strokeStyle: '#000',
                 layer: true,
                 strokeWidth: 3,
-                x1: 150, y1: 0,
-                x2: 150, y2: 9000,
+                x1: menuSeparatorX, y1: 0,
+                x2: menuSeparatorX, y2: 9000,
             });
         }
-    }
+    };
+
+    return Menu;
 });

@@ -94,6 +94,33 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
 
             // Remove from mappings
             controller.removeBothMappings(line);
+        },
+
+        create: function(bot, top) {
+            console.log('[relationship.create] {' + bot.node.id + ',' + top.node.id + '}');
+
+            canvas.drawLine({
+                strokeStyle: '#000',
+                layer: true,
+                endArrow: true,
+                strokeWidth: 2,
+                rounded: true,
+                arrowRadius: 15,
+                arrowAngle: 90,
+                x: 0, y: 0,
+                x1: bot.x, y1: bot.y,
+                x2: top.x, y2: top.y,
+
+                node: {
+                    func: 'line',
+                    from: bot,
+                    to: null,
+                    bottom: null,
+                }
+            });
+
+            controller.setDrawingLine(canvas.getLayer(-1));
+            _validateRelationship();
         }
     }
 });
