@@ -203,8 +203,16 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 var current = net['layers'][i];
                 var found = false;
 
-                if (current.bottom && current.bottom != current.name) {
-                    var top = findLayer(current.bottom);
+                var bottomName = current.bottom;
+                if ($.isArray(current.bottom))
+                {
+                    // Simply use the 1st one, we are not interested in relationships (yet)
+                    // only in jerarchy
+                    bottomName = current.bottom[0];
+                }  
+
+                if (current.bottom && bottomName != current.name) {
+                    var top = findLayer(bottomName);
                     if (top != null) {
                         currentLevel = levelMapper[top.name][0] + 1;
                         found = true;
@@ -235,16 +243,6 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                     var current = net['layers'][levels[level][i]];
                     var outLayer = layer.createDefinitive(x, y, current.type.toLowerCase(), current.name, "{}");
 
-                    if (typeof current.top === 'string') {
-                        netToLayers[current.top] = outLayer;
-                    }
-                    else if ($.isArray(current.top))
-                    {
-                        for (i in current.top) {
-                            netToLayers[current.top[i]] = outLayer;
-                        }
-                    }
-
                     if (typeof current.bottom === 'string') {
                         console.log("Relationship " + current.bottom + "->" + current.name)
                         relationship.create(netToLayers[current.bottom], outLayer);
@@ -255,7 +253,17 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                             console.log("Relationship " + current.bottom[k] + "->" + current.name)
                             relationship.create(netToLayers[current.bottom[k]], outLayer);
                         }
-                    }                
+                    }    
+
+                    if (typeof current.top === 'string') {
+                        netToLayers[current.top] = outLayer;
+                    }
+                    else if ($.isArray(current.top))
+                    {
+                        for (i in current.top) {
+                            netToLayers[current.top[i]] = outLayer;
+                        }
+                    }            
 
                     x += 160;
                 }

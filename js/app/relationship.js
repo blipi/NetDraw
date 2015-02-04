@@ -108,8 +108,8 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 arrowRadius: 15,
                 arrowAngle: 90,
                 x: 0, y: 0,
-                x1: bot.x, y1: bot.y,
-                x2: top.x, y2: top.y,
+                x1: bot.node.top.x, y1: bot.node.top.y,
+                x2: top.node.top.x, y2: top.node.top.y + 26,
 
                 node: {
                     func: 'line',
