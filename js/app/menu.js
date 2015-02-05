@@ -301,7 +301,7 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 var x = 170 + (maxWidth / 2) - (len * layerSeparation.x / 2);
                 for (var i = 0; i < len; ++i) {
                     var current = net['layers'][levels[level][i]];
-                    var outLayer = layer.createDefinitive(x, y, current.type.toLowerCase(), current.name, "{}");
+                    var outLayer = layer.createDefinitive(x, y, current.type.toLowerCase(), current.name, current);
 
                     createRelationship(current, outLayer);
                     addToNetLayers(current, outLayer);          

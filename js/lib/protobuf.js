@@ -83,19 +83,44 @@ define([], function(){
 
 		getProto: function(input) {
 			input = JSON.stringify(input);
+
+			console.log(input);
+
+			// Transform JSON arrays [] to protobuf repeateable
+			var regex_pre = /((['"])?([a-zA-Z0-9_\-.\/]+)(['"])?):\[([^\]]*)\]/g;
+			var result;
+			while (result = regex_pre.exec(input)) {
+				var subs = "";
+			    var poi_pre = result[1];
+				var poi_post = result[5];
+
+				result.length = result[0].length; // 3 is :[]
+				
+				poi_post = poi_post.split(",");
+				var len = poi_post.length;
+				for (var i = 0; i < len; ++i) {
+					if (i > 0)
+						subs += ",";
+					subs += poi_pre + ":" + poi_post[i];
+				}
+
+				input = [input.slice(0, result.index), subs, input.slice(result.index + result.length)].join('');
+			}
+
 			input = input.substring(1, input.length - 1);
 			input = input.replace(/(['"])?([a-zA-Z0-9_\-.\/]+)(['"])?:/g, '$2: ');
 			//input = input.replace(/(['"])?([a-zA-Z0-9_.]+)(['"])?,/g, '$2,');
-			input = input.replace(/}/g, '\r\n}');
+			input = input.replace(/}/g, "\r\n}");
 			input = input.replace(/,/g, "\r\n");
 			input = input.replace(/:?( )?{/g, " {\r\n");
+			input = input.replace(/"([0-9.]+)"/g, '$1');
 
 			// Fix tabulation
-			var output = input;
+			output = input;
 			var spaces = 0;
 			var wait = 1;
 			var self = 0;
-			var i = input.length;
+			i = input.length;
 			while (--i) {
 				var c = input.charAt(i);
 

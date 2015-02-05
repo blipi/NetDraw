@@ -80,7 +80,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                             $(this).remove();
                             layer.node.params_input = null;
 
-                            console.log(pb.getJSON(layer.node.params));
+                            //console.log(pb.getJSON(layer.node.params));
                         }
 
                         // Avoid keys such as "DEL" to reach window
@@ -328,7 +328,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                             $(this).remove();
                             layer.node.params_input = null;
 
-                            console.log(pb.getJSON(layer.node.params));
+                            //console.log(pb.getJSON(layer.node.params));
                         }
 
                         // Avoid keys such as "DEL" to reach window
