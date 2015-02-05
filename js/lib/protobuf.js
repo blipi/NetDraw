@@ -113,7 +113,9 @@ define([], function(){
 			input = input.replace(/}/g, "\r\n}");
 			input = input.replace(/,/g, "\r\n");
 			input = input.replace(/:?( )?{/g, " {\r\n");
-			input = input.replace(/"([0-9.]+)"/g, '$1');
+			input = input.replace(/"([0-9.]+)"/g, '$1'); // Numbers are not quoted in protobuf
+			input = input.replace(/"(false|true)"/g, '$1'); // Non quoted special words
+			input = input.replace(/"([A-Z]+)"/g, '$1'); // In general, capitalized words are neither quoted
 
 			// Fix tabulation
 			output = input;
