@@ -290,6 +290,7 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
             }
 
 
+            var centerX = (parseInt(canvas.css('width')) - 170) / 2 - maxWidth / 2;
             var y = parseInt(canvas.css('height'));
             for (level in levels) {
                 var layersInLevel = levels[level];
@@ -298,7 +299,7 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 console.log("Level " + level);
 
                 var len = levels[level].length;
-                var x = 170 + (maxWidth / 2) - (len * layerSeparation.x / 2);
+                var x = 170 + centerX + (maxWidth / 2) - (len * layerSeparation.x / 2);
                 for (var i = 0; i < len; ++i) {
                     var current = net['layers'][levels[level][i]];
                     var outLayer = layer.createDefinitive(x, y, current.type.toLowerCase(), current.name, current);
