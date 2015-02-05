@@ -239,6 +239,57 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
             var maxWidth = maxLayersPerLevel*layerSeparation.x;
 
             var netToLayers = {};
+            var addToNetLayers = function(netLayer, outLayer) {
+                var _addTop = function(top) {
+                    if (netLayer.include) {
+                        if (!netToLayers[top] || !$.isArray(netToLayers[top]))
+                        {
+                            netToLayers[top] = [];
+                        }
+                        netToLayers[top].push(outLayer);
+                    }
+                    else {
+                        netToLayers[top] = outLayer;
+                    }
+                }
+
+                if (typeof netLayer.top === 'string') {
+                    _addTop(netLayer.top);
+                }
+                else if ($.isArray(netLayer.top))
+                {
+                    for (k in netLayer.top) {
+                        _addTop(netLayer.top[k]);
+                    }
+                }  
+            }
+
+            var createRelationship = function(netLayer, outLayer) {
+                var _create = function(bottom) {
+                    if ($.isArray(netToLayers[bottom])) {
+                        for (k in netToLayers[bottom]) {
+                            relationship.create(netToLayers[bottom][k], outLayer);
+                        }
+                    }
+                    else {
+                        relationship.create(netToLayers[bottom], outLayer);
+                    }
+                }
+
+                if (typeof netLayer.bottom === 'string') {
+                    console.log("Relationship " + netLayer.bottom + "->" + netLayer.name)
+                    _create(netLayer.bottom);
+                }
+                else if ($.isArray(netLayer.bottom))
+                {
+                    for (k in netLayer.bottom) {
+                        console.log("Relationship " + netLayer.bottom[k] + "->" + netLayer.name)
+                        _create(netLayer.bottom[k]);
+                    }
+                }   
+            }
+
+
             var y = parseInt(canvas.css('height'));
             for (level in levels) {
                 var layersInLevel = levels[level];
@@ -252,43 +303,13 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                     var current = net['layers'][levels[level][i]];
                     var outLayer = layer.createDefinitive(x, y, current.type.toLowerCase(), current.name, "{}");
 
-                    if (typeof current.bottom === 'string') {
-                        console.log("Relationship " + current.bottom + "->" + current.name)
-                        relationship.create(netToLayers[current.bottom], outLayer);
-                    }
-                    else if ($.isArray(current.bottom))
-                    {
-                        for (k in current.bottom) {
-                            console.log("Relationship " + current.bottom[k] + "->" + current.name)
-                            relationship.create(netToLayers[current.bottom[k]], outLayer);
-                        }
-                    }    
-
-                    if (typeof current.top === 'string') {
-                        netToLayers[current.top] = outLayer;
-                    }
-                    else if ($.isArray(current.top))
-                    {
-                        for (i in current.top) {
-                            netToLayers[current.top[i]] = outLayer;
-                        }
-                    }            
+                    createRelationship(current, outLayer);
+                    addToNetLayers(current, outLayer);          
 
                     x += 160;
                 }
 
                 y -= 100;
-            }
-
-            console.log(netToLayers);
-
-            for (level in levels) {
-                var layersInLevel = levels[level];
-                for (var i = 0, current = null; current = levels[level][i]; ++i) {
-                    current = net['layers'][current];
-
-
-                }
             }
 
             canvas.drawLayers();
