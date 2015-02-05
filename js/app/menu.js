@@ -228,7 +228,15 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 levels[currentLevel].push(i);
             }
 
-            console.log(levelMapper);
+            // Find out the max number of layers in a level of the net
+            var layerSeparation = {x: 160, y: -100}
+            var maxLayersPerLevel = 0;
+            for (level in levels) {
+                if (levels[level].length > maxLayersPerLevel)
+                    maxLayersPerLevel = levels[level].length;
+            }
+
+            var maxWidth = maxLayersPerLevel*layerSeparation.x;
 
             var netToLayers = {};
             var y = parseInt(canvas.css('height'));
@@ -238,8 +246,9 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 console.log("===============");
                 console.log("Level " + level);
 
-                var x = 170;
-                for (var i = 0, len = levels[level].length; i < len; ++i) {
+                var len = levels[level].length;
+                var x = 170 + (maxWidth / 2) - (len * layerSeparation.x / 2);
+                for (var i = 0; i < len; ++i) {
                     var current = net['layers'][levels[level][i]];
                     var outLayer = layer.createDefinitive(x, y, current.type.toLowerCase(), current.name, "{}");
 
