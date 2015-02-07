@@ -30,13 +30,14 @@ define(function (require) {
 
             if (code == 46 && selection) {
 
+                controller.clearSelection();
+
                 if (relationship.is(selection)) {
                     relationship.remove(selection);
                 } else {
                     layer.remove(selection);
                 }
 
-                controller.clearSelection();
                 canvas.drawLayers();
             }
         };

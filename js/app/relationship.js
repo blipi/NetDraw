@@ -53,7 +53,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                     drawingLine.y2 = current.y + 50;
 
                 /* Draw bottom */
-                drawingLine.node.bottom = layer.createBottomPoint(current, drawingLine.x2, drawingLine.y2);
+                drawingLine.node.top = layer.createTopPoint(current, drawingLine.x2, drawingLine.y2);
 
                 break;
             }
@@ -61,11 +61,13 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
 
         if (!connected) {
             canvas.removeLayer(drawingLine);
+        } else {
+            drawingLine.node.bottom.node.used = true;
+            layer.createBottomPoint(drawingLine.node.from);
         }
 
-        var from = drawingLine.node.from;
-        from.draggable = true;
-        from.node.top.draggable = true;
+        drawingLine.node.from.draggable = true;
+        drawingLine.node.bottom.draggable = true;
         controller.clearDrawingLine();
     };
 
@@ -87,7 +89,10 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             console.log('[relationship.remove] {' + line.node.id + '}');
 
             // Remove bottom point
-            canvas.removeLayer(line.node.bottom);
+            canvas.removeLayer(line.node.top);
+
+            // Flag not used
+            line.node.bottom.node.used = false;
 
             // Remove line itself
             canvas.removeLayer(line);
@@ -96,12 +101,20 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             controller.removeBothMappings(line);
         },
 
-        create: function(bot, top) {
-            console.log('[relationship.create] {' + bot.node.id + ',' + top.node.id + '}');
+        create: function(bottomLayer, topLayer, validate, bottomPoint) {
+            console.log('[relationship.create] {' + bottomLayer.node.id + ',' + topLayer.node.id + '}');
+
+            validate = typeof(validate) === 'undefined' ? true : validate;
+    
+            bottomPoint = typeof(bottomPoint) === 'undefined' ? 
+                bottomLayer.node.bottom[bottomLayer.node.bottom.length - 1] : 
+                bottomPoint;
+
 
             var line_click = function(layer) {
                 controller.setSelection(layer);
                 layer.strokeStyle = "#a23";
+                canvas.drawLayers();
             }
 
             canvas.drawLine({
@@ -113,21 +126,30 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 arrowRadius: 15,
                 arrowAngle: 90,
                 x: 0, y: 0,
-                x1: bot.node.top.x, y1: bot.node.top.y,
-                x2: top.node.top.x, y2: top.node.top.y + 26,
+
+                x1: bottomPoint.x,
+                y1: bottomPoint.y,
+
+                x2: topLayer.node.top ? topLayer.node.top.x : topLayer.x,
+                y2: topLayer.node.top ? topLayer.node.top.y : topLayer.y,
 
                 node: {
                     func: 'line',
-                    from: bot,
+                    from: bottomLayer,
                     to: null,
-                    bottom: null,
+                    bottom: bottomPoint,
+                    top: null,
                 },
 
                 click: line_click
             });
 
             controller.setDrawingLine(canvas.getLayer(-1));
-            _validateRelationship();
+            if (validate) {
+                _validateRelationship();
+            }
+
+            canvas.drawLayers();
         }
     }
 });

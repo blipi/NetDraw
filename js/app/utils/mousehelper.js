@@ -18,26 +18,17 @@ define(['jquery', 'app/controller'], function ($, controller) {
         this._down = false;
 
         this._canvas_onclick = function(e) {
-            var selection = controller.getSelection();
-            if (selection != null) {
-                selection.strokeStyle = "#000";
-                controller.clearSelection();
-            }
         };
 
         this._canvas_onmousedown = function(e) {
-            if (e.timeStamp - MouseHelper()._doubleClick_last < 200) {
+            if (e.timeStamp - MouseHelper()._doubleClick_last < 300) {
                 MouseHelper()._doubleClick = true;
             } else {
                 MouseHelper()._doubleClick = false;
             }
             MouseHelper()._doubleClick_last = e.timeStamp;
 
-            var selection = controller.getSelection();
-            if (selection != null) {
-                selection.strokeStyle = "#000";
-                controller.clearSelection();
-            }
+            controller.clearSelection();
         };
 
         this._window_onmousedown = function(e) {

@@ -33,10 +33,21 @@ define(function (require) {
 
         this.setSelection = function(selection) {
             this._selection = selection;
+            this.getCanvas().drawLayers();
         }
 
         this.clearSelection = function() {
-            this._selection = null;
+            if (this._selection) {
+                // HACK: Should be gotten through Style.feature
+                if (this._selection.node.func == 'bottom') {
+                    this._selection.strokeStyle = "#FFF";
+                }
+                else {
+                    this._selection.strokeStyle = "#000";
+                }
+                this._selection = null;
+                this.getCanvas().drawLayers();
+            }
         }
 
         this.getDrawingLine = function() {
