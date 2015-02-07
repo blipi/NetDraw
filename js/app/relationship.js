@@ -99,6 +99,11 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
         create: function(bot, top) {
             console.log('[relationship.create] {' + bot.node.id + ',' + top.node.id + '}');
 
+            var line_click = function(layer) {
+                controller.setSelection(layer);
+                layer.strokeStyle = "#a23";
+            }
+
             canvas.drawLine({
                 strokeStyle: '#000',
                 layer: true,
@@ -116,7 +121,9 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                     from: bot,
                     to: null,
                     bottom: null,
-                }
+                },
+
+                click: line_click
             });
 
             controller.setDrawingLine(canvas.getLayer(-1));
