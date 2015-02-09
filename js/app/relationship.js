@@ -30,7 +30,6 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 drawingLine.x2 <= current.x + current.width &&
                 drawingLine.y2 <= current.y + current.height)
             {
-
                 connected = true;
                 drawingLine.node.to = current;
 
@@ -54,6 +53,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
 
                 /* Draw bottom */
                 drawingLine.node.bottom = layer.createBottomPoint(current, drawingLine.x2, drawingLine.y2);
+                drawingLine.x2 = drawingLine.node.bottom.x;
 
                 break;
             }

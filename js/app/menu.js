@@ -170,7 +170,7 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
         },
 
         createNet: function(net) {
-            console.log("[createNet] "); console.log(net);
+            console.log("[createNet]");
 
             var levelMapper = {};
 
@@ -186,8 +186,6 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                         /*layer.top != layer.bottom &&*/
                         layer.name in levelMapper) {
 
-                        console.log("FOUND " + search + " in " + layer.name + "(" + levelMapper[layer.name][0] + ")");
-                        console.log(layer);
                         return layer;
                     }
                 }
@@ -277,13 +275,11 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 }
 
                 if (typeof netLayer.bottom === 'string') {
-                    console.log("Relationship " + netLayer.bottom + "->" + netLayer.name)
                     _create(netLayer.bottom);
                 }
                 else if ($.isArray(netLayer.bottom))
                 {
                     for (k in netLayer.bottom) {
-                        console.log("Relationship " + netLayer.bottom[k] + "->" + netLayer.name)
                         _create(netLayer.bottom[k]);
                     }
                 }   

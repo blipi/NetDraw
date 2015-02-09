@@ -55,27 +55,21 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             // Remove layer's text and top point
             canvas.removeLayer(layer.node.textElement);
 
-            for (i in layer.node.top) {
+            for (var i in layer.node.top) {
                 canvas.removeLayer(layer.node.top[i]);
             }
 
             var fromRelationships = controller.getMappingsFor('from', layer);
             var toRelationships = controller.getMappingsFor('to', layer);
             
-            var n = fromRelationships.length;
-            var i = 0;
-
-            // Delete all relationships starting from this node
-            for (; i < n; ++i) {
-                relationship.remove(fromRelationships[i]);
+            // Relationship.remove deletes entries from mappings, thus we must
+            // use a while over the array and delete [0]
+            while (fromRelationships.length) {
+                relationship.remove(fromRelationships[0]);
             }
 
-            n = toRelationships.length;
-            i = 0;
-
-            // Delete all relationships ending to this node
-            for (; i < n; ++i) {
-                relationship.remove(toRelationships[i]);
+            while (toRelationships.length) {
+                relationship.remove(toRelationships[0]);
             }
 
             // Remove layer mappings
@@ -574,6 +568,65 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             return currentLayer;
         },
 
+        findSuitableX: function(obj, occupied, xMin, xMax, xPadding, xMove, cx) {
+            cx = typeof cx === 'undefined' ? xMin + ((xMax - xMin) / 2) - xPadding : cx;
+
+            var suitable = function(x) {
+                for (i in occupied) {
+                    if (occupied[i].x - xPadding <= x && occupied[i].x + xPadding >= x) {
+                        return false;
+                    }
+                }
+
+                return true;
+            };
+
+            // Try left
+            var tryLeft = function() {
+                for (var x = cx; x >= xMin; x -= xMove) {
+                    if (suitable(x)) {
+                        return x;
+                    }
+                }
+
+                return false;
+            };
+
+            // Try right
+            var tryRight = function() {
+                for (var x = cx; x <= xMax; x += xMove) {
+                    if (suitable(x)) {
+                        return x;
+                    }
+                }
+
+                return false;
+            }
+
+
+            var startLeft = 'startLeft' in obj ? obj.startLeft : true;
+            obj.startLeft = !startLeft;
+            var x = false;
+
+            if (startLeft) {
+                if ((x = tryLeft()) !== false) {
+                    return x;
+                }
+                if ((x = tryRight()) !== false) {
+                    return x;
+                }
+            } else {
+                if ((x = tryRight()) !== false) {
+                    return x;
+                }
+                if ((x = tryLeft()) !== false) {
+                    return x;
+                }
+            }
+
+            return cx;
+        },
+
         createTopPoint: function(layer, topName) {
             console.log('[layer.createTopPoint] {' + layer.node.id + '}');
             var features = style.featuresMapping[layer.node.name];
@@ -687,7 +740,8 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 strokeMid: features['strokeWidth'] / 2 - 1.5,
                 fillStyle: circleFeatures['fillStyle'],
 
-                x: layer.x + 100/2 - 1.5, y: layer.y + features['strokeWidth'] / 2 - 1.5,
+                x: Layer.findSuitableX(layer.node, layer.node.top, layer.x, layer.x + 100, 1.5, 15),
+                y: layer.y + features['strokeWidth'] / 2 - 1.5,
                 radius: 5,
 
                 groups: [layer.node.id],
@@ -807,6 +861,14 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 layer.dragGroups = [layer.node.parent.node.id];
             };
 
+            var occupied = [];
+            var toRelationships = controller.getMappingsFor('to', layer);
+            for (i in toRelationships) {
+                if (toRelationships[i].node.bottom) {
+                    occupied.push(toRelationships[i].node.bottom);
+                }
+            }
+
             var circleFeatures = features['bottom'];
             canvas.drawArc({
                 layer: true,
@@ -816,7 +878,8 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 strokeMid: features['strokeWidth'] / 2 - 1.5,
                 fillStyle: circleFeatures['fillStyle'],
 
-                x: ex, y: ey + features['strokeWidth'] / 2 - 1.5,
+                x: Layer.findSuitableX(layer.node, occupied, layer.x, layer.x + 100, 1.5, 15, ex),
+                y: ey + features['strokeWidth'] / 2 - 1.5,
                 radius: 5,
 
                 groups: [layer.node.id],
