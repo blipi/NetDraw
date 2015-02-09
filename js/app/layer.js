@@ -49,6 +49,21 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
                 return;
             }
+            else if (layer.node.func == 'bottom') {
+                // Find the relationship assosiated with this bottom point and delete it
+                var toRelationships = controller.getMappingsFor('to', layer.node.parent);
+                var n = toRelationships.length;
+                var i = 0;
+
+                for (; i < n; ++i) {
+                    if (toRelationships[i].node.bottom == layer) {
+                        relationship.remove(toRelationships[i]);
+                        break;
+                    }
+                }
+
+                return;
+            }
 
             console.log("[layer.remove] {" + layer.node.id + '}');
 
