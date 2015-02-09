@@ -53,7 +53,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                     drawingLine.y2 = current.y + 50;
 
                 /* Draw bottom */
-                drawingLine.node.top = layer.createTopPoint(current, drawingLine.x2, drawingLine.y2);
+                drawingLine.node.bottom = layer.createBottomPoint(current, drawingLine.x2, drawingLine.y2);
 
                 break;
             }
@@ -62,12 +62,12 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
         if (!connected) {
             canvas.removeLayer(drawingLine);
         } else {
-            drawingLine.node.bottom.node.used = true;
-            layer.createBottomPoint(drawingLine.node.from);
+            drawingLine.node.top.node.used = true;
+            layer.createTopPoint(drawingLine.node.from);
         }
 
         drawingLine.node.from.draggable = true;
-        drawingLine.node.bottom.draggable = true;
+        drawingLine.node.top.draggable = true;
         controller.clearDrawingLine();
     };
 
@@ -86,13 +86,14 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
         },
 
         remove: function(line) {
-            console.log('[relationship.remove] {' + line.node.id + '}');
+            console.log('[relationship.remove] {' + line.node.top.node.name + ' -> ' + line.node.bottom.node.name + '}');
 
             // Remove bottom point
-            canvas.removeLayer(line.node.top);
+            canvas.removeLayer(line.node.bottom);
 
             // Flag not used
-            line.node.bottom.node.used = false;
+            // TODO: Should we delete top instead?
+            line.node.top.node.used = false;
 
             // Remove line itself
             canvas.removeLayer(line);
@@ -101,14 +102,14 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             controller.removeBothMappings(line);
         },
 
-        create: function(bottomLayer, topLayer, validate, bottomPoint) {
+        create: function(bottomLayer, topLayer, validate, topPoint) {
             console.log('[relationship.create] {' + bottomLayer.node.id + ',' + topLayer.node.id + '}');
 
             validate = typeof(validate) === 'undefined' ? true : validate;
     
-            bottomPoint = typeof(bottomPoint) === 'undefined' ? 
-                bottomLayer.node.bottom[bottomLayer.node.bottom.length - 1] : 
-                bottomPoint;
+            topPoint = typeof(topPoint) === 'undefined' ? 
+                bottomLayer.node.top[bottomLayer.node.top.length - 1] :  // We start from BottomLayer's Top point!
+                topPoint;
 
 
             var line_click = function(layer) {
@@ -127,18 +128,18 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 arrowAngle: 90,
                 x: 0, y: 0,
 
-                x1: bottomPoint.x,
-                y1: bottomPoint.y,
+                x1: topPoint.x,
+                y1: topPoint.y,
 
-                x2: topLayer.node.top ? topLayer.node.top.x : topLayer.x,
-                y2: topLayer.node.top ? topLayer.node.top.y : topLayer.y,
+                x2: topLayer.node.bottom ? topLayer.node.bottom.x : (bottomLayer == topLayer ? topPoint.x : topLayer.x + 48),
+                y2: topLayer.node.bottom ? topLayer.node.bottom.y : (bottomLayer == topLayer ? topPoint.y : topLayer.y + 26),
 
                 node: {
                     func: 'line',
                     from: bottomLayer,
                     to: null,
-                    bottom: bottomPoint,
-                    top: null,
+                    top: topPoint,
+                    bottom: null,
                 },
 
                 click: line_click
