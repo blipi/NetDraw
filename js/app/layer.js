@@ -87,58 +87,59 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             }
         },
 
+
+        rect_click: function(layer) {
+            controller.setSelection(layer);
+            layer.strokeStyle = "#a23";
+
+            if (mouse.isDoubleClick() && layer.node.func == 'main') {
+                if (layer.node.params_input)
+                    return;
+
+                var input = $('<textarea>');
+                input.attr({
+                    id: layer.node.id
+                })
+                .css({
+                    position: 'absolute',
+                    left: layer.x + 110,
+                    top: layer.y - 20,
+                    width: 200,
+                    height: 100,
+                    border: '2px solid #000',
+                    'border-radius': '2px'
+                })
+                .keydown(function(e){
+                    var code = e.keyCode || e.which;
+                    if (code == 13 && e.ctrlKey){
+                        layer.node.params = $(this).val();
+                        $(this).remove();
+                        layer.node.params_input = null;
+
+                        //console.log(pb.getJSON(layer.node.params));
+                    }
+
+                    // Avoid keys such as "DEL" to reach window
+                    e.stopPropagation();
+                })
+                .bind('mousewheel', function(e){
+                    e.stopPropagation();
+                })
+                .appendTo('body')
+                .val(layer.node.params);
+
+                layer.node.params_input = input;
+            }
+        },
+
         create: function(x, y, type, visibility) {
             console.log("[layer.create] {" + x + "," + y + "," + type + "}");
 
             var features = style.featuresMapping[type];
 
-            var rect_click = function(layer) {
-                controller.setSelection(layer);
-                layer.strokeStyle = "#a23";
-
-                if (mouse.isDoubleClick() && layer.node.func == 'main') {
-                    if (layer.node.params_input)
-                        return;
-
-                    var input = $('<textarea>');
-                    input.attr({
-                        id: layer.node.id
-                    })
-                    .css({
-                        position: 'absolute',
-                        left: layer.x + 110,
-                        top: layer.y - 20,
-                        width: 200,
-                        height: 100,
-                        border: '2px solid #000',
-                        'border-radius': '2px'
-                    })
-                    .keydown(function(e){
-                        var code = e.keyCode || e.which;
-                        if (code == 13 && e.ctrlKey){
-                            layer.node.params = $(this).val();
-                            $(this).remove();
-                            layer.node.params_input = null;
-
-                            //console.log(pb.getJSON(layer.node.params));
-                        }
-
-                        // Avoid keys such as "DEL" to reach window
-                        e.stopPropagation();
-                    })
-                    .bind('mousewheel', function(e){
-                        e.stopPropagation();
-                    })
-                    .appendTo('body')
-                    .val(layer.node.params);
-
-                    layer.node.params_input = input;
-                }
-            }
-
             /* Forward declaration of handlers */
             var rect_ondragstart = function(layer) {
-                layer.dragstart = function(layer){
+                layer.dragstart = function(layer) {
                     var front = canvas.getLayers().length;
                     canvas.moveLayer(layer, front);
                     controller.setSelection(layer);
@@ -208,7 +209,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 layer.node.textElement.y = layer.node.textElement.oy;
 
                 canvasLayer.dragstop = function(layer){}
-                canvasLayer.click = rect_click;
+                canvasLayer.click = Layer.rect_click;
             };
 
 
@@ -338,234 +339,27 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             return currentLayer;
         },
 
-        // TODO: Merge create and createDefinitive
         createDefinitive: function(x, y, type, name, params) {
-            console.log("[layer.createDefinitive] {" + x + "," + y + "," + type + "}");
+            var layer = Layer.create(x, y, type, true);
 
-            var features = style.featuresMapping[type];
+            // Force dragstop to be empty
+            layer.dragstop = function(layer){};
 
-            var rect_click = function(layer) {
-                controller.setSelection(layer);
-                layer.strokeStyle = "#a23";
+            // Setup click and dragstart
+            layer.click = Layer.rect_click;
+            layer.dragstart(layer); // Calling sets the actual function
 
-                if (mouse.isDoubleClick() && layer.node.func == 'main') {
-                    if (layer.node.params_input)
-                        return;
+            // Basic setup (done on dragstop)
+            layer.node.counter = _realCounter;
+            layer.node.func = 'main';
+            layer.node.params = pb.getProto(params);
+            layer.node.textElement.text = name;
+            layer.node.textElement.node.func = 'text';
+            Layer.createTopPoint(layer);
 
-                    var input = $('<textarea>');
-                    input.attr({
-                        id: layer.node.id
-                    })
-                    .css({
-                        position: 'absolute',
-                        left: layer.x + 110,
-                        top: layer.y - 20,
-                        width: 200,
-                        height: 100,
-                        border: '2px solid #000',
-                        'border-radius': '2px'
-                    })
-                    .keydown(function(e){
-                        var code = e.keyCode || e.which;
-                        if (code == 13 && e.ctrlKey){
-                            layer.node.params = $(this).val();
-                            $(this).remove();
-                            layer.node.params_input = null;
+            ++_realCounter;
 
-                            //console.log(pb.getJSON(layer.node.params));
-                        }
-
-                        // Avoid keys such as "DEL" to reach window
-                        e.stopPropagation();
-                    })
-                    .bind('mousewheel', function(e){
-                        e.stopPropagation();
-                    })
-                    .appendTo('body')
-                    .val(layer.node.params);
-
-                    layer.node.params_input = input;
-                }
-            }
-
-            /* Forward declaration of handlers */
-            var rect_ondragstart = function(layer) {
-                var front = canvas.getLayers().length;
-                canvas.moveLayer(layer, front);
-                controller.setSelection(layer);
-            };
-
-            var rect_drag = function(layer) {
-                var front = canvas.getLayers().length;
-
-                var mappings = controller.getMappings();
-                var fromRelationships = mappings['from'][layer.node.id];
-                var toRelationships = mappings['to'][layer.node.id];
-
-                var n = fromRelationships.length;
-                var i = 0;
-            
-                for (; i < n; ++i) {
-                    var line = fromRelationships[i];
-                    line.x1 = line.node.top.x;
-                    line.y1 = line.node.top.y;
-                }
-
-                n = toRelationships.length;
-                i = 0;
-
-                for (; i < n; ++i) {
-                    var line = toRelationships[i];
-                    line.x2 = line.node.bottom.x;
-                    line.y2 = line.node.bottom.y;
-                }
-
-                if ('input' in layer.node.textElement.node && layer.node.textElement.node.input) {
-                    layer.node.textElement.node.input.css({
-                        left: layer.node.textElement.x - 45,
-                        top: layer.node.textElement.y - 7
-                    });
-                }
-
-                if ('params_input' in layer.node && layer.node.params_input) {
-                    layer.node.params_input.css({
-                        left: layer.x + 110,
-                        top: layer.y - 20
-                    });
-                }
-
-
-                /* Bring to top */
-                for (i in layer.node.top) {
-                    canvas.moveLayer(layer.node.top[i], front);
-                }
-                canvas.moveLayer(layer.node.textElement, front);
-            };
-
-            var rect_dragstop = function(layer) {
-            };
-
-
-            /* Draw all usable elements */
-            canvas.drawRect({
-                layer: true,
-                draggable: true,
-                bringToFront: true,
-                fromCenter: false,
-                x: x, y: y,
-                ox: x, oy: y,
-                width: 100,
-                height: 50,
-                cornerRadius: 2,
-
-                strokeStyle: features['strokeStyle'],
-                strokeWidth: features['strokeWidth'],
-                fillStyle: features['fillStyle'],
-
-                groups: [type + '_' + _counter],
-                dragGroups: [type + '_' + _counter],
-
-                node: {
-                    func: 'main',
-                    name: type,
-                    id: type + '_' + _counter,
-
-                    textElement: null,
-                    top: [],
-                    topCount: 0
-                },
-
-                click: rect_click,
-                dragstart: rect_ondragstart,
-                drag: rect_drag,
-                dragstop: rect_dragstop
-            });
-
-            var currentLayer = canvas.getLayer(-1);
-            controller.createLayerMappings(currentLayer);
-
-            currentLayer.node.params = pb.getProto(params);
-
-            var text_onclick = function(layer) {
-                if (mouse.isDoubleClick() && layer.node.func == 'text') { 
-                    if (layer.node.input)
-                        return;
-
-                    var input = $('<input>');
-                    input.attr({
-                        id: layer.node.parent.node.id,
-                        type: 'text',
-                        value: layer.text
-                    })
-                    .css({
-                        position: 'absolute',
-                        left: layer.x - 45,
-                        top: layer.y - 7,
-                        width: 100,
-                        height: 20,
-                        'text-align': 'center'
-                    })
-                    .keydown(function(e){
-                        var code = e.keyCode || e.which;
-                        if (code == 13){
-                            if ($(this).val()) {
-                                layer.text = $(this).val();
-                                $(this).remove();
-                                canvas.drawLayers();
-                                layer.node.input = null;
-                            }
-                        }
-
-                        // Avoid keys such as "DEL" to reach window
-                        e.stopPropagation();
-                    })
-                    .appendTo('body')
-                    .select();
-
-                    layer.node.input = input;
-                    controller.clearSelection();
-
-                    return true;
-                }
-
-                return false;
-            };
-
-            var textFeatures = features['text'];
-            canvas.drawText({
-                layer: true,
-                fillStyle: textFeatures['fillStyle'],
-                strokeStyle: textFeatures['strokeStyle'],
-                strokeWidth: textFeatures['strokeWidth'],
-                x: currentLayer.x + textFeatures['x'], y: currentLayer.y + textFeatures['y'],
-                ox: currentLayer.x + textFeatures['x'], oy: currentLayer.y + textFeatures['y'],
-                fontSize: 16,
-                fontFamily: 'Verdana, sans-serif',
-                text: name,
-
-                node: {
-                    parent: currentLayer,
-                    func: 'text'
-                },
-
-                click: function(layer) {
-                    if (!text_onclick(layer) && layer.node.parent.click) {
-                        layer.node.parent.click(layer.node.parent);
-                    }
-                },
-                dragstart: function(layer) { layer.node.parent.dragstart(layer.node.parent); },
-                drag: function(layer) { layer.node.parent.drag(layer.node.parent); },
-                dragstop: function(layer) { layer.node.parent.dragstop(layer.node.parent); },
-
-                groups: [type + '_' + _counter],
-                dragGroups: [type + '_' + _counter],
-            });
-
-            currentLayer.node.textElement = canvas.getLayer(-1);
-            Layer.createTopPoint(currentLayer);
-
-            ++_counter;
-            return currentLayer;
+            return layer;
         },
 
         findSuitableX: function(obj, occupied, xMin, xMax, xPadding, xMove, cx) {

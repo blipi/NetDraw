@@ -1,6 +1,31 @@
-define([], function(){
-    return {
-       featuresMapping: {
+define(function(require){
+    var $ = require('jquery');
+
+    var Style = {
+        substypes: ['text', 'top', 'bottom'],
+
+        getStyleFor: function(layer) {
+            var getType = function(layer) {
+                return 'type' in layer.node ?
+                    layer.node.type :
+                    ('parent' in layer.node ? 
+                        getType(layer.node.parent) :
+                        ('from' in layer.node ?
+                            getType(layer.node.from) :
+                            "convolution"
+                        )
+                    );
+            }
+
+            var type = getType(layer);
+            var subtype = layer.node.func;
+
+            return subtype && $.inArray(subtype, Style.substypes) >= 0 ? 
+                Style.featuresMapping[type][subtype] : 
+                Style.featuresMapping[type];
+        },
+
+        featuresMapping: {
             'convolution' : {
                 fillStyle: '#256fb3',
                 strokeWidth: 4,
@@ -757,5 +782,7 @@ define([], function(){
                 }
             },
         }
-    }
+    };
+
+    return Style;
 });

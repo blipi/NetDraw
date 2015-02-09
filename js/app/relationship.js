@@ -91,8 +91,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             // Remove bottom point
             canvas.removeLayer(line.node.bottom);
 
-            // Flag not used
-            // TODO: Should we delete top instead?
+            // Flag as not used, we keep top, as it may already have a special name defined
             line.node.top.node.used = false;
 
             // Remove line itself

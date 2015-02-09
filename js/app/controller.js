@@ -2,6 +2,7 @@ define(function (require) {
 
     var $ = require('jquery');
     require('jcanvas');
+    var style = require('app/style');
 
     var Controller = function() {
 
@@ -38,13 +39,8 @@ define(function (require) {
 
         this.clearSelection = function() {
             if (this._selection) {
-                // HACK: Should be gotten through Style.feature
-                if (this._selection.node.func == 'bottom') {
-                    this._selection.strokeStyle = "#FFF";
-                }
-                else {
-                    this._selection.strokeStyle = "#000";
-                }
+                var features = style.getStyleFor(this._selection);
+                this._selection.strokeStyle = features['strokeStyle'];
                 this._selection = null;
                 this.getCanvas().drawLayers();
             }
