@@ -30,11 +30,11 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 drawingLine.x2 + "<=" + (current.x + current.width) + "&&\n\t" +
                 drawingLine.y2 + "<=" + (current.y + current.height));
 
-            // TODO: Magic numbers, 6 is border*2
-            if (drawingLine.x2 >= current.x &&
-                drawingLine.y2 >= current.y &&
-                drawingLine.x2 <= current.x + current.width + 6&&
-                drawingLine.y2 <= current.y + current.height + 6)
+            // TODO: Magic numbers, 3 is border
+            if (drawingLine.x2 >= current.x - 3 &&
+                drawingLine.y2 >= current.y - 3 &&
+                drawingLine.x2 <= current.x + current.width + 3 &&
+                drawingLine.y2 <= current.y + current.height + 3)
             {
                 connected = true;
                 drawingLine.node.to = current;
@@ -47,18 +47,30 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 var top = drawingLine.y2 - current.y;
                 var minargs = [left, 100 - left, top, 50 - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
-
-                if (idx == 0)
+                var x = 0, y = 0;
+                if (idx == 0) {
                     drawingLine.x2 = current.x;
-                else if (idx == 1)
+                    x = 0;
+                    y = drawingLine.y2 - current.y;
+                }
+                else if (idx == 1) {
                     drawingLine.x2 = current.x + 106;
-                else if (idx == 2)
+                    x = 106;
+                    y = drawingLine.y2 - current.y;
+                }
+                else if (idx == 2) {
                     drawingLine.y2 = current.y;
-                else
+                    x = drawingLine.x2 - current.x;
+                    y = 0;
+                }
+                else {
                     drawingLine.y2 = current.y + 56;
+                    x = drawingLine.x2 - current.x;
+                    y = 56;
+                }
 
                 /* Draw bottom */
-                drawingLine.node.bottom = layer.createBottomPoint(current, drawingLine.x2 - current.windowX, drawingLine.y2 - current.windowY);
+                drawingLine.node.bottom = layer.createBottomPoint(current, x, y);
                 drawingLine.x2 = drawingLine.node.bottom.windowX;
 
                 break;
@@ -126,7 +138,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 strokeStyle: '#000',
                 layer: true,
                 endArrow: true,
-                strokeWidth: 2,
+                strokeWidth: 1,
                 rounded: true,
                 arrowRadius: 15,
                 arrowAngle: 90,

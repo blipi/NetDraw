@@ -41,6 +41,7 @@ define(['jquery', 'app/controller'], function ($, controller) {
         this._window_onmouseup = function(e) {
             MouseHelper()._down = false;
             MouseHelper()._up_last = e.timeStamp;
+            controller.clearSelection();
         }
 
         this.isDoubleClick = function() {

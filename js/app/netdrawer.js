@@ -13,6 +13,7 @@ define(function (require) {
 
     var wrapper = controller.getWrapper();
     var canvas = controller.getCanvas();
+    var timeout = null;
 
     function initialize()
     {
@@ -20,8 +21,8 @@ define(function (require) {
             var drawingLine = controller.getDrawingLine();
 
             if (drawingLine != null) {
-                drawingLine.x2 = e.pageX;
-                drawingLine.y2 = e.pageY;
+                drawingLine.x2 = e.pageX - 15; // TODO: Magic numbers
+                drawingLine.y2 = e.pageY + wrapper.scrollTop();
                 canvas.drawLayers();
             }
         };
@@ -44,10 +45,35 @@ define(function (require) {
             }
         };
 
+        var window_onmousedown = function(e) {
+            if (!timeout) {
+                // We must wait a little
+                setTimeout(function() {
+                    timeout = setInterval(function(){
+                        var selection = controller.getSelection();
+
+                        if (!selection || !mouse.isDown()) {
+                            console.log("CLEAR " + selection);
+                            clearInterval(timeout);
+                            timeout = null;
+                            return;
+                        }
+
+                        var h = parseInt(canvas.css('height'));
+                        var p = selection.windowY;
+                        if (p >= h - 175) {
+                            canvas.css('height', h + 100);
+                        }
+                    }, 100)
+                }, 500);
+            }
+        }
+
         canvasObj.initialize();
         
         $(window).keydown(window_onkeydown);
         $(window).mousemove(window_onmousemove);
+        $(window).mousedown(window_onmousedown);
 
         menu.create();
         relationship.initialize();

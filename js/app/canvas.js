@@ -1,6 +1,7 @@
 define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
     var controller = null;
+    var mouse = null;
 
     var TYPE = {
         RECT : {value: 0, name: "rect"},
@@ -145,6 +146,8 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         },
 
         set dragstart(f) {
+            this._dragstart = f;
+            
             this._DOMElement.unbind("dragstart");
             this._DOMElement.on("dragstart", function(event, ui){
                 var canvas = Canvas();
@@ -165,11 +168,13 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
                 canvas.moving = toMove;
 
-                f.call(canvas, layer, event);
+                layer._dragstart.call(canvas, layer, event);
             })
         },
 
         set drag(f) {
+            this._drag = f;
+
             this._DOMElement.unbind("drag");
             this._DOMElement.on("drag", function(event, ui){
                 if (ui && ui.helper && !$(this).hasClass('ui-draggable-disabled')) {
@@ -192,15 +197,20 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
                     layer._x = x;
                     layer._y = y;
 
-                    f.call(canvas, layer, event);
+                    layer._drag.call(canvas, layer, event);
                 }
             })
         },
 
         set dragstop(f) {
+            this._dragstop = f;
+
             this._DOMElement.unbind("dragstop");
             this._DOMElement.on("dragstop", function(event, ui){
-                f.call(Canvas(), Canvas().findLayer($(this).attr('id')), event);
+                var canvas = Canvas();
+                var layer = canvas.findLayer($(this).attr('id'));
+                mouse._window_onmouseup(event);
+                layer._dragstop.call(canvas, layer, event);
             });
         },
 
@@ -208,7 +218,7 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         //          GETTERS              //
         ///////////////////////////////////
         get windowX() { return this._DOMElement.offset().left - 15 }, // TODO: Magic numbers
-        get windowY() { return this._DOMElement.offset().top },
+        get windowY() { return this._DOMElement.offset().top + Canvas()._wrapper.scrollTop() },
         get x() { return this._x; },
         get y() { return this._y; },
         get x1() { return this._x1; },
@@ -217,7 +227,10 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         get y2() { return this._y2; },
         get width() { return this._width; },
         get height() { return this._height; },
-        get text() { return this._DOMElement.html(); }
+        get text() { return this._DOMElement.html(); },
+
+        // Special cases
+        get dragstart() { return this._dragstart; }
     }
 
     var Canvas = function() {
@@ -250,59 +263,14 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             .drawLayers();
         }
    
-
-        var window_onscroll = function(e) {
-            var layers = Canvas()._canvas.getLayers();
-            var n = layers.length;
-            var i = 0;
-
-            var offset = 10 * e.originalEvent.wheelDelta / 120;
-
-            for (; i < n; ++i) {
-                if ('node' in layers[i]) {
-                    if ('func' in layers[i].node && layers[i].node.func != 'reserved') {
-                        if ('y1' in layers[i]) {
-                            layers[i].y1 += offset;
-                            layers[i].y2 += offset;
-                        } else {
-                            layers[i].y += offset;
-                        }
-                    }
-                }
-            }
-
-            $('input').each(function(){
-                $(this).css('top', '+=' + offset)
-            })
-
-            $('textarea').each(function(){
-                $(this).css('top', '+=' + offset)
-            })
-
-            Canvas()._canvas.drawLayers();
-        };
-
         this.initialize = function() {
             controller = require('app/controller');
+            mouse = require('utils/mousehelper');
 
             this._wrapper = controller.getWrapper();
             this._DOMcanvas = controller.getDOMCanvas();
             this._canvas = controller.getCanvas();
             
-            $(window).resize(_window_onresize);
-            $(window).bind('mousewheel', window_onscroll);
-            
-            this._canvas.scaleCanvas({
-                layer: true,
-                name: 'scaling',
-                x: 0, y: 0,
-                scale: 1
-            });
-            _window_onresize();
-
-            this._canvas.restoreCanvas({
-                layer: true
-            });
         };
 
         // ******************************************************** //
@@ -446,22 +414,22 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
                 // Force a drag and dragstart to be present
                 if (!('dragstart' in params)) params.dragstart = function(){};
                 if (!('drag' in params)) params.drag = function(){};
+                if (!('dragstop' in params)) params.dragstop = function(){};
             }
 
             this.layers.push(new Layer(element, TYPE.RECT, params));
             ++this._id;
 
+            var container = into;
             if (params.draggable) {
-                if (into != this._DOMcanvas) {
-                    element.draggable({
-                        containment: into
-                    });
+                if (into == this._DOMcanvas) {
+                    container = $('#wrapper');
                 }
-                else {
-                    element.draggable({
-                        containment: $('#wrapper')
-                    });
-                }
+
+                element.draggable({
+                    scroll: true, scrollSensitivity: 50, scrollSpeed: 5,
+                    containment: container,
+                });
             }
 
             return this;

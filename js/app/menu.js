@@ -335,9 +335,9 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 .keydown(function(e){
                     var code = e.keyCode || e.which;
                     if (code == 13 && e.ctrlKey){
+                        try {
                             var net = pb.parseProto($(this).val());
                             Menu.createNet(net);
-                        try {
                         }
                         catch (err) {
                             alert("Could not parse net prototxt file");
@@ -495,7 +495,7 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 layer: true,
                 strokeWidth: 3,
                 x1: menuSeparatorX, y1: 0,
-                x2: menuSeparatorX, y2: 9000,
+                x2: menuSeparatorX, y2: parseInt(canvas.css('height')),
             });
         }
     };

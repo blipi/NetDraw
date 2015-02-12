@@ -102,7 +102,6 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             }
         },
 
-
         rect_click: function(layer) {
             controller.setSelection(layer);
             layer.strokeStyle = "#a23";
@@ -162,10 +161,6 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
             /* Forward declaration of handlers */
             var rect_ondragstart = function(layer) {
-                layer.dragstart = function(layer) {
-                    canvas.bringToFront(layer);
-                    controller.setSelection(layer);
-                }
             };
 
             var rect_drag = function(layer) {
@@ -178,8 +173,8 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             
                 for (; i < n; ++i) {
                     var line = fromRelationships[i];
-                    line.x1 = line.node.top.x;
-                    line.y1 = line.node.top.y;
+                    line.x1 = line.node.top.windowX;
+                    line.y1 = line.node.top.windowY;
                 }
 
                 n = toRelationships.length;
@@ -187,8 +182,8 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
                 for (; i < n; ++i) {
                     var line = toRelationships[i];
-                    line.x2 = line.node.bottom.x;
-                    line.y2 = line.node.bottom.y;
+                    line.x2 = line.node.bottom.windowX;
+                    line.y2 = line.node.bottom.windowY;
                 }
 
                 if ('input' in layer.node.textElement.node && layer.node.textElement.node.input) {
@@ -212,7 +207,6 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 canvasLayer.node.textElement.text = canvasLayer.node.name + '_' + _realCounter;
                 canvasLayer.node.textElement.node.func = 'text';
                 canvasLayer.node.textElement.x = Layer.getTextX(canvasLayer.node.textElement.text, canvasLayer.strokeWidth);
-                canvasLayer.node.textElement.y = canvasLayer.node.textElement.y + 7;
                 canvasLayer.node.func = 'main';
                 Layer.createTopPoint(canvasLayer);
 
@@ -223,8 +217,16 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 layer.node.textElement.x = layer.node.textElement.ox;
                 layer.node.textElement.y = layer.node.textElement.oy;
 
-                canvasLayer.dragstop = function(layer){}
                 canvasLayer.click = Layer.rect_click;
+                canvasLayer.dragstop = function(layer){
+                    controller.clearSelection();
+                }
+                canvasLayer.dragstart = function(layer) {
+                    console.log("DRAGSTART IN");
+                    controller.setSelection(layer);
+                    layer.strokeStyle = "#a23";
+                    canvas.bringToFront(layer);
+                }
             };
 
 
@@ -360,6 +362,15 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             // Setup click and dragstart
             layer.click = Layer.rect_click;
             layer.dragstart(layer); // Calling sets the actual function
+            // TODO: AVOID REPEATING CODE!
+            layer.dragstop = function(layer){
+                controller.clearSelection();
+            }
+            layer.dragstart = function(layer) {
+                controller.setSelection(layer);
+                layer.strokeStyle = "#a23";
+                canvas.bringToFront(layer);
+            }
 
             // Basic setup (done on dragstop)
             layer.node.counter = _realCounter;
@@ -367,6 +378,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             layer.node.params = pb.getProto(params);
             layer.node.textElement.text = name;
             layer.node.textElement.node.func = 'text';
+            layer.node.textElement.x = Layer.getTextX(layer.node.textElement.text, layer.strokeWidth);
             Layer.createTopPoint(layer);
 
             ++_realCounter;
@@ -470,12 +482,6 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             };
 
             var top_dragstart = function(layer) {
-                if (mouse.isDoubleClick()) {
-                    return;
-                }
-
-                layer.groups = [];
-                layer.dragGroups = [];
             };
 
             var top_drag = function(layer) {
@@ -494,8 +500,8 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 for (; i < n; ++i) {
                     var line = fromRelationships[i];
                     if (line.node.top == layer) {
-                        line.x1 = layer.x;
-                        line.y1 = layer.y;
+                        line.x1 = layer.windowX;
+                        line.y1 = layer.windowY;
                     }
                 }
             };
@@ -567,40 +573,36 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
             bottomName = typeof bottomName === 'undefined' ? layer.node.textElement.text : bottomName;
 
-            var bottom_onclick = function(layer) {
-                layer.draggable = true;
-                layer.node.parent.draggable = true;
-                
+            var bottom_onclick = function(layer, e) {                
                 layer.strokeStyle = "#a23";
                 controller.setSelection(layer);
+
+                if (mouse.isDoubleClick())
+                    e.stopPropagation();
             };
 
             var bottom_onmousedown = function(layer) {
+                layer.node.parent._DOMElement.draggable('disable');
+
                 if (!mouse.isDoubleClick())
                     return;
 
-                layer.draggable = false;
-                layer.node.parent.draggable = false;
+                layer._DOMElement.draggable('disable');
             };
 
-            var bottom_onmouseout = function(layer) {
-                if (!mouse.isDoubleClick())
-                    return;
-
-                layer.draggable = true;
-                layer.node.parent.draggable = true;
+            var bottom_reenable = function(layer) {
+                // HACK: _DOMElement should not be exposed
+                layer._DOMElement.draggable('enable');
+                layer.node.parent._DOMElement.draggable('enable');
             };
 
             var bottom_ondragstart = function(layer) {
-                if (mouse.isDoubleClick()) {
-                    return;
-                }
-
-                layer.groups = [];
-                layer.dragGroups = [];
             };
 
             var bottom_ondrag = function(layer) {
+                // HACK: _DOMElement should not be exposed
+                layer.node.parent._DOMElement.draggable('disable');
+
                 if (mouse.isDoubleClick()) {
                     return;
                 }
@@ -608,33 +610,6 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 var rx = layer.x - layer.node.parent.x;
                 var ry = layer.y - layer.node.parent.y;
                 var d = layer.strokeMid;
-
-                // Left border?
-                if (rx <= d) {
-                    layer.x = layer.node.parent.x + d;
-                    if (ry < 0) {
-                        layer.y = layer.node.parent.y + d;
-                    }
-                    else if (ry > 50) {
-                        layer.y = layer.node.parent.y + 50 - d; 
-                    }
-                }
-                // Right border?
-                else if (rx >= 100 - d) {
-                    layer.x = layer.node.parent.x + 100 - d;
-                    if (ry < 0) {
-                        layer.y = layer.node.parent.y + d;
-                    }
-                    else if (ry > 50) {
-                        layer.y = layer.node.parent.y + 50 - d; 
-                    }
-                }
-                else if (ry < 25) {
-                    layer.y = layer.node.parent.y + d;
-                }
-                else {
-                    layer.y = layer.node.parent.y + 50 - d; 
-                }
 
                 var toRelationships = controller.getMappingsFor('to', layer.node.parent);
 
@@ -644,8 +619,8 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 for (; i < n; ++i) {
                     var line = toRelationships[i];
                     if (line.node.bottom == layer) {
-                        line.x2 = layer.x;
-                        line.y2 = layer.y;
+                        line.x2 = layer.windowX;
+                        line.y2 = layer.windowY;
                     }
                 }
             };
@@ -654,8 +629,27 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 if (mouse.isDoubleClick())
                     return;
 
-                layer.groups = [layer.node.parent.node.id];
-                layer.dragGroups = [layer.node.parent.node.id];
+                // HACK: _DOMElement should not be exposed
+                layer._DOMElement.draggable('enable');
+                layer.node.parent._DOMElement.draggable('enable');
+
+                // TODO: That 6 is due to borderWidth * 2
+                // TODO: Use width from style
+                // TODO: Use border from style
+
+                var left = layer.x;
+                var top = layer.y;
+                var minargs = [left, 106 - left, top, 56 - top];
+                var idx = minargs.indexOf(Math.min.apply(window, minargs));
+
+                if (idx == 0)
+                    layer.x = 0;
+                else if (idx == 1)
+                    layer.x = 106;
+                else if (idx == 2)
+                    layer.y = 0;
+                else
+                    layer.y = 56;
             };
 
             var occupied = [];
@@ -669,6 +663,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             var circleFeatures = features['bottom'];
             canvas.drawArc(layer, {
                 layer: true,
+                draggable: true,
                 bringToFront: true,
                 strokeStyle: circleFeatures['strokeStyle'],
                 strokeWidth: circleFeatures['strokeWidth'],
@@ -690,7 +685,8 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
                 click: bottom_onclick,
                 mousedown: bottom_onmousedown,
-                mouseout: bottom_onmouseout,
+                mouseout: bottom_reenable,
+                mouseup: bottom_reenable,
                 dragstart: bottom_ondragstart,
                 drag: bottom_ondrag,
                 dragstop: bottom_ondragstop,
