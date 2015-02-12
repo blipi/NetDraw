@@ -25,10 +25,16 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             if (current == drawingLine.node.from || f != 'main')
                 continue;
 
+            console.log(drawingLine.x2 + ">=" + current.x + "&&\n\t" +
+                drawingLine.y2 + ">=" + current.y + "&&\n\t" +
+                drawingLine.x2 + "<=" + (current.x + current.width) + "&&\n\t" +
+                drawingLine.y2 + "<=" + (current.y + current.height));
+
+            // TODO: Magic numbers, 6 is border*2
             if (drawingLine.x2 >= current.x &&
                 drawingLine.y2 >= current.y &&
-                drawingLine.x2 <= current.x + current.width &&
-                drawingLine.y2 <= current.y + current.height)
+                drawingLine.x2 <= current.x + current.width + 6&&
+                drawingLine.y2 <= current.y + current.height + 6)
             {
                 connected = true;
                 drawingLine.node.to = current;
@@ -45,15 +51,15 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 if (idx == 0)
                     drawingLine.x2 = current.x;
                 else if (idx == 1)
-                    drawingLine.x2 = current.x + 100;
+                    drawingLine.x2 = current.x + 106;
                 else if (idx == 2)
                     drawingLine.y2 = current.y;
                 else
-                    drawingLine.y2 = current.y + 50;
+                    drawingLine.y2 = current.y + 56;
 
                 /* Draw bottom */
-                drawingLine.node.bottom = layer.createBottomPoint(current, drawingLine.x2, drawingLine.y2);
-                drawingLine.x2 = drawingLine.node.bottom.x;
+                drawingLine.node.bottom = layer.createBottomPoint(current, drawingLine.x2 - current.windowX, drawingLine.y2 - current.windowY);
+                drawingLine.x2 = drawingLine.node.bottom.windowX;
 
                 break;
             }
@@ -77,8 +83,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             // Circular dependency, async load layer
             layer = require('app/layer');
 
-            canvas.mouseup(_validateRelationship);
-            canvas.mouseout(_validateRelationship);
+            $(window).mouseup(_validateRelationship);
         },
 
         is: function(line) {
@@ -127,11 +132,11 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 arrowAngle: 90,
                 x: 0, y: 0,
 
-                x1: topPoint.x,
-                y1: topPoint.y,
+                x1: topPoint.windowX,
+                y1: topPoint.windowY,
 
-                x2: topLayer.node.bottom ? topLayer.node.bottom.x : (bottomLayer == topLayer ? topPoint.x : topLayer.x + 48),
-                y2: topLayer.node.bottom ? topLayer.node.bottom.y : (bottomLayer == topLayer ? topPoint.y : topLayer.y + 26),
+                x2: topLayer.node.bottom ? topLayer.node.bottom.x : (bottomLayer == topLayer ? topPoint.windowX : topLayer.windowX + 48),
+                y2: topLayer.node.bottom ? topLayer.node.bottom.y : (bottomLayer == topLayer ? topPoint.windowY : topLayer.windowY + 26),
 
                 node: {
                     func: 'line',

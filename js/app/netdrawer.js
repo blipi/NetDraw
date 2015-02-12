@@ -9,12 +9,14 @@ define(function (require) {
         canvasObj = require('app/canvas'),
         mouse = require('utils/mousehelper');
 
+    require('jquery-ui');
+
     var wrapper = controller.getWrapper();
     var canvas = controller.getCanvas();
 
     function initialize()
     {
-        var canvas_onmousemove = function(e) {
+        var window_onmousemove = function(e) {
             var drawingLine = controller.getDrawingLine();
 
             if (drawingLine != null) {
@@ -42,46 +44,14 @@ define(function (require) {
             }
         };
 
-        var window_onscroll = function(e) {
-            var layers = canvas.getLayers();
-            var n = layers.length;
-            var i = 0;
-
-            var offset = 10 * e.originalEvent.wheelDelta / 120;
-
-            for (; i < n; ++i) {
-                if ('node' in layers[i]) {
-                    if ('func' in layers[i].node && layers[i].node.func != 'reserved') {
-                        if ('y1' in layers[i]) {
-                            layers[i].y1 += offset;
-                            layers[i].y2 += offset;
-                        } else {
-                            layers[i].y += offset;
-                        }
-                    }
-                }
-            }
-
-            $('input').each(function(){
-                $(this).css('top', '+=' + offset)
-            })
-
-            $('textarea').each(function(){
-                $(this).css('top', '+=' + offset)
-            })
-
-            canvas.drawLayers();
-        };
-
+        canvasObj.initialize();
+        
         $(window).keydown(window_onkeydown);
-        $(window).bind('mousewheel', window_onscroll);
-        canvas.mousemove(canvas_onmousemove);
-
-        canvasObj.fitToScreen();
+        $(window).mousemove(window_onmousemove);
 
         menu.create();
-
         relationship.initialize();
+        mouse.initialize();
     };
 
     initialize();

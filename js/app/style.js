@@ -36,7 +36,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -81,7 +81,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -116,7 +116,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -142,7 +142,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -168,7 +168,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -194,7 +194,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -220,7 +220,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -246,7 +246,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -272,7 +272,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -298,7 +298,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -324,7 +324,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -350,7 +350,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -376,7 +376,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -402,7 +402,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -428,7 +428,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -454,7 +454,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -480,7 +480,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -506,7 +506,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -532,7 +532,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -558,7 +558,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -584,7 +584,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -610,7 +610,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -636,7 +636,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -662,7 +662,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -688,7 +688,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -714,7 +714,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -740,7 +740,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {
@@ -766,7 +766,7 @@ define(function(require){
                     fillStyle: '#000',
                     strokeWidth: 1,
                     strokeStyle: '#000',
-                    x: 50, y: 25,
+                    x: 50, y: 15,
                 },
 
                 top: {

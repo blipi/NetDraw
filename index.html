@@ -13,6 +13,15 @@
 			overflow: hidden;
 		}
 
+		* {
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-khtml-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+
 		#wrapper {
 			margin: 5px;
 			padding: 0px;
@@ -27,6 +36,15 @@
 			margin: 0px;
 			padding: 0px;
 		}
+
+		#test
+		{
+		    position: absolute;
+		    visibility: hidden;
+		    height: auto;
+		    width: auto;
+		    white-space: nowrap;
+		}
 	</style>
 
 	<script data-main="js/main" src="js/lib/require.js"></script>
@@ -35,9 +53,15 @@
 <body>
 
 	<div id="wrapper">
+		<!--
 		<canvas id="canvas" height="50px" width="50px">
 			Your browser does not support the HTML5 canvas tag. <br /> Please update to a newer browser.
 		</canvas>
+		!-->
+		<div id="canvas" height="50px" width="50px"></div>
+	</div>
+
+	<div id="test">
 	</div>
 
 </body>

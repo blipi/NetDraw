@@ -375,14 +375,14 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
             var box = canvas.getLayer(-1);
 
             /* Text */
-            canvas.drawText({
+            canvas.drawTextInto(box, {
                 layer: true,
                 draggable: false,
                 fillStyle: "#000",
                 strokeStyle: "#000",
                 strokeWidth: 0,
                 fromCenter: false,
-                x: 20, y: 15,
+                x: 20, y: 0,
                 fontSize: 13,
                 fontFamily: 'Verdana, sans-serif',
                 text: "Import prototxt",
@@ -390,6 +390,46 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 click: showImport
             });
 
+            var menu_onclick = function(layer){
+                if (!instances[layer.g][3]) {
+                    /* Expand */
+                    for (g in instances) {
+
+                        this.animateLayer(instances[g][0], {
+                            y: menuY - 3
+                        }, 'medium', 'swing');
+
+                        if (instances[g][0] == layer || instances[g][1] == layer) {
+                            canvas.bringToFront(instances[g][0]);
+                            canvas.bringToFront(instances[g][1]);
+                        }
+                    }
+
+                    for (l in instances[layer.g][2]) {
+                        instances[layer.g][2][l].visible = true;
+                        instances[layer.g][2][l].node.textElement.visible = true;
+                    }
+                } else {
+                    var ey = menuY;
+                    
+                    for (l in instances[layer.g][2]) {
+                        instances[layer.g][2][l].visible = false;
+                        instances[layer.g][2][l].node.textElement.visible = false;
+                    }
+
+                    /* Expand */
+                    for (g in instances) {
+
+                        this.animateLayer(instances[g][0], {
+                            y: ey - 3
+                        }, 'medium', 'swing');
+
+                        ey += 25;
+                    }
+                }
+
+                instances[layer.g][3] = !instances[layer.g][3];
+            };
 
             var ey = menuY;
             for (group in this.groups) {
@@ -407,117 +447,45 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                     strokeStyle: "#000000",
                     strokeWidth: 2,
                     fillStyle: "#ea940e",
+                    
+                    expanded: false,
+                    g: group,
+
+                    click: menu_onclick
                 });
 
                 var box = canvas.getLayer(-1);
 
                 /* Text */
-                canvas.drawText({
+                canvas.drawTextInto(box, {
                     layer: true,
                     draggable: false,
                     fillStyle: "#000",
                     strokeStyle: "#000",
                     strokeWidth: 0,
                     fromCenter: false,
-                    x: 10, y: ey,
+                    x: 10, y: 0,
                     fontSize: 13,
                     fontFamily: 'Verdana, sans-serif',
                     text: group,
+
+                    expanded: false,
+                    g: group,
                 });
 
                 var text = canvas.getLayer(-1);
-
-                // Draw a shield-like shape
-                $('canvas').drawPolygon({
-                    layer: true,
-                    fillStyle: '#eadebc',
-                    strokeStyle: '#000000',
-                    strokeWidth: 1,
-                    x: 138, y: ey + 7,
-                    radius: 5,
-                    sides: 3,
-                    concavity: -0.5,
-                    rotate: 180,
-
-                    b: box,
-                    g: group,
-                    t: text,
-
-                    click: function(layer){
-                        if (layer.rotate == 180) {
-                            /* Expand */
-                            for (g in instances) {
-                                $(this).animateLayer(instances[g][0], {
-                                    y: menuY - 3
-                                }, 'medium', 'swing');
-                                $(this).animateLayer(instances[g][1], {
-                                    y: menuY + 7
-                                }, 'medium', 'swing');
-                                $(this).animateLayer(instances[g][2], {
-                                    y: menuY
-                                }, 'medium', 'swing');
-                            }
-
-                            $(this).animateLayer(layer, {
-                                fillStyle: '#eaae0e',
-                                rotate: 0
-                            }, 'slow', 'swing');
-
-                            var top = canvas.getLayers().length;
-                            canvas.moveLayer(layer.b, top);
-                            canvas.moveLayer(layer, top);
-                            canvas.moveLayer(layer.t, top);
-
-                            for (l in instances[layer.g][3]) {
-                                instances[layer.g][3][l].visible = true;
-                                instances[layer.g][3][l].node.textElement.visible = true;
-                            }
-                        } else {
-                            var ey = menuY;
-                            
-                            for (l in instances[layer.g][3]) {
-                                instances[layer.g][3][l].visible = false;
-                                instances[layer.g][3][l].node.textElement.visible = false;
-                            }
-
-                            /* Expand */
-                            for (g in instances) {
-
-                                $(this).animateLayer(instances[g][0], {
-                                    y: ey - 3
-                                }, 'medium', 'swing');
-                                $(this).animateLayer(instances[g][1], {
-                                    y: ey + 7
-                                }, 'medium', 'swing');
-                                $(this).animateLayer(instances[g][2], {
-                                    y: ey
-                                }, 'medium', 'swing');
-                            
-                                ey += 25;
-                            }
-
-                            $(this).animateLayer(layer, {
-                                fillStyle: '#eadebc',
-                                rotate: 180
-                            }, 'slow', 'swing');
-                        }
-                    }
-                });
-
-                var poly = canvas.getLayer(-1);
-
-                var layers = [];
-                var i = 0;
                 
                 console.log("================");
                 console.log(group);
 
+                var layers = [];
+                var i = 0;
                 for (l in this.groups[group]) {
                     layers.push(layer.create(25, menuY + 25 + 60*i, l, false));
                     i += 1;
                 }
 
-                instances[group] = [box, poly, text, layers];
+                instances[group] = [box, text, layers, false];
 
                 ey += 25;
             }

@@ -1,8 +1,12 @@
 define(function (require) {
 
-    var $ = require('jquery');
+    var $ = require('jquery'),
+        style = require('app/style'),
+        canvasObj = require('app/canvas');
+
     require('jcanvas');
-    var style = require('app/style');
+
+    var USE_HTML5_CANVAS = false;
 
     var Controller = function() {
 
@@ -21,8 +25,16 @@ define(function (require) {
         };
 
         this.getCanvas = function() {
-            return $('#canvas');
+            if (USE_HTML5_CANVAS) {
+                return $('#canvas');
+            }
+            
+            return canvasObj;
         },
+
+        this.getDOMCanvas = function() {
+            return $('#canvas');
+        }
 
         this.getWrapper = function() {
             return $('#wrapper');
