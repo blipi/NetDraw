@@ -229,7 +229,9 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
             // Find out the max number of layers in a level of the net
             var layerSeparation = {x: 160, y: -100}
             var maxLayersPerLevel = 0;
+            var levelsCount = 0;
             for (level in levels) {
+                ++levelsCount;
                 if (levels[level].length > maxLayersPerLevel)
                     maxLayersPerLevel = levels[level].length;
             }
@@ -285,9 +287,13 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 }   
             }
 
+            var totalHeight = parseInt(canvas.css('height'));
+            var needHeight = levelsCount * 100;
+            totalHeight = needHeight > totalHeight ? needHeight : totalHeight;
+            canvas.css('height', totalHeight);
 
             var centerX = (parseInt(canvas.css('width')) - 170) / 2 - maxWidth / 2;
-            var y = parseInt(canvas.css('height'));
+            var y = totalHeight - 75;
             for (level in levels) {
                 var layersInLevel = levels[level];
 
