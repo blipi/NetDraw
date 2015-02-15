@@ -116,7 +116,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 })
                 .css({
                     position: 'absolute',
-                    left: layer.windowX + 125,
+                    left: layer.windowX + 125 + 168, // Magic numbers :)
                     top: layer.windowY - 20,
                     width: 200,
                     height: 100,
@@ -154,10 +154,12 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             return textWidth <= 100 ? x - b*2 : (x - (textWidth - 100) / 2) + b*2;
         },
 
-        create: function(x, y, type, visibility) {
+        create: function(x, y, type, visibility, into) {
             console.log("[layer.create] {" + x + "," + y + "," + type + "}");
 
-            var features = style.featuresMapping[type];
+            into = typeof(into) === 'undefined' ? false : into;
+
+            var features = style.featuresMapping[type];           
 
             /* Forward declaration of handlers */
             var rect_ondragstart = function(layer) {
@@ -202,12 +204,13 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             };
 
             var rect_dragstop = function(layer) {
-                var canvasLayer = Layer.create(layer.x, layer.y, layer.node.name, true);
+                var canvasLayer = Layer.create(layer.windowX, layer.windowY, layer.node.name, true);
                 canvasLayer.node.counter = _realCounter;
                 canvasLayer.node.textElement.text = canvasLayer.node.name + '_' + _realCounter;
                 canvasLayer.node.textElement.node.func = 'text';
                 canvasLayer.node.textElement.x = Layer.getTextX(canvasLayer.node.textElement.text, canvasLayer.strokeWidth);
                 canvasLayer.node.func = 'main';
+                canvasLayer.fixTo(controller.getDOMCanvas());
                 Layer.createTopPoint(canvasLayer);
 
                 ++_realCounter;
@@ -222,16 +225,13 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                     controller.clearSelection();
                 }
                 canvasLayer.dragstart = function(layer) {
-                    console.log("DRAGSTART IN");
                     controller.setSelection(layer);
                     layer.strokeStyle = "#a23";
                     canvas.bringToFront(layer);
                 }
             };
 
-
-            /* Draw all usable elements */
-            canvas.drawRect({
+            var params = {
                 layer: true,
                 draggable: true,
                 bringToFront: true,
@@ -260,7 +260,15 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 dragstart: rect_ondragstart,
                 drag: rect_drag,
                 dragstop: rect_dragstop
-            });
+            };
+
+            if (into === false) {
+                /* Draw all usable elements */
+                canvas.drawRect(params);
+            }
+            else {
+                canvas.drawRectInto(into, params, false);
+            }
 
             var currentLayer = canvas.getLayer(-1);
             controller.createLayerMappings(currentLayer);
@@ -379,6 +387,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             layer.node.textElement.text = name;
             layer.node.textElement.node.func = 'text';
             layer.node.textElement.x = Layer.getTextX(layer.node.textElement.text, layer.strokeWidth);
+            layer.fixTo(controller.getDOMCanvas());
             Layer.createTopPoint(layer);
 
             ++_realCounter;

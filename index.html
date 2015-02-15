@@ -27,11 +27,28 @@
 		#wrapper {
 			margin: 5px;
 			padding: 0px;
-			overflow: auto;
 			height: calc(100% - 12px);
 			width: calc(100% - 12px);
 			position: absolute;
+			overflow: hidden;
 			border:1px solid #000000;
+		}
+
+		#scroll_wrapper {
+			position: relative;
+			float: left;
+			overflow: auto;
+			width: calc(100% - 168px);
+			height: 100%;
+		}
+
+		#menu {
+			float: left;
+			width: 150px;
+			height: 100%;
+			overflow: hidden;
+			padding-right: 15px;
+			border-right: 3px solid #000;
 		}
 
 		#canvas {
@@ -39,6 +56,7 @@
 			padding: 0px;
 			overflow: visible;
 			position: relative;
+			width: 100%;
 			height: 100%;
 		}
 
@@ -63,7 +81,10 @@
 			Your browser does not support the HTML5 canvas tag. <br /> Please update to a newer browser.
 		</canvas>
 		!-->
-		<div id="canvas" height="50px" width="50px"></div>
+		<div id="menu"></div>
+		<div id="scroll_wrapper">
+			<div id="canvas"></div>
+		</div>
 	</div>
 
 	<div id="test">

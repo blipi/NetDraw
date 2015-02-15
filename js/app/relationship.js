@@ -147,7 +147,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 x1: topPoint.windowX,
                 y1: topPoint.windowY,
 
-                x2: topLayer.node.bottom ? topLayer.node.bottom.x : (bottomLayer == topLayer ? topPoint.windowX : topLayer.windowX + 48),
+                x2: topLayer.node.bottom ? topLayer.node.bottom.x : (bottomLayer == topLayer ? topPoint.windowX : topLayer.windowX + 60),
                 y2: topLayer.node.bottom ? topLayer.node.bottom.y : (bottomLayer == topLayer ? topPoint.windowY : topLayer.windowY + 26),
 
                 node: {

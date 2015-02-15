@@ -27,6 +27,13 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             }
         }
 
+        this.fixTo = function(to) {
+            this._DOMElement.draggable({
+                scroll: true, scrollSensitivity: 200, scrollSpeed: 5,
+                containment: Canvas._DOMcanvas,
+            });
+        }
+
         for (e in params) {
             this[e] = params[e];
         }
@@ -217,8 +224,8 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         ///////////////////////////////////
         //          GETTERS              //
         ///////////////////////////////////
-        get windowX() { return this._DOMElement.offset().left - 15 }, // TODO: Magic numbers
-        get windowY() { return this._DOMElement.offset().top + Canvas()._wrapper.scrollTop() },
+        get windowX() { return this._DOMElement.offset().left - 15 - 168}, // TODO: Magic numbers
+        get windowY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop() },
         get x() { return this._x; },
         get y() { return this._y; },
         get x1() { return this._x1; },
@@ -240,34 +247,13 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         }
         
         Canvas.prototype._instance = this;
-
-        var _window_onresize = function(e) {
-            w_width = Canvas()._wrapper.css('width');
-            w_height = Canvas()._wrapper.css('height');
-
-            c_width = Canvas()._canvas.css('width');
-            c_height = Canvas()._canvas.css('height');
-
-            console.log("Wrapper [" + w_width + "," + w_height + "]");
-            console.log("Canvas  [" + c_width + "," + c_height + "]");
-
-            var ratio_w = w_width / c_width;
-            var ratio_h = w_height / c_height;
-
-            Canvas()._canvas.attr('width', w_width);
-            Canvas()._canvas.attr('height', w_height);
-
-            Canvas()._canvas.setLayer('scaling', {
-                scaleX: ratio_w, scaleY: ratio_h
-            })
-            .drawLayers();
-        }
    
         this.initialize = function() {
             controller = require('app/controller');
             mouse = require('utils/mousehelper');
 
             this._wrapper = controller.getWrapper();
+            this._scroll_wrapper = $('#scroll_wrapper');
             this._DOMcanvas = controller.getDOMCanvas();
             this._canvas = controller.getCanvas();
             
@@ -387,24 +373,24 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
         // Draws a rectangle
         this.drawRect = function(params) {
-            return this.drawRectInto(this._DOMcanvas, params, 'absolute');
+            return this.drawRectInto(this._DOMcanvas, params);
         }
 
 
         // Draws a rectangle
-        this.drawRectInto = function(into, params, pos) {
+        this.drawRectInto = function(into, params, containment) {
             if (!("x" in params && "y" in params && "width" in params && "height" in params)) {
                 return null;
             }
 
-            pos = typeof(pos) === 'undefined' ? 'relative' : pos;
+            containment = typeof(containment) === 'undefined' ? true : containment;
 
             var element = $('<div>');
             element.attr({
                 id: 'layer_' + Canvas()._id
             })
             .css({
-                position: pos,
+                position: 'absolute',
                 'z-index': 1,
                 border: parseInt(params.strokeWidth) + 'px ' + params.strokeStyle + ' solid',
             })
@@ -422,12 +408,11 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
             var container = into;
             if (params.draggable) {
-                if (into == this._DOMcanvas) {
+                if (!containment) {
                     container = $('#wrapper');
                 }
 
                 element.draggable({
-                    scroll: true, scrollSensitivity: 50, scrollSpeed: 5,
                     containment: container,
                 });
             }
@@ -484,7 +469,7 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             params.width = params.radius*2;
             params.height = params.radius*2;
             params.margin = -10;
-            return this.drawRectInto(into._DOMElement, params, 'absolute');
+            return this.drawRectInto(into._DOMElement, params);
         }
     };
 

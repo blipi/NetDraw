@@ -361,8 +361,10 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 .appendTo('body');
             }
 
+            var menuObj = $('#menu');
+
             // Import button
-            canvas.drawRect({
+            canvas.drawRectInto(menuObj, {
                 layer: true,
                 draggable: false,
                 fromCenter: false,
@@ -441,7 +443,7 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
             for (group in this.groups) {
 
                 /* Box */
-                canvas.drawRect({
+                canvas.drawRectInto(menu, {
                     layer: true,
                     draggable: false,
                     fromCenter: false,
@@ -487,7 +489,7 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 var layers = [];
                 var i = 0;
                 for (l in this.groups[group]) {
-                    layers.push(layer.create(25, menuY + 25 + 60*i, l, false));
+                    layers.push(layer.create(25, menuY + 25 + 60*i, l, false, menu));
                     i += 1;
                 }
 
@@ -495,14 +497,6 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
 
                 ey += 25;
             }
-
-            canvas.drawLine({
-                strokeStyle: '#000',
-                layer: true,
-                strokeWidth: 3,
-                x1: menuSeparatorX, y1: 0,
-                x2: menuSeparatorX, y2: parseInt(canvas.css('height')),
-            });
         }
     };
 

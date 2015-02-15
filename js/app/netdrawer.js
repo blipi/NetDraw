@@ -12,6 +12,8 @@ define(function (require) {
     require('jquery-ui');
 
     var wrapper = controller.getWrapper();
+    // TODO: Controller
+    var scroll_wrapper = $('#scroll_wrapper');
     var canvas = controller.getCanvas();
     var timeout = null;
 
@@ -21,8 +23,8 @@ define(function (require) {
             var drawingLine = controller.getDrawingLine();
 
             if (drawingLine != null) {
-                drawingLine.x2 = e.pageX - 15; // TODO: Magic numbers
-                drawingLine.y2 = e.pageY + wrapper.scrollTop();
+                drawingLine.x2 = e.pageX - 168 - 15; // TODO: Magic numbers
+                drawingLine.y2 = e.pageY + scroll_wrapper.scrollTop();
                 canvas.drawLayers();
             }
         };
@@ -53,7 +55,6 @@ define(function (require) {
                         var selection = controller.getSelection();
 
                         if (!selection || !mouse.isDown()) {
-                            console.log("CLEAR " + selection);
                             clearInterval(timeout);
                             timeout = null;
                             return;
@@ -61,6 +62,7 @@ define(function (require) {
 
                         var h = parseInt(canvas.css('height'));
                         var p = selection.windowY;
+                        console.log(p + ">=" + (h-175));
                         if (p >= h - 175) {
                             canvas.css('height', h + 100);
                         }
