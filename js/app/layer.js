@@ -190,14 +190,14 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
                 if ('input' in layer.node.textElement.node && layer.node.textElement.node.input) {
                     layer.node.textElement.node.input.css({
-                        left: layer.node.textElement.x - 45,
-                        top: layer.node.textElement.y - 7
+                        left: -2,
+                        top: layer.node.textElement.y - 3
                     });
                 }
 
                 if ('params_input' in layer.node && layer.node.params_input) {
                     layer.node.params_input.css({
-                        left: layer.windowX + 125,
+                        left: layer.rawX + 125,
                         top: layer.windowY - 20
                     });
                 }
