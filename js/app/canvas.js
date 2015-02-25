@@ -29,7 +29,6 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
         this.fixTo = function(to) {
             this._DOMElement.draggable({
-                scroll: true, scrollSensitivity: 200, scrollSpeed: 5,
                 containment: Canvas._DOMcanvas,
             });
         }
@@ -216,7 +215,8 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             this._DOMElement.on("dragstop", function(event, ui){
                 var canvas = Canvas();
                 var layer = canvas.findLayer($(this).attr('id'));
-                mouse._window_onmouseup(event);
+
+                mouse.mouseup(event);
                 layer._dragstop.call(canvas, layer, event);
             });
         },
@@ -224,7 +224,9 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         ///////////////////////////////////
         //          GETTERS              //
         ///////////////////////////////////
-        get windowX() { return this._DOMElement.offset().left - 15 - 168}, // TODO: Magic numbers
+        get rawX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft() - 15}, // TODO: Magic numbers
+        get rawY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop() },
+        get windowX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft() - 15 - 168}, // TODO: Magic numbers
         get windowY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop() },
         get x() { return this._x; },
         get y() { return this._y; },
