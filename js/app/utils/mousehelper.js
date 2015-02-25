@@ -20,15 +20,11 @@ define(['jquery', 'app/controller'], function ($, controller) {
         this._down = false;
 
         this.isDoubleClick = function() {
-            if ((this._doubleClick_last < this._up_last && Date.now() - this._doubleClick_last < 500) ||
-                (Date.now() - this._click_last < 500)) {
-
+            if (Date.now() - this._click_last < 500) {
                 this._doubleClick = true;
             }
-            //console.log(this._doubleClick);
-            //console.log(Date.now() - this._doubleClick_last < 500);
-            //console.log("-");
-            return (this._doubleClick && Date.now() - this._doubleClick_last < 500);
+
+            return (this._doubleClick && Date.now() - this._doubleClick_last < 200);
         }
 
         this.isDown = function() {
