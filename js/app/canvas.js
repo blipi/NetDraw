@@ -76,7 +76,7 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         },
 
         set strokeStyle(s) {
-            this._setCSS('border', this.strokeWidth + ' ' + s);
+            this._setCSS('border', this.strokeWidth + 'px solid ' + s);
             this._strokeStyle = s;
         },
 
@@ -433,11 +433,8 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
                 id: 'layer_' + Canvas()._id
             })
             .css({
-                position: 'relative',
                 'font-size': params.fontSize,
                 'font-family': params.fontFamily,
-                border: params.strokeWidth + ' ' + params.strokeStyle,
-                'border-radius': params.cornerRadius
             })
             .appendTo(into._DOMElement);
 

@@ -25,6 +25,11 @@ define(function(require){
                 Style.featuresMapping[type];
         },
 
+        getSelectionColorFor: function(layer) {
+            var style = this.getStyleFor(layer);
+            return 'selection' in style ? style['selection'] : "#a23";
+        },
+
         featuresMapping: {
             'convolution' : {
                 fillStyle: '#256fb3',

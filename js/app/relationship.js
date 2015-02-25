@@ -25,11 +25,6 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             if (current == drawingLine.node.from || f != 'main')
                 continue;
 
-            console.log(drawingLine.x2 + ">=" + current.x + "&&\n\t" +
-                drawingLine.y2 + ">=" + current.y + "&&\n\t" +
-                drawingLine.x2 + "<=" + (current.x + current.width) + "&&\n\t" +
-                drawingLine.y2 + "<=" + (current.y + current.height));
-
             // TODO: Magic numbers, 3 is border
             if (drawingLine.x2 >= current.x - 3 &&
                 drawingLine.y2 >= current.y - 3 &&

@@ -104,7 +104,6 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
         rect_click: function(layer) {
             controller.setSelection(layer);
-            layer.strokeStyle = "#a23";
 
             if (mouse.isDoubleClick() && layer.node.func == 'main') {
                 if (layer.node.params_input)
@@ -151,7 +150,8 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             var textWidth = parseInt($('#test').css('width'));
 
             var x = 100/2 - textWidth / 2;
-            return textWidth <= 100 ? x - b*2 : (x - (textWidth - 100) / 2) + b*2;
+            x = textWidth <= 100 ? x : x - (textWidth - 100) / 2 - b;
+            return x - b*2;
         },
 
         create: function(x, y, type, visibility, into) {
@@ -226,7 +226,6 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 }
                 canvasLayer.dragstart = function(layer) {
                     controller.setSelection(layer);
-                    layer.strokeStyle = "#a23";
                     canvas.bringToFront(layer);
                 }
             };
@@ -282,6 +281,9 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             var text_onclick = function(layer, e) {
                 // Avoid reaching the layer element
                 e.stopPropagation();
+
+                // Select parent
+                controller.setSelection(layer.node.parent);
 
                 if (mouse.isDoubleClick() && layer.node.func == 'text') { 
                     if (layer.node.input)
@@ -376,7 +378,6 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             }
             layer.dragstart = function(layer) {
                 controller.setSelection(layer);
-                layer.strokeStyle = "#a23";
                 canvas.bringToFront(layer);
             }
 
@@ -462,12 +463,13 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             topName = typeof topName === 'undefined' ? (layer.node.top.length ? layer.node.id + '_top_' + layer.node.topCount : layer.node.textElement.text) : topName;
 
             var top_onclick = function(layer, e) {
-                // TODO: Use style for selection
-                layer.strokeStyle = "#a23";
                 controller.setSelection(layer);
 
-                if (mouse.isDoubleClick())
-                    e.stopPropagation();
+                // Stop propagation makes the mouse helper not work
+                e.stopPropagation();
+
+                // So we must manually call it
+                mouse.click(e);
             };
 
             var top_mousedown = function(layer, e) {
@@ -582,8 +584,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
             bottomName = typeof bottomName === 'undefined' ? layer.node.textElement.text : bottomName;
 
-            var bottom_onclick = function(layer, e) {                
-                layer.strokeStyle = "#a23";
+            var bottom_onclick = function(layer, e) {
                 controller.setSelection(layer);
 
                 if (mouse.isDoubleClick())

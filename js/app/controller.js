@@ -46,6 +46,7 @@ define(function (require) {
 
         this.setSelection = function(selection) {
             this._selection = selection;
+            this._selection.strokeStyle = style.getSelectionColorFor(selection);
             this.getCanvas().drawLayers();
         }
 
