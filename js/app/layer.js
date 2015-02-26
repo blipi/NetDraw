@@ -115,7 +115,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 })
                 .css({
                     position: 'absolute',
-                    left: layer.windowX + 125 + 168, // Magic numbers :)
+                    left: layer.windowX + 125, // Magic numbers :)
                     top: layer.windowY - 20,
                     width: 200,
                     height: 100,
@@ -138,7 +138,8 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 .bind('mousewheel', function(e){
                     e.stopPropagation();
                 })
-                .appendTo('body')
+                // HACK: _DOMcanvas should not be accessed
+                .appendTo(canvas._DOMcanvas)
                 .val(layer.node.params);
 
                 layer.node.params_input = input;
@@ -197,7 +198,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
                 if ('params_input' in layer.node && layer.node.params_input) {
                     layer.node.params_input.css({
-                        left: layer.rawX + 125,
+                        left: layer.windowX + 125,
                         top: layer.windowY - 20
                     });
                 }
