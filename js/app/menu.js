@@ -1,4 +1,4 @@
-define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller', 'caffeconstants'], function($, pb, layer, relationship, controller, caffe){
+define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller', 'caffeconstants'], function($, pb, layer, relationship, controller, caffe){
 
     var canvas = controller.getCanvas();
     var instances = {};
@@ -13,17 +13,27 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller',
 
             var levelMapper = {};
 
+            var exists = function(needle, haystack) {
+                for (var i = 0, len = haystack.length; i < len; ++i) {
+                    if (haystack[i].value == needle) {
+                        return i;
+                    }
+                }
+
+                return -1;
+            }
+
             var findLayer = function(search) {
-                var i = net['layers'].length;
+                var i = net.length;
                 while (--i >= 0) {
-                    var layer = net['layers'][i];
+                    var layer = net[i]['layer'];
 
                     if (('top' in layer && 
-                                ((typeof layer.top === 'string' && search == layer.top) || 
-                                ($.isArray(layer.top) && $.inArray(search, layer.top) >= 0))
+                                (('value' in layer.top && search == layer.top.value) || 
+                                ($.isArray(layer.top) && exists(search, layer.top) >= 0))
                             ) && 
                         /*layer.top != layer.bottom &&*/
-                        layer.name in levelMapper) {
+                        layer.name.value in levelMapper) {
 
                         return layer;
                     }
@@ -33,30 +43,32 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller',
             }
 
             var i = 0;
-            var n = net['layers'].length;
+            var n = net.length;
             var levels = {};
             var currentLevel = 0;
             for (; i < n; ++i) {
-                var current = net['layers'][i];
+                var current = net[i]['layer'];
                 var found = false;
 
-                var bottomName = current.bottom;
-                if ($.isArray(current.bottom))
-                {
-                    // Simply use the 1st one, we are not interested in relationships (yet)
-                    // only in jerarchy
-                    bottomName = current.bottom[0];
-                }  
+                if ('bottom' in current) {
+                    var bottomName = current.bottom.value;
+                    if ($.isArray(current.bottom))
+                    {
+                        // Simply use the 1st one, we are not interested in relationships (yet)
+                        // only in jerarchy
+                        bottomName = current.bottom[0].value;
+                    }  
 
-                if (current.bottom && bottomName != current.name) {
-                    var top = findLayer(bottomName);
-                    if (top != null) {
-                        currentLevel = levelMapper[top.name][0] + 1;
-                        found = true;
+                    if (bottomName != current.name.value) {
+                        var top = findLayer(bottomName);
+                        if (top != null) {
+                            currentLevel = levelMapper[top.name.value][0] + 1;
+                            found = true;
+                        }
                     }
                 }
 
-                levelMapper[current.name] = [currentLevel, current];
+                levelMapper[current.name.value] = [currentLevel, current];
 
                 if (!(currentLevel in levels)) {
                     levels[currentLevel] = [];
@@ -92,15 +104,17 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller',
                     }
                 }
 
-                if (typeof netLayer.top === 'string') {
-                    _addTop(netLayer.top);
-                }
-                else if ($.isArray(netLayer.top))
-                {
-                    for (k in netLayer.top) {
-                        _addTop(netLayer.top[k]);
+                if ('top' in netLayer) {
+                    if ('value' in netLayer.top) {
+                        _addTop(netLayer.top.value);
                     }
-                }  
+                    else if ($.isArray(netLayer.top))
+                    {
+                        for (k in netLayer.top) {
+                            _addTop(netLayer.top[k].value);
+                        }
+                    }
+                }
             }
 
             var createRelationship = function(netLayer, outLayer) {
@@ -115,15 +129,17 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller',
                     }
                 }
 
-                if (typeof netLayer.bottom === 'string') {
-                    _create(netLayer.bottom);
-                }
-                else if ($.isArray(netLayer.bottom))
-                {
-                    for (k in netLayer.bottom) {
-                        _create(netLayer.bottom[k]);
+                if ('bottom' in netLayer) {
+                    if ('value' in netLayer.bottom) {
+                        _create(netLayer.bottom.value);
                     }
-                }   
+                    else if ($.isArray(netLayer.bottom))
+                    {
+                        for (k in netLayer.bottom) {
+                            _create(netLayer.bottom[k].value);
+                        }
+                    }
+                }
             }
 
             var totalHeight = parseInt(canvas.css('height'));
@@ -142,8 +158,8 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller',
                 var len = levels[level].length;
                 var x = 170 + centerX + (maxWidth / 2) - (len * layerSeparation.x / 2);
                 for (var i = 0; i < len; ++i) {
-                    var current = net['layers'][levels[level][i]];
-                    var outLayer = layer.createDefinitive(x, y, current.type.toLowerCase(), current.name, current);
+                    var current = net[levels[level][i]]['layer'];
+                    var outLayer = layer.createDefinitive(x, y, current.type.value, current.name.value, current);
 
                     createRelationship(current, outLayer);
                     addToNetLayers(current, outLayer);          
@@ -226,9 +242,11 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller',
                 .keydown(function(e){
                     var code = e.keyCode || e.which;
                     if (code == 13 && e.ctrlKey){
-                        try {
-                            var net = pb.parseProto($(this).val());
+                            var parser = new ProtoBuf();
+                            var net = parser.compile($(this).val());
+                            net = parser.upgrade(net);
                             Menu.createNet(net);
+                        try {
                         }
                         catch (err) {
                             alert("Could not parse net prototxt file");

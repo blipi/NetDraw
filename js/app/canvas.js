@@ -341,22 +341,15 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
         // Move a layer
         this.bringToFront = function(layer) {
-            var max = 0;
-            for (i in this.layers) {
-                var e = this.layers[i]._DOMElement;
-                var m = parseInt(e.css('z-index'));
-                if (m > max) {
-                    max = m;
-                }
-            }
-
-            layer._DOMElement.css('z-index', max + 1);
+            this.max = typeof(this.max) === 'undefined' ? 1 : this.max;
+            layer._DOMElement.css('z-index', this.max + 1);
+            this.max += 1;
         }
 
         this.removeLayer = function(layer) {
             layer._DOMElement.remove();
 
-            for (i in this.layers) {
+            for (var i = 0, len = this.layers.length; i < len; ++i) {
                 if (this.layers[i] == layer) {
                     this.layers.splice(i, 1);
                     break;
