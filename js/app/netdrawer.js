@@ -17,6 +17,171 @@ define(function (require) {
     var canvas = controller.getCanvas();
     var timeout = null;
 
+    function createNet(net) {
+        console.log("[createNet]");
+
+        var levelMapper = {};
+
+        var exists = function(needle, haystack) {
+            for (var i = 0, len = haystack.length; i < len; ++i) {
+                if (haystack[i].value == needle) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        var findLayer = function(search) {
+            var i = net.length;
+            while (--i >= 0) {
+                var layer = net[i]['layer'];
+
+                if (('top' in layer && 
+                            (('value' in layer.top && search == layer.top.value) || 
+                            ($.isArray(layer.top) && exists(search, layer.top) >= 0))
+                        ) && 
+                    /*layer.top != layer.bottom &&*/
+                    layer.name.value in levelMapper) {
+
+                    return layer;
+                }
+            }
+
+            return null;
+        }
+
+        var i = 0;
+        var n = net.length;
+        var levels = {};
+        var currentLevel = 0;
+        for (; i < n; ++i) {
+            var current = net[i]['layer'];
+            var found = false;
+
+            if ('bottom' in current) {
+                var bottomName = current.bottom.value;
+                if ($.isArray(current.bottom))
+                {
+                    // Simply use the 1st one, we are not interested in relationships (yet)
+                    // only in jerarchy
+                    bottomName = current.bottom[0].value;
+                }  
+
+                if (bottomName != current.name.value) {
+                    var top = findLayer(bottomName);
+                    if (top != null) {
+                        currentLevel = levelMapper[top.name.value][0] + 1;
+                        found = true;
+                    }
+                }
+            }
+
+            levelMapper[current.name.value] = [currentLevel, current];
+
+            if (!(currentLevel in levels)) {
+                levels[currentLevel] = [];
+            }
+
+            levels[currentLevel].push(i);
+        }
+
+        // Find out the max number of layers in a level of the net
+        var layerSeparation = {x: 160, y: -100}
+        var maxLayersPerLevel = 0;
+        var levelsCount = 0;
+        for (level in levels) {
+            ++levelsCount;
+            if (levels[level].length > maxLayersPerLevel)
+                maxLayersPerLevel = levels[level].length;
+        }
+
+        var maxWidth = maxLayersPerLevel*layerSeparation.x;
+
+        var netToLayers = {};
+        var addToNetLayers = function(netLayer, outLayer) {
+            var _addTop = function(top) {
+                if (netLayer.include) {
+                    if (!netToLayers[top] || !$.isArray(netToLayers[top]))
+                    {
+                        netToLayers[top] = [];
+                    }
+                    netToLayers[top].push(outLayer);
+                }
+                else {
+                    netToLayers[top] = outLayer;
+                }
+            }
+
+            if ('top' in netLayer) {
+                if ('value' in netLayer.top) {
+                    _addTop(netLayer.top.value);
+                }
+                else if ($.isArray(netLayer.top))
+                {
+                    for (k in netLayer.top) {
+                        _addTop(netLayer.top[k].value);
+                    }
+                }
+            }
+        }
+
+        var createRelationship = function(netLayer, outLayer) {
+            var _create = function(bottom) {
+                if ($.isArray(netToLayers[bottom])) {
+                    for (k in netToLayers[bottom]) {
+                        relationship.create(netToLayers[bottom][k], outLayer);
+                    }
+                }
+                else {
+                    relationship.create(netToLayers[bottom], outLayer);
+                }
+            }
+
+            if ('bottom' in netLayer) {
+                if ('value' in netLayer.bottom) {
+                    _create(netLayer.bottom.value);
+                }
+                else if ($.isArray(netLayer.bottom))
+                {
+                    for (k in netLayer.bottom) {
+                        _create(netLayer.bottom[k].value);
+                    }
+                }
+            }
+        }
+
+        var totalHeight = parseInt(canvas.css('height'));
+        var needHeight = levelsCount * 100;
+        totalHeight = needHeight > totalHeight ? needHeight : totalHeight;
+        canvas.css('height', totalHeight);
+
+        var centerX = (parseInt(canvas.css('width')) - 170) / 2 - maxWidth / 2;
+        var y = totalHeight - 75;
+        for (level in levels) {
+            var layersInLevel = levels[level];
+
+            console.log("===============");
+            console.log("Level " + level);
+
+            var len = levels[level].length;
+            var x = 170 + centerX + (maxWidth / 2) - (len * layerSeparation.x / 2);
+            for (var i = 0; i < len; ++i) {
+                var current = net[levels[level][i]]['layer'];
+                var outLayer = layer.createDefinitive(x, y, current.type.value, current.name.value, current);
+
+                createRelationship(current, outLayer);
+                addToNetLayers(current, outLayer);          
+
+                x += 160;
+            }
+
+            y -= 100;
+        }
+
+        canvas.drawLayers();
+    }
+
     function initialize()
     {
         var window_onmousemove = function(e) {
@@ -165,16 +330,17 @@ define(function (require) {
         importOK.click(function() {
             try {
                 var parser = new ProtoBuf();
-                var net = parser.compile($(this).val());
+                var net = parser.compile(importArea.val());
                 net = parser.upgrade(net);
-                Menu.createNet(net);
+                createNet(net);
+                importCancel.click();
             }
             catch (err) {
-                importError.toggle('slow');
-                importArea.animate({height: '-=30'}, 0);
+                importError.stop().toggle('slow');
+                importArea.stop().animate({height: '-=30'}, 0);
                 setTimeout(function(){
-                    importArea.animate({height: '+=30'}, 0);
-                    importError.toggle('slow');
+                    importArea.stop().animate({height: '+=30'}, 0);
+                    importError.stop().toggle('slow');
                 }, 10000);
             }
         });
