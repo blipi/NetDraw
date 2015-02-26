@@ -1,8 +1,9 @@
-define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship', 'utils/mousehelper'], function($, pb, style, controller, relationship, mouse) {
+define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship', 'utils/mousehelper'], function($, pb, style, controller, relationship, mouse) {
 
     var canvas = controller.getCanvas();
     var _counter = 0;
     var _realCounter = 0;
+    var _parser = new ProtoBuf();
 
     var Layer = {
         remove: function(layer) {
@@ -274,9 +275,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             controller.createLayerMappings(currentLayer);
 
             if ('default' in features) {
-                currentLayer.node.params = pb.getProto(features['default']);
-            } else {
-                currentLayer.node.params = currentLayer.node.name + '_param {\n}';
+                currentLayer.node.params = _parser.decompile(features['default']);
             }
 
             var text_onclick = function(layer, e) {
@@ -388,7 +387,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             // Basic setup (done on dragstop)
             layer.node.counter = _realCounter;
             layer.node.func = 'main';
-            layer.node.params = pb.getProto(params);
+            layer.node.params = _parser.decompile(params);
             layer.node.textElement.text = name;
             layer.node.textElement.node.func = 'text';
             layer.node.textElement.x = Layer.getTextX(layer.node.textElement.text, layer.strokeWidth);

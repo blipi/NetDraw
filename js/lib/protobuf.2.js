@@ -14,6 +14,11 @@ var tokens = {
 	DOT: 9
 };
 
+var Value = function(quoted, value) {
+	this.quoted = quoted;
+	this.value = value;
+}
+
 var ProtoBuf = function() {
     
     this.c = '';
@@ -24,12 +29,7 @@ var ProtoBuf = function() {
     this.buffer = "";
     this.quoted = false;
     this.object = [];
-    this.levelStack = [];
-
-    var Value = function(quoted, value) {
-    	this.quoted = quoted;
-    	this.value = value;
-    }
+    this.levelStack = [];   
 
 	this.isnumber = function(c) {
 		return c >= '0' && c <= '9';
@@ -234,9 +234,11 @@ var ProtoBuf = function() {
 						}
 
 						obj[keyname].push(new Value(this.quoted, this.buffer));
+						this.quoted = false;
 					}
 					else {
 						obj[keyname] = new Value(this.quoted, this.buffer);
+						this.quoted = false;
 					}
 					
 					this.expression();
@@ -275,6 +277,7 @@ var ProtoBuf = function() {
     	this.levelStack = [];
         this.protobuf = pb;
         this.i = 0;
+        this.quoted = false;
 
         this.getsym();
         this.expression();
@@ -319,12 +322,82 @@ var ProtoBuf = function() {
     }
 
     this.decompile = function(pb, version) {
-    	version = typeof(version) === 'undefined' ? version.V1 : version;
+    	version = typeof(version) === 'undefined' ? Version.V1 : version;
 
-    	if (version != version.V0 && version != version.V1) {
+    	if (version != Version.V0 && version != Version.V1) {
     		throw "Unable to decompile";
     	}
 
+    	var decompiled_string = '';
+    	var number_of_ident = 1;
 
+    	var add_key_value = function(keyname, obj) {
+    		decompiled_string += Array(number_of_ident).join("\t")
+
+    		// Special cases:
+    		if (version == Version.V0 && keyname == "type") {
+    			decompiled_string += keyname + ': ' + GetV0LayerType(obj.value) + '\n';
+    		}
+    		if (version == Version.V1 && keyname == "type") {
+    			decompiled_string += keyname + ': "' + obj.value + '"\n';
+    		}
+    		else {
+    			decompiled_string += keyname + ': ' + (obj.quoted ? '"' : '') + obj.value + (obj.quoted ? '"' : '') + '\n';
+    		}
+    	}
+    	var add_obj = function(keyname) {
+    		decompiled_string += Array(number_of_ident).join("\t")
+    		
+    		// Special cases:
+    		if (version == Version.V0 && keyname == "layer") {
+				decompiled_string += 'layers {\n';
+    		}
+    		else if (version == Version.V0 && keyname == "include") {
+    			decompiled_string += 'include: {\n';	
+    		}
+    		else {
+    			decompiled_string += keyname + ' {\n';
+    		}
+    	}
+    	var close_obj = function() {
+    		decompiled_string += Array(number_of_ident).join("\t")
+    		decompiled_string += '}\n';
+    	}
+
+    	var iterative_decompile = function(obj, previous_key) {
+
+    		if ($.isArray(obj)) {
+    			for (var i = 0, len = obj.length; i < len; ++i) {
+					iterative_decompile(obj[i]);
+				}
+    		}
+    		else if (obj instanceof Value) {
+    			add_key_value(previous_key, obj);
+    		}
+    		else {
+	    		for (var keyname in obj) {
+
+	    			if ($.isArray(obj[keyname])) {
+	    				for (var i = 0, len = obj[keyname].length; i < len; ++i) {
+	    					iterative_decompile(obj[keyname][i], keyname);
+	    				}
+	    			}
+	    			else if (obj[keyname] instanceof Value) {
+	    				add_key_value(keyname, obj[keyname]);
+	    			}
+	    			else {
+	    				add_obj(keyname);
+	    				++number_of_ident;
+	    				iterative_decompile(obj[keyname]);
+	    				--number_of_ident;
+	    				close_obj();
+	    			}
+	    		}
+	    	}
+    	}
+
+		iterative_decompile(pb);
+
+		return decompiled_string;
     }
 };

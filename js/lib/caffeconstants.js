@@ -197,3 +197,90 @@ var UpgradeV1LayerType = function(type) {
             return "";
     }
 };
+
+var GetV0LayerType = function(type) {
+    switch (type) {
+        case "Default":
+            return "NONE";
+        case "AbsVal":
+            return "ABSVAL";
+        case "Accuracy":
+            return "ACCURACY";
+        case "ArgMax":
+            return "ARGMAX";
+        case "BNLL":
+            return "BNLL";
+        case "Concat":
+            return "CONCAT";        
+        case "ContrastiveLoss":
+            return "CONTRASTIVE_LOSS";
+        case "Convolution":
+            return "CONVOLUTION";
+        case "Deconvolution":
+            return "DECONVOLUTION";
+        case "Data":
+            return "DATA";
+        case "Dropout":
+            return "DROPOUT";
+        case "DummyData":
+            return "DUMMY_DATA";
+        case "EuclideanLoss":
+            return "EUCLIDEAN_LOSS";
+        case "Eltwise":
+            return "ELTWISE";
+        case "Exp":
+            return "EXP";
+        case "Flatten":
+            return "FLATTEN";
+        case "HDF5Data":
+            return "HDF5_DATA";
+        case "HDF5Output":
+            return "HDF5_OUTPUT";
+        case "HingeLoss":
+            return "HINGE_LOSS";
+        case "Im2col":
+            return "IM2COL";
+        case "ImageData":
+            return "IMAGE_DATA";
+        case "InfogainLoss":
+            return "INFOGAIN_LOSS";
+        case "InnerProduct":
+            return "INNER_PRODUCT";
+        case "LRN":
+            return "LRN";
+        case "MemoryData":
+            return "MEMORY_DATA";
+        case "MultinomialLogisticLoss":
+            return "MULTINOMIAL_LOGISTIC_LOSS";
+        case "MVN":
+            return "MVN";
+        case "Pooling":
+            return "POOLING";
+        case "Power":
+            return "POWER";
+        case "ReLU":
+            return "RELU";
+        case "Sigmoid":
+            return "SIGMOID";
+        case "SigmoidCrossEntropyLoss":
+            return "SIGMOID_CROSS_ENTROPY_LOSS";
+        case "Silence":
+            return "SILENCE";
+        case "Softmax":
+            return "SOFTMAX";
+        case "SoftmaxWithLoss":
+            return "SOFTMAX_LOSS";
+        case "Split":
+            return "SPLIT";
+        case "Slice":
+            return "SLICE";
+        case "TanH":
+            return "TANH";
+        case "WindowData":
+            return "WINDOW_DATA";
+        case "Threshold":
+            return "THRESHOLD";
+        default:
+            return "";
+    }
+};
