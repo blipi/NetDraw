@@ -25,11 +25,10 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             if (current == drawingLine.node.from || f != 'main')
                 continue;
 
-            // TODO: Magic numbers, 3 is border
-            if (drawingLine.x2 >= current.x - 3 &&
-                drawingLine.y2 >= current.y - 3 &&
-                drawingLine.x2 <= current.x + current.width + 3 &&
-                drawingLine.y2 <= current.y + current.height + 3)
+            if (drawingLine.x2 >= current.x &&
+                drawingLine.y2 >= current.y &&
+                drawingLine.x2 <= current.x + current.width &&
+                drawingLine.y2 <= current.y + current.height)
             {
                 connected = true;
                 drawingLine.node.to = current;
@@ -40,7 +39,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 /* Fix position */
                 var left = drawingLine.x2 - current.x;
                 var top = drawingLine.y2 - current.y;
-                var minargs = [left, 100 - left, top, 50 - top];
+                var minargs = [left, 100 - left, top, 55 - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
                 var x = 0, y = 0;
                 if (idx == 0) {
@@ -49,8 +48,8 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                     y = drawingLine.y2 - current.y;
                 }
                 else if (idx == 1) {
-                    drawingLine.x2 = current.x + 106;
-                    x = 106;
+                    drawingLine.x2 = current.x + 100;
+                    x = 100;
                     y = drawingLine.y2 - current.y;
                 }
                 else if (idx == 2) {
@@ -59,9 +58,9 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                     y = 0;
                 }
                 else {
-                    drawingLine.y2 = current.y + 56;
+                    drawingLine.y2 = current.y + 55;
                     x = drawingLine.x2 - current.x;
-                    y = 56;
+                    y = 55;
                 }
 
                 /* Draw bottom */

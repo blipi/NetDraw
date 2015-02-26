@@ -23,7 +23,8 @@ define(function (require) {
             var drawingLine = controller.getDrawingLine();
 
             if (drawingLine != null) {
-                drawingLine.x2 = e.pageX - 168 - 15; // TODO: Magic numbers
+                console.log(e.pageX);
+                drawingLine.x2 = e.pageX - 155.0; // TODO: Magic numbers
                 drawingLine.y2 = e.pageY + scroll_wrapper.scrollTop();
                 canvas.drawLayers();
             }
@@ -147,6 +148,36 @@ define(function (require) {
 
         menu.create();
         relationship.initialize();
+
+        /* Setup some HTML hooks */
+        var wrapper = controller.getWrapper();
+        var importProto = $('#import_prototxt');
+        var importError = $('#import_error');
+        var importArea = $('#import_area');
+        var importOK = $('#import_ok');
+        var importCancel = $('#import_cancel');
+
+        importCancel.click(function() {
+            wrapper.css('z-index', 1);
+            importProto.toggle('fast');
+        });
+
+        importOK.click(function() {
+            try {
+                var parser = new ProtoBuf();
+                var net = parser.compile($(this).val());
+                net = parser.upgrade(net);
+                Menu.createNet(net);
+            }
+            catch (err) {
+                importError.toggle('slow');
+                importArea.animate({height: '-=30'}, 0);
+                setTimeout(function(){
+                    importArea.animate({height: '+=30'}, 0);
+                    importError.toggle('slow');
+                }, 10000);
+            }
+        });
     };
 
     initialize();

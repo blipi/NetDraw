@@ -151,9 +151,8 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             $('#test').css('font-size', 16).html(text);
             var textWidth = parseInt($('#test').css('width'));
 
-            var x = 100/2 - textWidth / 2;
-            x = textWidth <= 100 ? x : x - (textWidth - 100) / 2 - b;
-            return x - b*2;
+            var x = 100/2.0 - textWidth / 2.0 - 2;
+            return x;
         },
 
         create: function(x, y, type, visibility, into) {
@@ -240,7 +239,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 x: x, y: y,
                 ox: x, oy: y,
                 width: 100,
-                height: 50,
+                height: 55,
                 cornerRadius: 6,
                 visible: visibility,
 
@@ -534,17 +533,17 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
                 var left = layer.x;
                 var top = layer.y;
-                var minargs = [left, 106 - left, top, 56 - top];
+                var minargs = [left, 100 - left, top, 55 - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
 
                 if (idx == 0)
                     layer.x = 0;
                 else if (idx == 1)
-                    layer.x = 106;
+                    layer.x = 100;
                 else if (idx == 2)
                     layer.y = 0;
                 else
-                    layer.y = 56;
+                    layer.y = 55;
             };
 
             var circleFeatures = features['top'];
@@ -556,9 +555,9 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 strokeWidth: circleFeatures['strokeWidth'],
                 fillStyle: circleFeatures['fillStyle'],
 
-                x: Layer.findSuitableX(layer.node, layer.node.top, 0, 106, 1.5, 15),
+                x: Layer.findSuitableX(layer.node, layer.node.top, 0, 100, 1.5, 15),
                 y: 0,
-                radius: 5,
+                radius: 7,
 
                 groups: [layer.node.id],
                 dragGroups: [layer.node.id],
@@ -652,17 +651,17 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
                 var left = layer.x;
                 var top = layer.y;
-                var minargs = [left, 106 - left, top, 56 - top];
+                var minargs = [left, 100 - left, top, 55 - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
 
                 if (idx == 0)
                     layer.x = 0;
                 else if (idx == 1)
-                    layer.x = 106;
+                    layer.x = 100;
                 else if (idx == 2)
                     layer.y = 0;
                 else
-                    layer.y = 56;
+                    layer.y = 55;
             };
 
             var occupied = [];
@@ -683,9 +682,9 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 strokeMid: features['strokeWidth'] / 2 - 1.5,
                 fillStyle: circleFeatures['fillStyle'],
 
-                x: Layer.findSuitableX(layer.node, occupied, 0, 106, 1.5, 15, ex),
+                x: Layer.findSuitableX(layer.node, occupied, 0, 100, 1.5, 15, ex),
                 y: ey,
-                radius: 5,
+                radius: 7,
 
                 groups: [layer.node.id],
                 dragGroups: [layer.node.id],

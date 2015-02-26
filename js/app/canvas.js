@@ -20,7 +20,7 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
         this._setAngle = function() {
             if ('_x1' in this && '_y1' in this && '_x2' in this && '_y2' in this) {
-                var angle = Math.atan2(this._y2 - this._y1, this._x2 - this._x1) * 180 / Math.PI;
+                var angle = Math.atan2(this._y2 - this._y1, this._x2 - this._x1) * 180.0 / Math.PI;
                 this._setCSS('transform-origin', '0 0' );
                 this._setCSS('transform', 'rotate(' + angle + 'deg)' );
                 this._setCSS('width', Math.sqrt(Math.pow(this._x1 - this._x2, 2) + Math.pow(this._y1 - this._y2, 2)));
@@ -224,9 +224,9 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         ///////////////////////////////////
         //          GETTERS              //
         ///////////////////////////////////
-        get rawX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft() - 15}, // TODO: Magic numbers
+        get rawX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft()},
         get rawY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop() },
-        get windowX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft() - 15 - 168}, // TODO: Magic numbers
+        get windowX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft() - 155}, // TODO: Magic numbers
         get windowY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop() },
         get x() { return this._x; },
         get y() { return this._y; },
@@ -421,7 +421,7 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
                 return null;
             }
 
-            var element = $('<label>');
+            var element = $('<span>');
             element.attr({
                 id: 'layer_' + Canvas()._id
             })
@@ -443,9 +443,6 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
                 id: 'layer_' + Canvas()._id
             })
             .css({
-                position: 'absolute',
-                'margin': '0px',
-                'margin-left': '15px',
                 border: parseInt(params.strokeWidth) + 'px ' + params.strokeStyle + ' solid',
             })
             .appendTo(Canvas()._DOMcanvas);

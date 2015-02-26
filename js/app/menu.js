@@ -3,7 +3,6 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
     var canvas = controller.getCanvas();
     var instances = {};
     var menuY = 50;
-    var menuSeparatorX = 150;
 
     var Menu = {
 
@@ -222,46 +221,15 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
             console.log(groups);
 
             var showImport = function() {
-                if ($('#import_prototxt').is(':visible'))
+                var importProto = $('#import_prototxt');
+                if (importProto.is(':visible'))
                     return;
 
-                var textX = menuSeparatorX + 10;
-                var input = $('<textarea>');
-                input.attr({
-                    id: 'import_prototxt'
-                })
-                .css({
-                    position: 'absolute',
-                    left: textX,
-                    top: 10,
-                    width: 'calc(100% - ' + (textX + 20) + 'px)',
-                    height: 'calc(100% - 28px)',
-                    border: '2px solid #000',
-                    'border-radius': '2px'
-                })
-                .keydown(function(e){
-                    var code = e.keyCode || e.which;
-                    if (code == 13 && e.ctrlKey){
-                            var parser = new ProtoBuf();
-                            var net = parser.compile($(this).val());
-                            net = parser.upgrade(net);
-                            Menu.createNet(net);
-                        try {
-                        }
-                        catch (err) {
-                            alert("Could not parse net prototxt file");
-                        }
+                var importArea = $('#import_area');
 
-                        $(this).remove();
-                    }
-
-                    // Avoid keys such as "DEL" to reach window
-                    e.stopPropagation();
-                })
-                .bind('mousewheel', function(e){
-                    e.stopPropagation();
-                })
-                .appendTo('body');
+                importArea.val('');
+                importProto.toggle('fast');
+                controller.getWrapper().css('z-index', '-1');
             }
 
             var menuObj = $('#menu');
@@ -273,7 +241,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                 fromCenter: false,
                 x: -3, y: 12,
                 width: 153,
-                height: 20,
+                height: 25,
                 cornerRadius: 0,
 
                 strokeStyle: "#000000",
@@ -335,7 +303,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                             y: ey - 3
                         }, 'medium', 'swing');
 
-                        ey += 25;
+                        ey += 27;
                     }
                 }
 
@@ -352,7 +320,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                     fromCenter: false,
                     x: -3, y: -3 + ey,
                     width: 153,
-                    height: 20,
+                    height: 25,
                     cornerRadius: 0,
 
                     strokeStyle: "#000000",
@@ -400,7 +368,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
 
                 instances[group] = [box, text, layers, false];
 
-                ey += 25;
+                ey += 27;
             }
         }
     };

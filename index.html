@@ -2,6 +2,9 @@
 <html>
 <head>
 	<title>NetDraw</title>
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 
 	<style type="text/css">
 		hml, body, div, canvas {
@@ -24,7 +27,7 @@
 			user-select: none;
 		}
 
-		label
+		span
 		{
 			position: relative;
 			font-size: 16px;
@@ -34,6 +37,22 @@
 			top: 15px; 
 			visibility: visible;
 			white-space: nowrap;
+			cursor: default;
+		}
+
+		hr
+		{
+			position: absolute;
+			margin: 0px;
+		}
+
+		.col-content-centered {
+			text-align: center;
+		}
+
+		.row-100p,
+		.col-100p {
+			height: 100%;
 		}
 
 		#wrapper {
@@ -72,6 +91,11 @@
 			height: 100%;
 		}
 
+		.layer
+		{
+
+		}
+
 		#test
 		{
 		    position: absolute;
@@ -80,6 +104,42 @@
 		    width: auto;
 		    white-space: nowrap;
 		}
+
+		#import_prototxt
+		{
+			position: absolute;
+			background-color: #fefefe;
+            left: 10px;
+            top: 10px;
+            width: calc(100% - 24px);
+            height: calc(100% - 24px);
+			border: 2px solid #000;
+            border-radius: 20px;
+            padding-top: 10px;
+            z-index: 1;
+            display: none;
+        }
+
+        #import_error
+        {
+        	padding: 10px;
+        	display: none;
+        }
+
+        #import_area
+        {
+        	height: calc(100% - 30px);
+        	width: calc(100% - 220px);
+        	border-radius: 20px;
+        	padding: 20px;
+        }
+
+        #import_area:active,
+        #import_area:focus
+        {
+        	outline: none !important;
+        	box-shadow: 0 0 20px #428793;
+        }
 	</style>
 
 	<script data-main="js/main" src="js/lib/require.js"></script>
@@ -99,8 +159,29 @@
 		</div>
 	</div>
 
-	<div id="test">
+	<!-- Importing -->
+	<div id="import_prototxt" class="container">
+		<p id="import_error" class="bg-danger col-content-centered"><strong>Prototxt content seems to be invalid, please check and try again.</strong></p>
+
+		<div class="row row-100p">
+			<div class="col-2 col-md-2 col-lg-2 col-content-centered">
+				<button id="import_ok" type="button" class="btn btn-success btn-lg">
+					<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Import
+				</button>
+
+				<button id="import_cancel" type="button" class="btn btn-danger btn-lg">
+					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel
+				</button>
+			</div>
+
+			<div class="col-10 col-md-10 col-lg-10 col-100p">
+				<textarea id="import_area" placeholder="Paste prototxt contents here"></textarea>
+			</div>
+		</div>
 	</div>
+
+	<!-- Font width testing -->
+	<span id="test"></span>
 
 </body>
 </html>
