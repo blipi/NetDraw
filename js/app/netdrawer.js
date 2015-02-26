@@ -321,6 +321,7 @@ define(function (require) {
         var importArea = $('#import_area');
         var importOK = $('#import_ok');
         var importCancel = $('#import_cancel');
+        var importTimeout = undefined;
 
         importCancel.click(function() {
             wrapper.css('z-index', 1);
@@ -336,11 +337,19 @@ define(function (require) {
                 importCancel.click();
             }
             catch (err) {
-                importError.stop().toggle('slow');
-                importArea.stop().animate({height: '-=30'}, 0);
-                setTimeout(function(){
-                    importArea.stop().animate({height: '+=30'}, 0);
-                    importError.stop().toggle('slow');
+                if (!importTimeout) {
+                    importError.toggle('slow');
+                    importArea.animate({height: '-=30'}, 0);
+                }
+                else {
+                    clearTimeout(importTimeout);
+                }
+
+                importTimeout = setTimeout(function(){
+                    importArea.animate({height: '+=30'}, 0);
+                    importError.toggle('slow', function(){
+                        importTimeout = undefined;
+                    });
                 }, 10000);
             }
         });
