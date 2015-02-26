@@ -11,6 +11,7 @@ var tokens = {
 	COLON: 6,
 	NL: 7,
 	COMMENT: 8,
+	DOT: 9
 };
 
 var ProtoBuf = function() {
@@ -61,6 +62,9 @@ var ProtoBuf = function() {
 		}
 		else if (c == '#') {
 			this.sym = tokens.COMMENT;
+		}
+		else if (c == '.') {
+			this.sym = tokens.DOT;
 		}
 		else if (this.isnumber(c)) {
 			this.sym = tokens.NUMBER;
@@ -118,10 +122,19 @@ var ProtoBuf = function() {
 	this.number = function() {
 		while (this.accept(tokens.IDENT));
 
+		var decimals = false;
+
 		if (this.accept(tokens.NUMBER)) {
 			this.buffer = this.oldc;
 
-			while (this.accept(tokens.NUMBER)) {
+			while (true) {
+				if (!decimals && this.accept(tokens.DOT)) {
+					decimals = true;
+				}
+				else if (!this.accept(tokens.NUMBER)) {
+					break;
+				}
+				
 				this.buffer += this.oldc;
 			}
 
