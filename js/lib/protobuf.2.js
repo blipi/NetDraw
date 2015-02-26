@@ -150,7 +150,7 @@ var ProtoBuf = function() {
 	this.handleLBRACE = function(keyname) {
 		while (this.accept(tokens.IDENT));
 
-		if (keyname in this.object) {
+		if (keyname in this.object || $.isArray(this.object)) {
 			if (!$.isArray(this.object)) {
 				this.object = [this.object];
 			}
@@ -205,7 +205,6 @@ var ProtoBuf = function() {
 
 				// Older prototxt might use "include : {" which is, by itself, ilegal
 				// but we must be able to handle it
-
 				while (this.accept(tokens.IDENT));
 
 				if (this.accept(tokens.LBRACE)) {
