@@ -85,6 +85,7 @@ var ProtoBuf = function() {
 		if (this.accept(s))
 			return true;
 
+		console.log(this);
 		throw "Unexpected symbol in 'expect'";
 	}
 
@@ -105,6 +106,7 @@ var ProtoBuf = function() {
 		else if (this.name()) {
 		}
 		else {
+			console.log(this);
 			throw "Unexpected symbon in 'value'"
 		}
 	}
@@ -141,11 +143,41 @@ var ProtoBuf = function() {
 		return false;
 	}
 
+	this.handleLBRACE = function(keyname) {
+		while (this.accept(tokens.IDENT));
+
+		if (keyname in this.object) {
+			if (!$.isArray(this.object)) {
+				this.object = [this.object];
+			}
+
+			var obj = {};
+			obj[keyname] = {};
+
+			this.object.push(obj);
+			this.levelStack.push(this.object);
+			this.object = obj[keyname];
+		}
+		else {
+			this.object[keyname] = {};
+			this.levelStack.push(this.object);
+			this.object = this.object[keyname];	
+		}
+
+		this.expression();
+	}
+
 	this.expression = function() {
 		while (this.accept(tokens.IDENT));
 
-		if (this.i > this.protobuf.length)
+		if (this.i > this.protobuf.length) {
 			return;
+		}
+
+		if (this.accept(tokens.NL)) {
+			this.expression();
+			return;
+		}
 
 		if (this.name()) {
 			var keyname = this.buffer;
@@ -153,48 +185,36 @@ var ProtoBuf = function() {
 			while (this.accept(tokens.IDENT));
 
 			if (this.accept(tokens.COLON)) {
-				this.value();
-				this.expect(tokens.NL);
 
-				var obj = $.isArray(this.object) ? this.object[this.object.length - 1] : this.object;
+				// Older prototxt might use "include : {" which is, by itself, ilegal
+				// but we must be able to handle it
 
-				if (keyname in obj) {
-					if (!$.isArray(obj[keyname])) {
-						obj[keyname] = [obj[keyname]];
-					}
+				while (this.accept(tokens.IDENT));
 
-					obj[keyname].push(new Value(this.quoted, this.buffer));
+				if (this.accept(tokens.LBRACE)) {
+					this.handleLBRACE(keyname);
 				}
 				else {
-					obj[keyname] = new Value(this.quoted, this.buffer);
-				}
+					this.value();
 
-				this.expression();
+					var obj = $.isArray(this.object) ? this.object[this.object.length - 1] : this.object;
+
+					if (keyname in obj) {
+						if (!$.isArray(obj[keyname])) {
+							obj[keyname] = [obj[keyname]];
+						}
+
+						obj[keyname].push(new Value(this.quoted, this.buffer));
+					}
+					else {
+						obj[keyname] = new Value(this.quoted, this.buffer);
+					}
+					
+					this.expression();
+				}
 			}
 			else if (this.accept(tokens.LBRACE)) {
-				while (this.accept(tokens.IDENT));
-				this.expect(tokens.NL);
-
-
-				if (keyname in this.object) {
-					if (!$.isArray(this.object)) {
-						this.object = [this.object];
-					}
-
-					var obj = {};
-					obj[keyname] = {};
-
-					this.object.push(obj);
-					this.levelStack.push(this.object);
-					this.object = obj[keyname];
-				}
-				else {
-					this.object[keyname] = {};
-					this.levelStack.push(this.object);
-					this.object = this.object[keyname];	
-				}
-
-				this.expression();
+				this.handleLBRACE(keyname);
 			}
 			else {
 				console.log(this);
@@ -203,7 +223,6 @@ var ProtoBuf = function() {
 		}
 		else if (this.accept(tokens.RBRACE)) {
 			while (this.accept(tokens.IDENT));
-			this.expect(tokens.NL);
 
 			this.object = this.levelStack[this.levelStack.length - 1];
 			this.levelStack.pop();
@@ -218,6 +237,11 @@ var ProtoBuf = function() {
 
     
     this.compile = function(pb) {
+    	// It must end with \n, if not, inject it
+    	if (pb.charAt(pb.length - 1) != '\n') {
+    		pb += '\n';
+    	}
+
     	this.object = {};
     	this.levelStack = [];
         this.protobuf = pb;
@@ -225,6 +249,11 @@ var ProtoBuf = function() {
 
         this.getsym();
         this.expression();
+
+        // Consistency, always return an array
+        if (!$.isArray(this.object)) {
+        	this.object = [this.object];
+        }
 
         return this.object;
     }
