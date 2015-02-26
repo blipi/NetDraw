@@ -282,50 +282,52 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 // Avoid reaching the layer element
                 e.stopPropagation();
 
-                // Select parent
-                controller.setSelection(layer.node.parent);
+                if (layer.node.func == 'text') {
+                    // Select parent
+                    controller.setSelection(layer.node.parent);
 
-                if (mouse.isDoubleClick() && layer.node.func == 'text') { 
-                    if (layer.node.input)
-                        return;
+                    if (mouse.isDoubleClick()) { 
+                        if (layer.node.input)
+                            return;
 
-                    var input = $('<input>');
-                    input.attr({
-                        id: layer.node.parent.node.id,
-                        type: 'text',
-                        value: layer.text
-                    })
-                    .css({
-                        position: 'absolute',
-                        left: -2,
-                        top: 12,
-                        width: 100,
-                        height: 20,
-                        'text-align': 'center'
-                    })
-                    .keydown(function(e){
-                        var code = e.keyCode || e.which;
-                        if (code == 13){
-                            if ($(this).val()) {
-                                layer.text = $(this).val();
-                                layer.x = Layer.getTextX(layer.text, layer.node.parent.strokeWidth);
-                                $(this).remove();
-                                canvas.drawLayers();
-                                layer.node.input = null;
+                        var input = $('<input>');
+                        input.attr({
+                            id: layer.node.parent.node.id,
+                            type: 'text',
+                            value: layer.text
+                        })
+                        .css({
+                            position: 'absolute',
+                            left: -2,
+                            top: 12,
+                            width: 100,
+                            height: 20,
+                            'text-align': 'center'
+                        })
+                        .keydown(function(e){
+                            var code = e.keyCode || e.which;
+                            if (code == 13){
+                                if ($(this).val()) {
+                                    layer.text = $(this).val();
+                                    layer.x = Layer.getTextX(layer.text, layer.node.parent.strokeWidth);
+                                    $(this).remove();
+                                    canvas.drawLayers();
+                                    layer.node.input = null;
+                                }
                             }
-                        }
 
-                        // Avoid keys such as "DEL" to reach window
-                        e.stopPropagation();
-                    })
-                    // HACK: _DOMElement should not be accessed
-                    .appendTo(layer.node.parent._DOMElement)
-                    .select();
+                            // Avoid keys such as "DEL" to reach window
+                            e.stopPropagation();
+                        })
+                        // HACK: _DOMElement should not be accessed
+                        .appendTo(layer.node.parent._DOMElement)
+                        .select();
 
-                    layer.node.input = input;
-                    controller.clearSelection();
+                        layer.node.input = input;
+                        controller.clearSelection();
 
-                    return true;
+                        return true;
+                    }
                 }
 
                 return false;
