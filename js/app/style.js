@@ -1,8 +1,65 @@
 define(function(require){
     var $ = require('jquery');
+    var caffe = require('caffeconstants')
+
+    var stylesArray = {}
+    
+    // Convolution
+    stylesArray[V1LayerParameter.LayerType.CONVOLUTION] = {
+        fillStyle: '#256fb3',
+        strokeWidth: 4,
+        strokeStyle: '#000',
+
+        text : {
+            name: 'Conv',
+            fillStyle: '#000',
+            strokeWidth: 1,
+            strokeStyle: '#000',
+            x: 50, y: 15,
+        },
+
+        top: {
+            fillStyle: '#FFF',
+            strokeWidth: 2,
+            strokeStyle: '#000',
+        },
+
+        bottom: {
+            fillStyle: '#000',
+            strokeWidth: 2,
+            strokeStyle: '#FFF',                    
+        },
+    };
+
+    // Default
+    stylesArray[V1LayerParameter.LayerType.NONE] = {
+        fillStyle: '#d7dadd',
+        strokeWidth: 3,
+        strokeStyle: '#000',
+
+        text : {
+            fillStyle: '#000',
+            strokeWidth: 1,
+            strokeStyle: '#000',
+            x: 50, y: 15,
+        },
+
+        top: {
+            fillStyle: '#FFF',
+            strokeWidth: 2,
+            strokeStyle: '#000',                    
+        },
+
+        bottom: {
+            fillStyle: '#000',
+            strokeWidth: 2,
+            strokeStyle: '#FFF',                    
+        }
+    };
 
     var Style = {
         substypes: ['text', 'top', 'bottom'],
+        featuresMapping: {},
 
         getStyleFor: function(layer) {
             var getType = function(layer) {
@@ -12,7 +69,7 @@ define(function(require){
                         getType(layer.node.parent) :
                         ('from' in layer.node ?
                             getType(layer.node.from) :
-                            "DEFAULT"
+                            "Default"
                         )
                     );
             }
@@ -28,86 +85,19 @@ define(function(require){
         getStyleForTypeName: function(type) {
             return type in Style.featuresMapping ? 
                 Style.featuresMapping[type]: 
-                Style.featuresMapping["DEFAULT"];
+                Style.featuresMapping["Default"];
         },
 
         getSelectionColorFor: function(layer) {
             var style = this.getStyleFor(layer);
             return 'selection' in style ? style['selection'] : "#a23";
         },
-
-        featuresMapping: {
-            'convolution' : {
-                fillStyle: '#256fb3',
-                strokeWidth: 4,
-                strokeStyle: '#000',
-
-                text : {
-                    name: 'Conv',
-                    fillStyle: '#000',
-                    strokeWidth: 1,
-                    strokeStyle: '#000',
-                    x: 50, y: 15,
-                },
-
-                top: {
-                    fillStyle: '#FFF',
-                    strokeWidth: 2,
-                    strokeStyle: '#000',
-                },
-
-                bottom: {
-                    fillStyle: '#000',
-                    strokeWidth: 2,
-                    strokeStyle: '#FFF',                    
-                },
-
-                default: {
-                    convolution_param: {
-                        num_output: 0,
-                        kernel_size: 0,
-                        weight_filter: {
-                            type: 'constant',
-                            value: 0
-                        },
-                        bias_term: true,
-                        pad: 0,
-                        stride: 1,
-                        group: 1,
-                        bias_filler: {
-                            type: "constant",
-                            value: 0.2
-                        }
-                    }
-                }
-            },
-
-            'DEFAULT': {
-                fillStyle: '#d7dadd',
-                strokeWidth: 3,
-                strokeStyle: '#000',
-
-                text : {
-                    fillStyle: '#000',
-                    strokeWidth: 1,
-                    strokeStyle: '#000',
-                    x: 50, y: 15,
-                },
-
-                top: {
-                    fillStyle: '#FFF',
-                    strokeWidth: 2,
-                    strokeStyle: '#000',                    
-                },
-
-                bottom: {
-                    fillStyle: '#000',
-                    strokeWidth: 2,
-                    strokeStyle: '#FFF',                    
-                }
-            },
-        }
     };
+
+    // Save layers by name
+    for (var layerConst in stylesArray) {
+        Style.featuresMapping[UpgradeV1LayerType(parseInt(layerConst))] = stylesArray[layerConst];
+    }
 
     return Style;
 });

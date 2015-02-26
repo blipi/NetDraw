@@ -226,9 +226,9 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller',
                 .keydown(function(e){
                     var code = e.keyCode || e.which;
                     if (code == 13 && e.ctrlKey){
+                        try {
                             var net = pb.parseProto($(this).val());
                             Menu.createNet(net);
-                        try {
                         }
                         catch (err) {
                             alert("Could not parse net prototxt file");

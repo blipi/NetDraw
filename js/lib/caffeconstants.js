@@ -114,7 +114,7 @@ var UpgradeV0LayerType = function(type) {
 var UpgradeV1LayerType = function(type) {
     switch (type) {
         case V1LayerParameter.LayerType.NONE:
-            return "";
+            return "Default";
         case V1LayerParameter.LayerType.ABSVAL:
             return "AbsVal";
         case V1LayerParameter.LayerType.ACCURACY:
