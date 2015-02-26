@@ -159,7 +159,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
             into = typeof(into) === 'undefined' ? false : into;
 
-            var features = style.featuresMapping[type];           
+            var features = style.getStyleForTypeName(type);           
 
             /* Forward declaration of handlers */
             var rect_ondragstart = function(layer) {
@@ -332,7 +332,8 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
             };
 
             var textFeatures = features['text'];
-            x = this.getTextX(textFeatures['name'], features['strokeWidth']);
+            var layerName = 'name' in textFeatures ? textFeatures['name'] : type;
+            x = this.getTextX(layerName, features['strokeWidth']);
 
             canvas.drawTextInto(currentLayer, {
                 layer: true,
@@ -343,7 +344,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
                 ox: x, oy: textFeatures['y'],
                 fontSize: 16,
                 fontFamily: 'Verdana, sans-serif',
-                text: textFeatures['name'],
+                text: layerName,
                 visible: visibility,
 
                 node: {
@@ -457,7 +458,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
         createTopPoint: function(layer, topName) {
             console.log('[layer.createTopPoint] {' + layer.node.id + '}');
-            var features = style.featuresMapping[layer.node.name];
+            var features = style.getStyleFor(layer);
 
             ++layer.node.topCount;
             topName = typeof topName === 'undefined' ? (layer.node.top.length ? layer.node.id + '_top_' + layer.node.topCount : layer.node.textElement.text) : topName;
@@ -580,7 +581,7 @@ define(['jquery', 'protobuf', 'app/style', 'app/controller', 'app/relationship',
 
         createBottomPoint: function(layer, ex, ey, bottomName) {
             console.log('[createBottomPoint] {' + layer.node.id + '}');
-            var features = style.featuresMapping[layer.node.name];
+            var features = style.getStyleFor(layer);
 
             bottomName = typeof bottomName === 'undefined' ? layer.node.textElement.text : bottomName;
 

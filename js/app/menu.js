@@ -1,4 +1,4 @@
-define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller'], function($, pb, layer, relationship, controller){
+define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller', 'caffeconstants'], function($, pb, layer, relationship, controller, caffe){
 
     var canvas = controller.getCanvas();
     var instances = {};
@@ -6,168 +6,7 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
     var menuSeparatorX = 150;
 
     var Menu = {
-        groups: {
-            'Vision Layers': {
-                'convolution' : {
-                    'in': ['n', 'c_i', 'h_i', 'w_i'],
-                    'out': ['n', 'c_o', 'h_o', 'w_o'],
 
-                    'pre_conditions': 'num_output && (kernel_size || (kernel_h && kernel_w))',
-                    'pre_transform': [
-                        'var kernel_h = kernel_h || kernel_size',
-                        'var kernel_w = kernel_w || kernel_size',
-                        'var pad_h = pad_h || pad || 0',
-                        'var pad_w = pad_w || pad || 0',
-                        'var stride_h = stride_h || stride || 1',
-                        'var stride_w = stride_w || stride || 1',
-                    ],
-                    'transform_rules' : {
-                        'h_o': '(h_i + 2 * pad_h - kernel_h) / stride_h + 1',
-                        'w_o': '(h_i + 2 * pad_h - kernel_w) / stride_h + 1',
-                    },
-                },
-
-                'pooling' : {
-                    'in': ['n', 'c', 'h_i', 'w_i'],
-                    'out': ['n', 'c', 'h_o', 'w_o'],
-
-                    'pre_conditions': 'kernel_size || (kernel_h && kernel_w)',
-                    'pre_transform': [
-                        'var kernel_h = kernel_h || kernel_size',
-                        'var kernel_w = kernel_w || kernel_size',
-                        'var pad_h = pad_h || pad || 0',
-                        'var pad_w = pad_w || pad || 0',
-                        'var stride_h = stride_h || stride || 1',
-                        'var stride_w = stride_w || stride || 1',
-                    ],
-                    'transform_rules' : {
-                        'h_o': '(h_i + 2 * pad_h - kernel_h) / stride_h + 1',
-                        'w_o': '(h_i + 2 * pad_h - kernel_w) / stride_h + 1',
-                    },
-                },
-
-                'lrn' : {
-                    'in': ['n', 'c', 'h', 'w'],
-                    'out': ['n', 'c', 'h', 'w'],
-                },
-
-                'im2col' : {
-                    'in': ['n', 'c', 'h_i', 'w_i'],
-                    'out': ['n', 'c', 'h_o', 'w_o'],
-                },
-            },
-
-
-            'Loss Layers': {
-                'softmax_loss': {},
-                'euclidean': {},
-                'hinge': {},
-                'sigmoid_gain': {},
-                'infogain': {},
-                'accuracy': {},
-            },
-
-            'Activation Layers': {
-                'relu' : {
-                    'in': ['n', 'c', 'h', 'w'],
-                    'out': ['n', 'c', 'h', 'w']
-                },
-                'dropout': {
-
-                },
-                'sigmoid' : {
-                    'in': ['n', 'c', 'h', 'w'],
-                    'out': ['n', 'c', 'h', 'w']
-                },
-                'tanh' : {
-                    'in': ['n', 'c', 'h', 'w'],
-                    'out': ['n', 'c', 'h', 'w']
-                },
-                'absval' : {
-                    'in': ['n', 'c', 'h', 'w'],
-                    'out': ['n', 'c', 'h', 'w']
-                },
-                'power' : {
-                    'in': ['n', 'c', 'h', 'w'],
-                    'out': ['n', 'c', 'h', 'w']
-                },
-
-                'bnll' : {
-                    'in': ['n', 'c', 'h', 'w'],
-                    'out': ['n', 'c', 'h', 'w']
-                },
-            },
-
-            'Data Layers': {
-                'data' : {
-                    'out': ['n', 'c', 'h', 'w'],
-
-                    'pre_conditions': 'source && batch_size',
-                    'pre_transform': [
-                        'var n = batch_size',
-                        'var c = c || 3',
-                        'var w = w || 256',
-                        'var h = h || 256'
-                    ]
-                },
-                
-                'memory' : {
-                    'out': ['n', 'c', 'h', 'w'],
-
-                    'pre_conditions': 'batch_size && channels && height && width',
-                    'pre_transform': [
-                        'var n = batch_size',
-                        'var c = channels || 3',
-                        'var w = width || 256',
-                        'var h = height || 256'
-                    ]
-                },
-
-                'hdf5' : {
-                    'out': ['n', 'c', 'h', 'w'],
-
-                    'pre_conditions': 'source && batch_size',
-                    'pre_transform': [
-                        'var n = batch_size',
-                        'var c = c || 3',
-                        'var w = w || 256',
-                        'var h = h || 256'
-                    ]
-                },
-
-                'image' : {
-                    'out': ['n', 'c', 'h', 'w'],
-
-                    'pre_conditions': 'source && batch_size',
-                    'pre_transform': [
-                        'var n = batch_size',
-                        'var c = c || 3',
-                        'var w = w || 256',
-                        'var h = h || 256'
-                    ]
-                },
-
-                'window' : {},
-                'dummy' : {},
-            },
-
-            'Common Layers': {
-                'inner_product' : {
-                    'in': ['n', 'c_i', 'h_i', 'w_i'],
-                    'out': ['n', 'c_o', '1', '1'],
-
-                    'pre_conditions': 'num_output',
-                    'pre_transform': [
-                        'var c_o = num_output'
-                    ]
-                },
-                
-                'split' : {},
-                'flatten' : {},
-                'concat' : {},
-                'slice' : {},
-            },
-        },
 
         createNet: function(net) {
             console.log("[createNet]");
@@ -320,6 +159,52 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
 
         create: function() {
 
+            groups = {};
+            groups['Vision Layers'] = [
+                V1LayerParameter.LayerType.CONVOLUTION, 
+                V1LayerParameter.LayerType.POOLING,
+                V1LayerParameter.LayerType.LRN,
+                V1LayerParameter.LayerType.IM2COL
+            ];
+
+            groups['Loss Layers'] = [
+                V1LayerParameter.LayerType.SOFTMAX_LOSS,
+                V1LayerParameter.LayerType.EUCLIDEAN_LOSS,
+                V1LayerParameter.LayerType.HINGE,
+                V1LayerParameter.LayerType.SIGMOID,
+                V1LayerParameter.LayerType.INFOGAIN_LOSS,
+                V1LayerParameter.LayerType.ACCURACY
+            ];
+
+            groups['Activation Layers'] = [
+                V1LayerParameter.LayerType.RELU,
+                V1LayerParameter.LayerType.DROPOUT,
+                V1LayerParameter.LayerType.SIGMOID,
+                V1LayerParameter.LayerType.TANH,
+                V1LayerParameter.LayerType.ABSVAL,
+                V1LayerParameter.LayerType.POWER,
+                V1LayerParameter.LayerType.BNLL
+            ];
+
+            groups['Data Layers'] = [
+                V1LayerParameter.LayerType.DATA,
+                V1LayerParameter.LayerType.MEMORY_DATA,
+                V1LayerParameter.LayerType.HDF5_DATA,
+                V1LayerParameter.LayerType.IMAGE_DATA,
+                V1LayerParameter.LayerType.WINDOW_DATA,
+                V1LayerParameter.LayerType.DUMMY_DATA
+            ];
+
+            groups['Common Layers'] = [
+                V1LayerParameter.LayerType.INNER_PRODUCT,
+                V1LayerParameter.LayerType.SPLIT,
+                V1LayerParameter.LayerType.FLATTEN,
+                V1LayerParameter.LayerType.CONCAT,
+                V1LayerParameter.LayerType.SLICE
+            ];
+
+            console.log(groups);
+
             var showImport = function() {
                 if ($('#import_prototxt').is(':visible'))
                     return;
@@ -341,9 +226,9 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
                 .keydown(function(e){
                     var code = e.keyCode || e.which;
                     if (code == 13 && e.ctrlKey){
-                        try {
                             var net = pb.parseProto($(this).val());
                             Menu.createNet(net);
+                        try {
                         }
                         catch (err) {
                             alert("Could not parse net prototxt file");
@@ -440,7 +325,7 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
             };
 
             var ey = menuY;
-            for (group in this.groups) {
+            for (group in groups) {
 
                 /* Box */
                 canvas.drawRectInto(menu, {
@@ -488,8 +373,10 @@ define(['jquery', 'protobuf', 'app/layer', 'app/relationship', 'app/controller']
 
                 var layers = [];
                 var i = 0;
-                for (l in this.groups[group]) {
-                    layers.push(layer.create(25, menuY + 25 + 60*i, l, false, menu));
+                for (var k = 0, len = groups[group].length; k < len; ++k) {
+                    var layerType = UpgradeV1LayerType(parseInt(groups[group][k]));
+
+                    layers.push(layer.create(25, menuY + 25 + 60*i, layerType, false, menu));
                     i += 1;
                 }
 

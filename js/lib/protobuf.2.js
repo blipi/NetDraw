@@ -88,7 +88,7 @@ var ProtoBuf = function() {
 		throw "Unexpected symbol in 'expect'";
 	}
 
-	this.valor = function() {
+	this.value = function() {
 		while (this.accept(tokens.IDENT));
 
 		if (this.accept(tokens.QUOTE)) {
@@ -105,7 +105,7 @@ var ProtoBuf = function() {
 		else if (this.name()) {
 		}
 		else {
-			throw "Unexpected symbon in 'valor'"
+			throw "Unexpected symbon in 'value'"
 		}
 	}
 
@@ -153,7 +153,7 @@ var ProtoBuf = function() {
 			while (this.accept(tokens.IDENT));
 
 			if (this.accept(tokens.COLON)) {
-				this.valor();
+				this.value();
 				this.expect(tokens.NL);
 
 				var obj = $.isArray(this.object) ? this.object[this.object.length - 1] : this.object;

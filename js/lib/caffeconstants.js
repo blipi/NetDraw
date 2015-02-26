@@ -14,25 +14,39 @@ var V1LayerParameter = {
         CONVOLUTION: 3,
         DATA: 4,
         DROPOUT: 5,
+
+        EUCLIDEAN: 6,
         EUCLIDEAN_LOSS: 6,
-        FLATTEN: 7,
-        HDF5_DATA: 8,
-        HDF5_OUTPUT: 9,
-        IM2COL: 10,
-        IMAGE_DATA: 11,
-        INFOGAIN_LOSS: 12,
-        INNER_PRODUCT: 13,
-        LRN: 14,
-        MULTINOMIAL_LOGISTIC_LOSS: 15,
-        POOLING: 16,
-        RELU: 17,
-        SIGMOID: 18,
-        SOFTMAX: 19,
-        SOFTMAX_LOSS: 20,
-        SPLIT: 21,
-        TANH: 22,
-        WINDOW_DATA: 23
-    }
+
+        HINGE: 7,
+        HINGE_LOSS: 7,
+
+        FLATTEN: 8,
+        HDF5_DATA: 9,
+        HDF5_OUTPUT: 10,
+        IM2COL: 11,
+        IMAGE_DATA: 12,
+        INFOGAIN_LOSS: 13,
+        INNER_PRODUCT: 14,
+        LRN: 15,
+        MULTINOMIAL_LOGISTIC_LOSS: 16,
+        POOLING: 17,
+        RELU: 18,
+        SIGMOID: 19,
+        SOFTMAX: 20,
+        SOFTMAX_LOSS: 21,
+        SPLIT: 22,
+        TANH: 23,
+        WINDOW_DATA: 24,
+
+        ABSVAL: 25,
+        POWER: 26,
+        MEMORY_DATA: 27,
+        DUMMY_DATA: 28,
+        SLICE: 29
+    },
+
+    MaxLayers: 30
 };
 
 var UpgradeV0LayerType = function(type) {
