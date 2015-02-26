@@ -9,7 +9,8 @@ var tokens = {
 	RBRACE: 4,
 	QUOTE: 5,
 	COLON: 6,
-	NL: 7
+	NL: 7,
+	COMMENT: 8,
 };
 
 var ProtoBuf = function() {
@@ -57,6 +58,9 @@ var ProtoBuf = function() {
 		}
 		else if (c == '\n') {
 			this.sym = tokens.NL;
+		}
+		else if (c == '#') {
+			this.sym = tokens.COMMENT;
 		}
 		else if (this.isnumber(c)) {
 			this.sym = tokens.NUMBER;
@@ -168,13 +172,26 @@ var ProtoBuf = function() {
 	}
 
 	this.expression = function() {
+		// Ignore ident
 		while (this.accept(tokens.IDENT));
 
+		// Check if we ended
 		if (this.i > this.protobuf.length) {
 			return;
 		}
 
+		// Ignore newlines
 		if (this.accept(tokens.NL)) {
+			this.expression();
+			return;
+		}
+
+		// Ignore comments
+		if (this.accept(tokens.COMMENT)) {
+			while (!this.accept(tokens.NL)) {
+				this.getsym();
+			}
+
 			this.expression();
 			return;
 		}
