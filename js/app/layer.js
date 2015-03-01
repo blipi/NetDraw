@@ -99,54 +99,10 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             if ('input' in layer.node && layer.node.input) {
                 layer.node.input.remove();
             }
-
-            if ('params_input' in layer.node && layer.node.params_input) {
-                layer.node.params_input.remove();
-            }
         },
 
         rect_click: function(layer) {
             controller.setSelection(layer);
-
-            if (mouse.isDoubleClick() && layer.node.func == 'main') {
-                if (layer.node.params_input)
-                    return;
-
-                var input = $('<textarea>');
-                input.attr({
-                    id: layer.node.id
-                })
-                .css({
-                    position: 'absolute',
-                    left: layer.windowX + 125, // Magic numbers :)
-                    top: layer.windowY - 20,
-                    width: 200,
-                    height: 100,
-                    border: '2px solid #000',
-                    'border-radius': '2px'
-                })
-                .keydown(function(e){
-                    var code = e.keyCode || e.which;
-                    if (code == 13 && e.ctrlKey){
-                        layer.node.params = $(this).val();
-                        $(this).remove();
-                        layer.node.params_input = null;
-
-                        //console.log(pb.getJSON(layer.node.params));
-                    }
-
-                    // Avoid keys such as "DEL" to reach window
-                    e.stopPropagation();
-                })
-                .bind('mousewheel', function(e){
-                    e.stopPropagation();
-                })
-                // HACK: _DOMcanvas should not be accessed
-                .appendTo(canvas._DOMcanvas)
-                .val(layer.node.params);
-
-                layer.node.params_input = input;
-            }
         },
 
         getTextX: function(text, b) {
@@ -165,6 +121,13 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             var features = style.getStyleForTypeName(type);           
 
             /* Forward declaration of handlers */
+            var rect_mousedown = function(layer, e) {
+                if (layer.node.func == 'main') {
+                    controller.setSelection(layer);
+                    e.stopPropagation();
+                }
+            }
+
             var rect_ondragstart = function(layer) {
             };
 
@@ -197,13 +160,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                         top: layer.node.textElement.y - 3
                     });
                 }
-
-                if ('params_input' in layer.node && layer.node.params_input) {
-                    layer.node.params_input.css({
-                        left: layer.windowX + 125,
-                        top: layer.windowY - 20
-                    });
-                }
             };
 
             var rect_dragstop = function(layer) {
@@ -223,10 +179,19 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 layer.node.textElement.x = layer.node.textElement.ox;
                 layer.node.textElement.y = layer.node.textElement.oy;
 
+                $('#layer-menu')
+                    .clone(true)
+                    .attr('id', '')
+                    .appendTo(canvasLayer._DOMElement);
+
+                $('#show-menu')
+                    .clone(true)
+                    .attr('id', '')
+                    .appendTo(canvasLayer._DOMElement);
+
                 canvasLayer.click = Layer.rect_click;
-                canvasLayer.dragstop = function(layer){
-                    controller.clearSelection();
-                }
+                canvasLayer.dragstop = function(layer){}
+
                 canvasLayer.dragstart = function(layer) {
                     controller.setSelection(layer);
                     canvas.bringToFront(layer);
@@ -259,6 +224,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                     topCount: 0,
                 },
 
+                mousedown: rect_mousedown,
                 dragstart: rect_ondragstart,
                 drag: rect_drag,
                 dragstop: rect_dragstop
@@ -368,9 +334,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             layer.click = Layer.rect_click;
             layer.dragstart(layer); // Calling sets the actual function
             // TODO: AVOID REPEATING CODE!
-            layer.dragstop = function(layer){
-                controller.clearSelection();
-            }
+            layer.dragstop = function(layer){}
             layer.dragstart = function(layer) {
                 controller.setSelection(layer);
                 canvas.bringToFront(layer);

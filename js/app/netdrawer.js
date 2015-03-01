@@ -295,7 +295,6 @@ define(function (require) {
 
         var window_onmouseup = function(e) {
             mouse.mouseup(e);
-            controller.clearSelection();
         }
 
         var window_onclick = function(e) {
@@ -351,6 +350,26 @@ define(function (require) {
                     });
                 }, 10000);
             }
+        });
+
+        var hideMenu = $('.hide-menu');
+        hideMenu.click(function(){
+            $(this).parent().hide("blind", {direction: "left"}, 'fast', function(){
+                $(this).siblings('.show-menu').show("blind", {direction: "left"}, 'fast');
+            });
+        });
+        
+        var showMenu = $('.show-menu');
+        showMenu.click(function(){
+            $(this).hide("blind", {direction: "left"}, 'fast', function(){
+                $(this).parent().children('.layer-menu').show("blind", {direction: "left"}, 'fast');
+            });
+        });
+
+        var deleteLayer = $('.delete-layer');
+        deleteLayer.click(function(){
+            var current = controller.getSelection();
+            layer.remove(current);
         });
     };
 
