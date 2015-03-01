@@ -187,7 +187,8 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 $('#show-menu')
                     .clone(true)
                     .attr('id', '')
-                    .appendTo(canvasLayer._DOMElement);
+                    .appendTo(canvasLayer._DOMElement)
+                    .show();
 
                 canvasLayer.click = Layer.rect_click;
                 canvasLayer.dragstop = function(layer){}
