@@ -51,6 +51,8 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 return;
             }
             else if (layer.node.func == 'bottom') {
+                console.log("[layer.remove][bottom] {" + layer.node.name + '}');
+
                 // Find the relationship assosiated with this bottom point and delete it
                 var toRelationships = controller.getMappingsFor('to', layer.node.parent);
                 var n = toRelationships.length;
@@ -278,12 +280,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             }
 
             var text_onclick = function(layer, e) {
-                // Avoid reaching the layer element
-                e.stopPropagation();
-
                 if (layer.node.func == 'text') {
-                    // Select parent
-                    controller.setSelection(layer.node.parent);
 
                     if (mouse.isDoubleClick()) { 
                         if (layer.node.input)
@@ -323,7 +320,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                         .select();
 
                         layer.node.input = input;
-                        controller.clearSelection();
 
                         return true;
                     }
@@ -354,9 +350,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 },
 
                 click: text_onclick,
-                dragstart: function(layer) { layer.node.parent.dragstart(layer.node.parent); },
-                drag: function(layer) { layer.node.parent.drag(layer.node.parent); },
-                dragstop: function(layer) { layer.node.parent.dragstop(layer.node.parent); },
             });
 
             currentLayer.node.textElement = canvas.getLayer(-1);
@@ -398,6 +391,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             return layer;
         },
 
+        // TODO: Must be completely rewritten as to use all 4 borders and not only 1/2
         findSuitableX: function(obj, occupied, xMin, xMax, xPadding, xMove, cx) {
             cx = typeof cx === 'undefined' ? xMin + ((xMax - xMin) / 2) - xPadding : cx;
 
@@ -477,24 +471,19 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             var top_mousedown = function(layer, e) {
                 layer.node.parent._DOMElement.draggable('disable');
 
-                if (!mouse.isDoubleClick())
-                    return;
-
-                layer._DOMElement.draggable('disable');
-
                 if (layer.node.used)
                     return;
 
+                if (!controller.freeDrawing()) {
+                    controller.setInitialNode(layer.node.parent);
+                }
+                
                 relationship.create(layer.node.parent, layer.node.parent, false, layer);
             };
 
             var top_reenable = function(layer) {
                 // HACK: _DOMElement should not be exposed
-                layer._DOMElement.draggable('enable');
                 layer.node.parent._DOMElement.draggable('enable');
-            };
-
-            var top_dragstart = function(layer) {
             };
 
             var top_drag = function(layer) {
@@ -520,13 +509,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             };
 
             var top_dragstop = function(layer) {
-                if (mouse.isDoubleClick())
-                    return;
-
-                // HACK: _DOMElement should not be exposed
-                layer._DOMElement.draggable('enable');
-                layer.node.parent._DOMElement.draggable('enable');
-
                 // TODO: That 6 is due to borderWidth * 2
                 // TODO: Use width from style
                 // TODO: Use border from style
@@ -550,7 +532,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             canvas.drawArc(layer, {
                 layer: true,
                 bringToFront: true,
-                draggable: true,
                 strokeStyle: circleFeatures['strokeStyle'],
                 strokeWidth: circleFeatures['strokeWidth'],
                 fillStyle: circleFeatures['fillStyle'],
@@ -572,9 +553,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 mousedown: top_mousedown,
                 mouseup: top_reenable,
                 mouseout: top_reenable,
-                dragstart: top_dragstart,
-                drag: top_drag,
-                dragstop: top_dragstop,
             });
 
             layer.node.top.push(canvas.getLayer(-1));
@@ -588,9 +566,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
             var bottom_onclick = function(layer, e) {
                 controller.setSelection(layer);
-
-                if (mouse.isDoubleClick())
-                    e.stopPropagation();
             };
 
             var bottom_onmousedown = function(layer) {

@@ -18,11 +18,30 @@ define(function (require) {
 
         this._selection = null;
         this._drawingLine = null;
+        this._initialNode = null;
+        this._callCount = 0;
+        
+        this._autoAdjustArcs = false;
+        this._moveArcs = false;
+        this._freeDrawing = false;
+
 
         this._mappings = {
             'from': {},
             'to': {}
         };
+
+        this.autoAdjustArcs = function() {
+            return this._autoAdjustArcs;
+        }
+
+        this.canMoveArcs = function() {
+            return this._moveArcs;
+        }
+
+        this.freeDrawing = function() {
+            return this._freeDrawing;
+        }
 
         this.getCanvas = function() {
             if (USE_HTML5_CANVAS) {
@@ -39,6 +58,25 @@ define(function (require) {
         this.getWrapper = function() {
             return $('#wrapper');
         },
+
+        this.getInitialNode = function() {
+            ++this._callCount;
+
+            if (this._callCount >= 2) {
+                this._callCount = 0;
+
+                var tmp = this._initialNode;
+                this._initialNode = null;
+                return tmp;
+            }
+
+            return null;
+        }
+
+        this.setInitialNode = function(i) {
+            this._initialNode = i;
+            this._callCount = 0;
+        }
 
         this.getSelection = function() {
             return this._selection;

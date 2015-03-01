@@ -83,13 +83,23 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
         controller.clearDrawingLine();
     };
 
+    function _checkDrawingMode(e) {
+        if (controller.freeDrawing()) {
+            _validateRelationship(e);
+        }
+        else if (controller.getInitialNode()) {
+            _validateRelationship(e);
+        }
+    }
+
     return {
 
         initialize: function() {
             // Circular dependency, async load layer
             layer = require('app/layer');
 
-            $(window).mouseup(_validateRelationship);
+            $(window).mouseup(_checkDrawingMode);
+            $(window).click(_checkDrawingMode);
         },
 
         is: function(line) {
@@ -120,6 +130,12 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             topPoint = typeof(topPoint) === 'undefined' ? 
                 bottomLayer.node.top[bottomLayer.node.top.length - 1] :  // We start from BottomLayer's Top point!
                 topPoint;
+
+            // If we are already drawing, delete the line
+            var currentLine = controller.getDrawingLine();
+            if (currentLine) {
+                canvas.removeLayer(currentLine);
+            }
 
 
             var line_click = function(layer) {

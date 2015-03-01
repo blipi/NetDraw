@@ -48,6 +48,7 @@ define(['jquery', 'app/controller'], function ($, controller) {
         }
 
         this.click = function(e) {
+            MouseHelper()._down = false;
             MouseHelper()._click_last = Date.now();
         }
     };

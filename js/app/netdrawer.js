@@ -188,7 +188,6 @@ define(function (require) {
             var drawingLine = controller.getDrawingLine();
 
             if (drawingLine != null) {
-                console.log(e.pageX);
                 drawingLine.x2 = e.pageX - 155.0; // TODO: Magic numbers
                 drawingLine.y2 = e.pageY + scroll_wrapper.scrollTop();
                 canvas.drawLayers();
