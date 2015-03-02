@@ -213,10 +213,11 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             }, 100);
         },
 
-        create: function(x, y, type, visibility, into) {
+        create: function(x, y, type, visibility, into, isDeletable) {
             console.log("[layer.create] {" + x + "," + y + "," + type + "}");
 
             into = typeof(into) === 'undefined' ? false : into;
+            isDeletable = typeof(isDeletable) === 'undefined' ? true : isDeletable;
 
             var features = style.getStyleForTypeName(type);           
 
@@ -281,6 +282,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             var params = {
                 layer: true,
                 draggable: true,
+                deletable: isDeletable,
                 bringToFront: true,
                 fromCenter: false,
                 x: x, y: y,
@@ -367,6 +369,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
             canvas.drawTextInto(currentLayer, {
                 layer: true,
+                deletable: isDeletable,
                 fillStyle: textFeatures['fillStyle'],
                 strokeStyle: textFeatures['strokeStyle'],
                 strokeWidth: textFeatures['strokeWidth'],

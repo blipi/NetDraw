@@ -69,6 +69,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
             canvas.drawRectInto(menuObj, {
                 layer: true,
                 draggable: false,
+                deletable: false,
                 fromCenter: false,
                 x: -3, y: 12,
 
@@ -81,6 +82,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
             canvas.drawTextInto(box, {
                 layer: true,
                 draggable: false,
+                deletable: false,
                 x: 20, y: 0,
                 text: "Import prototxt",
 
@@ -135,6 +137,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                 canvas.drawRectInto(menu, {
                     layer: true,
                     draggable: false,
+                    deletable: false,
                     fromCenter: false,
                     x: -3, y: -3 + ey,
 
@@ -150,6 +153,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                 canvas.drawTextInto(box, {
                     layer: true,
                     draggable: false,
+                    deletable: false,
                     x: 10, y: 0,
                     text: group,
 
@@ -167,7 +171,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                 for (var k = 0, len = groups[group].length; k < len; ++k) {
                     var layerType = UpgradeV1LayerType(parseInt(groups[group][k]));
 
-                    layers.push(layer.create(25, menuY + 25 + 60*i, layerType, false, menu));
+                    layers.push(layer.create(25, menuY + 25 + 60*i, layerType, false, menu, false));
                     i += 1;
                 }
 

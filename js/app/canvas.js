@@ -357,6 +357,20 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             }
         }
 
+        this.removeAllLayers = function() {
+            var start = 0;
+            while (this.layers.length - start > 0) {
+                if ('deletable' in this.layers[start] &&
+                    !this.layers[start].deletable)
+                {
+                    ++start;
+                    continue;
+                }
+
+                this.removeLayer(this.layers[start]);
+            }
+        }
+
         // Animates a layers
         this.animateLayer = function(layer, params, speed, type) {
             if ("y" in params) params.top = params.y;
@@ -394,7 +408,9 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
                 if (!('dragstop' in params)) params.dragstop = function(){};
             }
 
-            this.layers.push(new Layer(element, TYPE.RECT, params));
+            var layer = new Layer(element, TYPE.RECT, params);
+            this.layers.push(layer);
+
             ++this._id;
 
             var container = into;

@@ -252,13 +252,20 @@ define(function (require) {
 
         importOK.click(function() {
             try {
-                var parser = new ProtoBuf();
-                var net = parser.compile(importArea.val());
-                net = parser.upgrade(net);
-                createNet(net);
-                importCancel.click();
+                $('#loading').show('puff', function(){
+                    var parser = new ProtoBuf();
+                    var net = parser.compile(importArea.val());
+                    net = parser.upgrade(net);
+                    canvas.removeAllLayers();
+                    createNet(net);
+                    importCancel.click();
+
+                    $('#loading').hide('puff');
+                });
             }
             catch (err) {
+                $('#loading').hide('puff');
+
                 if (!importTimeout) {
                     importError.toggle('slow');
                     importArea.animate({height: '-=30'}, 0);
