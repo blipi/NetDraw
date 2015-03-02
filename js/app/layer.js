@@ -297,14 +297,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 fromCenter: false,
                 x: x, y: y,
                 ox: x, oy: y,
-                width: 100,
-                height: 55,
-                cornerRadius: 6,
                 visible: visibility,
-
-                strokeStyle: features['strokeStyle'],
-                strokeWidth: features['strokeWidth'],
-                fillStyle: features['fillStyle'],
 
                 node: {
                     func: 'reserved',
@@ -587,7 +580,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 mousedown: top_mousedown,
                 mouseup: top_reenable,
                 mouseout: top_reenable,
-            });
+            }, 'top');
 
             layer.node.top.push(canvas.getLayer(-1));
         },
@@ -600,6 +593,12 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
             var bottom_onclick = function(layer, e) {
                 controller.setSelection(layer);
+                
+                // Stop propagation makes the mouse helper not work
+                e.stopPropagation();
+
+                // So we must manually call it
+                mouse.click(e);
             };
 
             var bottom_onmousedown = function(layer) {
@@ -711,7 +710,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 dragstart: bottom_ondragstart,
                 drag: bottom_ondrag,
                 dragstop: bottom_ondragstop,
-            });
+            }, 'bot');
 
             return canvas.getLayer(-1);
         }

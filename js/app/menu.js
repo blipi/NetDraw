@@ -51,8 +51,6 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                 V1LayerParameter.LayerType.SLICE
             ];
 
-            console.log(groups);
-
             var showImport = function() {
                 var importProto = $('#import_prototxt');
                 if (importProto.is(':visible'))
@@ -73,16 +71,9 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                 draggable: false,
                 fromCenter: false,
                 x: -3, y: 12,
-                width: 153,
-                height: 25,
-                cornerRadius: 0,
-
-                strokeStyle: "#000000",
-                strokeWidth: 2,
-                fillStyle: "#63ab2a",
 
                 click: showImport
-            });
+            }, undefined, 'menu-import');
 
             var box = canvas.getLayer(-1);
 
@@ -90,13 +81,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
             canvas.drawTextInto(box, {
                 layer: true,
                 draggable: false,
-                fillStyle: "#000",
-                strokeStyle: "#000",
-                strokeWidth: 0,
-                fromCenter: false,
                 x: 20, y: 0,
-                fontSize: 13,
-                fontFamily: 'Verdana, sans-serif',
                 text: "Import prototxt",
 
                 click: showImport
@@ -152,19 +137,12 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                     draggable: false,
                     fromCenter: false,
                     x: -3, y: -3 + ey,
-                    width: 153,
-                    height: 25,
-                    cornerRadius: 0,
 
-                    strokeStyle: "#000000",
-                    strokeWidth: 2,
-                    fillStyle: "#ea940e",
-                    
                     expanded: false,
                     g: group,
 
                     click: menu_onclick
-                });
+                }, undefined, 'menu-box');
 
                 var box = canvas.getLayer(-1);
 
@@ -172,13 +150,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                 canvas.drawTextInto(box, {
                     layer: true,
                     draggable: false,
-                    fillStyle: "#000",
-                    strokeStyle: "#000",
-                    strokeWidth: 0,
-                    fromCenter: false,
                     x: 10, y: 0,
-                    fontSize: 13,
-                    fontFamily: 'Verdana, sans-serif',
                     text: group,
 
                     expanded: false,

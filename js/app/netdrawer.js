@@ -10,6 +10,7 @@ define(function (require) {
         mouse = require('utils/mousehelper');
 
     require('jquery-ui');
+    require('loadCSS');
 
     var wrapper = controller.getWrapper();
     // TODO: Controller
@@ -277,15 +278,15 @@ define(function (require) {
 
         var hideMenu = $('.hide-menu');
         hideMenu.click(function(){
-            $(this).parent().hide("blind", {direction: "left"}, 'fast', function(){
-                $(this).siblings('.show-menu').show("blind", {direction: "left"}, 'fast');
+            $(this).parent().hide("highlight", {direction: "left"}, 'fast', function(){
+                $(this).siblings('.show-menu').show("highlight", {direction: "left"}, 'fast');
             });
         });
         
         var showMenu = $('.show-menu');
         showMenu.click(function(){
-            $(this).hide("blind", {direction: "left"}, 'fast', function(){
-                $(this).parent().children('.layer-menu').show("blind", {direction: "left"}, 'fast');
+            $(this).hide("highlight", {direction: "left"}, 'fast', function(){
+                $(this).parent().children('.layer-menu').show("highlight", {direction: "left"}, 'fast');
             });
         });
 
@@ -295,7 +296,12 @@ define(function (require) {
             layer.remove(current);
         });
 
-        $('#loading').hide('puff');
+        // Dynamically load bootstrap and page css (Must do in this order to preserve hierarchy)
+        loadCSS('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css', undefined, undefined, function(){
+            loadCSS('css/main.css', undefined, undefined, function(){
+                $('#loading').hide('puff');
+            });
+        });
     };
 
     initialize();

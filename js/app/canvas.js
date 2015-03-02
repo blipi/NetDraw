@@ -234,8 +234,8 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         get y1() { return this._y1; },
         get x2() { return this._x2; },
         get y2() { return this._y2; },
-        get width() { return this._width; },
-        get height() { return this._height; },
+        get width() { return parseInt(this._DOMElement.css('width')); },
+        get height() { return parseInt(this._DOMElement.css('height')); },
         get text() { return this._DOMElement.html(); },
 
         // Special cases
@@ -373,23 +373,19 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
 
         // Draws a rectangle
-        this.drawRectInto = function(into, params, containment) {
-            if (!("x" in params && "y" in params && "width" in params && "height" in params)) {
-                return null;
-            }
-
+        this.drawRectInto = function(into, params, containment, className) {     
             containment = typeof(containment) === 'undefined' ? true : containment;
+            className = typeof(className) === 'undefined' ? 'layer ' + params.node.name : className;
 
-            var element = $('<div>');
+            var element = $('<div class="' + className + '">');
             element.attr({
                 id: 'layer_' + Canvas()._id
             })
-            .css({
-                position: 'absolute',
-                'z-index': 1,
-                border: parseInt(params.strokeWidth) + 'px ' + params.strokeStyle + ' solid',
-            })
             .prependTo(into);
+
+            if (className.split(' ')[0] == 'layer') {
+                $('<div class="bg">').prependTo(element);
+            }
 
             if (params.draggable) {
                 // Force a drag and dragstart to be present
@@ -453,12 +449,42 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             return this;
         }
 
-        this.drawArc = function(into, params) {
-            params.cornerRadius = params.radius*2;
+        this.drawArc = function(into, params, className) {
             params.width = params.radius*2;
             params.height = params.radius*2;
             params.margin = -10;
-            return this.drawRectInto(into._DOMElement, params);
+
+            var containment = into._DOMElement;
+
+            var element = $('<div class="arc-' + className + '">');
+            element
+                .attr({
+                    id: 'layer_' + Canvas()._id
+                })
+                .appendTo(into._DOMElement);
+
+            if (params.draggable) {
+                // Force a drag and dragstart to be present
+                if (!('dragstart' in params)) params.dragstart = function(){};
+                if (!('drag' in params)) params.drag = function(){};
+                if (!('dragstop' in params)) params.dragstop = function(){};
+            }
+
+            this.layers.push(new Layer(element, TYPE.ARC, params));
+            ++this._id;
+
+            var container = into._DOMElement;
+            if (params.draggable) {
+                if (!containment) {
+                    container = $('#wrapper');
+                }
+
+                element.draggable({
+                    containment: container,
+                });
+            }
+
+            return this;
         }
     };
 
