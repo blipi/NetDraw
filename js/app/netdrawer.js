@@ -286,6 +286,7 @@ define(function (require) {
         var showMenu = $('.show-menu');
         showMenu.click(function(){
             $(this).hide("highlight", {direction: "left"}, 'fast', function(){
+                canvas.bringToFront(controller.getSelection());
                 $(this).parent().children('.layer-menu').show("highlight", {direction: "left"}, 'fast');
             });
         });

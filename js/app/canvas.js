@@ -341,7 +341,7 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
         // Move a layer
         this.bringToFront = function(layer) {
-            this.max = typeof(this.max) === 'undefined' ? 1 : this.max;
+            this.max = typeof(this.max) === 'undefined' ? 3 : this.max;
             layer._DOMElement.css('z-index', this.max + 1);
             this.max += 1;
         }

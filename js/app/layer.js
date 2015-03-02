@@ -122,6 +122,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
         rect_click: function(layer) {
             controller.setSelection(layer);
+            canvas.bringToFront(layer);
         },
 
         getTextX: function(text, b) {
