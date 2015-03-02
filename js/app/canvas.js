@@ -450,10 +450,6 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         }
 
         this.drawArc = function(into, params, className) {
-            params.width = params.radius*2;
-            params.height = params.radius*2;
-            params.margin = -10;
-
             var containment = into._DOMElement;
 
             var element = $('<div class="arc-' + className + '">');

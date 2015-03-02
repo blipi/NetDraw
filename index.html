@@ -13,11 +13,6 @@
 <body>
 
 	<div id="wrapper">
-		<!--
-		<canvas id="canvas" height="50px" width="50px">
-			Your browser does not support the HTML5 canvas tag. <br /> Please update to a newer browser.
-		</canvas>
-		!-->
 		<div id="menu"></div>
 		<div id="scroll_wrapper">
 			<div id="canvas"></div>
@@ -29,17 +24,24 @@
 		<p id="import_error" class="bg-danger col-content-centered"><strong>Prototxt content seems to be invalid, please check and try again.</strong></p>
 
 		<div class="row row-100p">
-			<div class="col-2 col-md-2 col-lg-2 col-content-centered">
-				<button id="import_ok" type="button" class="btn btn-success btn-lg">
-					<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Import
-				</button>
+			<div class="col-3 col-md-3 col-lg-3 col-content-centered">
+				<h3>Options</h3>
+				<div class="row">
+					<div class="col-6 col-md-6 col-lg-6">
+						<button id="import_ok" type="button" class="btn btn-success btn-lg">
+							<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Import
+						</button>
+					</div>
 
-				<button id="import_cancel" type="button" class="btn btn-danger btn-lg">
-					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel
-				</button>
+					<div class="col-6 col-md-6 col-lg-6">
+						<button id="import_cancel" type="button" class="btn btn-danger btn-lg">
+							<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel
+						</button>
+					</div>
+				</div>
 			</div>
 
-			<div class="col-10 col-md-10 col-lg-10 col-100p">
+			<div class="col-9 col-md-9 col-lg-9 col-100p col-content-centered">
 				<textarea id="import_area" placeholder="Paste prototxt contents here"></textarea>
 			</div>
 		</div>
@@ -67,6 +69,7 @@
 		</button>
 	</div>
 
+	<!-- Display menu button -->
 	<button id="show-menu" type="button" class="btn btn-default btn-circle btn-sm show-menu">
 		<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
 	</button>

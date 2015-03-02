@@ -39,7 +39,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 /* Fix position */
                 var left = drawingLine.x2 - current.x;
                 var top = drawingLine.y2 - current.y;
-                var minargs = [left, 100 - left, top, 55 - top];
+                var minargs = [left, 97 - left, top, 52 - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
                 var x = 0, y = 0;
                 if (idx == 0) {
@@ -48,8 +48,8 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                     y = drawingLine.y2 - current.y;
                 }
                 else if (idx == 1) {
-                    drawingLine.x2 = current.x + 100;
-                    x = 100;
+                    drawingLine.x2 = current.x + 97;
+                    x = 97;
                     y = drawingLine.y2 - current.y;
                 }
                 else if (idx == 2) {
@@ -58,9 +58,9 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                     y = 0;
                 }
                 else {
-                    drawingLine.y2 = current.y + 55;
+                    drawingLine.y2 = current.y + 52;
                     x = drawingLine.x2 - current.x;
-                    y = 55;
+                    y = 52;
                 }
 
                 /* Draw bottom */
@@ -100,6 +100,10 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
 
             $(window).mouseup(_checkDrawingMode);
             $(window).click(_checkDrawingMode);
+        },
+
+        validate: function(e) {
+            _validateRelationship(e);            
         },
 
         is: function(line) {

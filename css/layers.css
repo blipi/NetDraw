@@ -4,6 +4,9 @@
 	position: absolute;
 	border: 2px solid #000;
 	border-radius: 50%;
+	margin: -5px;
+	width: 14px;
+	height: 14px;
 	z-index: 3;
 }
 

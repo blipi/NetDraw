@@ -67,19 +67,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 layer.node.parent.node.top.splice(idx, 1);
                 canvas.removeLayer(layer);
 
-                // How many tops are already being used?
-                --total;
-                var used = 0;
-                for (i = 0; i < total; ++i) {
-                    if (layer.node.parent.node.top[i].node.used)
-                        ++used;
-                }
-
-                // If all are used, create them
-                if (used == total) {
-                    Layer.createTopPoint(layer.node.parent);
-                }
-
                 return;
             }
             else if (layer.node.func == 'bottom') {
@@ -331,52 +318,46 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             }
 
             var text_onclick = function(layer, e) {
-                if (layer.node.func == 'text') {
+                if (layer.node.func == 'text' && mouse.isDoubleClick()) { 
+                    if (layer.node.input)
+                        return;
 
-                    if (mouse.isDoubleClick()) { 
-                        if (layer.node.input)
-                            return;
-
-                        var input = $('<input>');
-                        input.attr({
-                            id: layer.node.parent.node.id,
-                            type: 'text',
-                            value: layer.text
-                        })
-                        .css({
-                            position: 'absolute',
-                            left: -2,
-                            top: 12,
-                            width: 100,
-                            height: 20,
-                            'text-align': 'center'
-                        })
-                        .keydown(function(e){
-                            var code = e.keyCode || e.which;
-                            if (code == 13){
-                                if ($(this).val()) {
-                                    layer.text = $(this).val();
-                                    layer.x = Layer.getTextX(layer.text, layer.node.parent.strokeWidth);
-                                    $(this).remove();
-                                    canvas.drawLayers();
-                                    layer.node.input = null;
-                                }
+                    var input = $('<input>');
+                    input.attr({
+                        id: layer.node.parent.node.id,
+                        type: 'text',
+                        value: layer.text
+                    })
+                    .css({
+                        position: 'absolute',
+                        left: -2,
+                        top: 16,
+                        width: 100,
+                        height: 20,
+                        'z-index': 5,
+                        'text-align': 'center'
+                    })
+                    .keydown(function(e){
+                        var code = e.keyCode || e.which;
+                        if (code == 13){
+                            if ($(this).val()) {
+                                layer.text = $(this).val();
+                                layer.x = Layer.getTextX(layer.text, layer.node.parent.strokeWidth);
+                                $(this).remove();
+                                canvas.drawLayers();
+                                layer.node.input = null;
                             }
+                        }
 
-                            // Avoid keys such as "DEL" to reach window
-                            e.stopPropagation();
-                        })
-                        // HACK: _DOMElement should not be accessed
-                        .appendTo(layer.node.parent._DOMElement)
-                        .select();
+                        // Avoid keys such as "DEL" to reach window
+                        e.stopPropagation();
+                    })
+                    // HACK: _DOMElement should not be accessed
+                    .appendTo(layer.node.parent._DOMElement)
+                    .select();
 
-                        layer.node.input = input;
-
-                        return true;
-                    }
+                    layer.node.input = input;
                 }
-
-                return false;
             };
 
             var textFeatures = features['text'];
@@ -491,6 +472,12 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 // Stop propagation makes the mouse helper not work
                 e.stopPropagation();
 
+                // Delete top
+                if (mouse.isDoubleClick()) {
+                    relationship.validate({pageX:-100, pageY:-100});
+                    Layer.remove(layer);
+                }
+
                 // So we must manually call it
                 mouse.click(e);
             };
@@ -542,17 +529,17 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
                 var left = layer.x;
                 var top = layer.y;
-                var minargs = [left, 100 - left, top, 55 - top];
+                var minargs = [left, 97 - left, top, 52 - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
 
                 if (idx == 0)
                     layer.x = 0;
                 else if (idx == 1)
-                    layer.x = 100;
+                    layer.x = 97;
                 else if (idx == 2)
                     layer.y = 0;
                 else
-                    layer.y = 55;
+                    layer.y = 52;
             };
 
             var circleFeatures = features['top'];
@@ -563,7 +550,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 strokeWidth: circleFeatures['strokeWidth'],
                 fillStyle: circleFeatures['fillStyle'],
 
-                x: Layer.findSuitableX(layer.node, layer.node.top, 0, 100, 1.5, 15),
+                x: Layer.findSuitableX(layer.node, layer.node.top, 0, 97, 1.5, 15),
                 y: 0,
                 radius: 7,
 
@@ -593,9 +580,14 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
             var bottom_onclick = function(layer, e) {
                 controller.setSelection(layer);
-                
+
                 // Stop propagation makes the mouse helper not work
                 e.stopPropagation();
+
+                // Delete bottom
+                if (mouse.isDoubleClick()) {
+                    Layer.remove(layer);
+                }
 
                 // So we must manually call it
                 mouse.click(e);
@@ -659,17 +651,17 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
                 var left = layer.x;
                 var top = layer.y;
-                var minargs = [left, 100 - left, top, 55 - top];
+                var minargs = [left, 97 - left, top, 52 - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
 
                 if (idx == 0)
                     layer.x = 0;
                 else if (idx == 1)
-                    layer.x = 100;
+                    layer.x = 97;
                 else if (idx == 2)
                     layer.y = 0;
                 else
-                    layer.y = 55;
+                    layer.y = 52;
             };
 
             var occupied = [];
@@ -690,7 +682,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 strokeMid: features['strokeWidth'] / 2 - 1.5,
                 fillStyle: circleFeatures['fillStyle'],
 
-                x: Layer.findSuitableX(layer.node, occupied, 0, 100, 1.5, 15, ex),
+                x: Layer.findSuitableX(layer.node, occupied, 0, 97, 1.5, 15, ex),
                 y: ey,
                 radius: 7,
 

@@ -24,7 +24,7 @@ define(['jquery', 'app/controller'], function ($, controller) {
                 this._doubleClick = true;
             }
 
-            return (this._doubleClick && Date.now() - this._doubleClick_last < 200);
+            return this._doubleClick;
         }
 
         this.isDown = function() {
@@ -37,8 +37,8 @@ define(['jquery', 'app/controller'], function ($, controller) {
             } else {
                 MouseHelper()._doubleClick = false;
             }
+            
             MouseHelper()._doubleClick_last = Date.now();
-
             MouseHelper()._down = true;
         }
 
