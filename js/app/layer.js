@@ -113,6 +113,37 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             return x;
         },
 
+        _onSetDefinitive: function(layer) {
+            layer.node.counter = _realCounter;
+            layer.node.textElement.text = layer.node.name + '_' + _realCounter;
+            layer.node.textElement.node.func = 'text';
+            layer.node.textElement.x = Layer.getTextX(layer.node.textElement.text, layer.strokeWidth);
+            layer.node.func = 'main';
+            layer.fixTo(controller.getDOMCanvas());
+            Layer.createTopPoint(layer);
+
+            ++_realCounter;
+
+            $('#layer-menu')
+                .clone(true)
+                .attr('id', '')
+                .appendTo(layer._DOMElement);
+
+            $('#show-menu')
+                .clone(true)
+                .attr('id', '')
+                .appendTo(layer._DOMElement)
+                .show();
+
+            layer.click = Layer.rect_click;
+            layer.dragstop = function(layer){}
+
+            layer.dragstart = function(layer) {
+                controller.setSelection(layer);
+                canvas.bringToFront(layer);
+            }
+        },
+
         create: function(x, y, type, visibility, into) {
             console.log("[layer.create] {" + x + "," + y + "," + type + "}");
 
@@ -164,39 +195,13 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
             var rect_dragstop = function(layer) {
                 var canvasLayer = Layer.create(layer.windowX, layer.windowY, layer.node.name, true);
-                canvasLayer.node.counter = _realCounter;
-                canvasLayer.node.textElement.text = canvasLayer.node.name + '_' + _realCounter;
-                canvasLayer.node.textElement.node.func = 'text';
-                canvasLayer.node.textElement.x = Layer.getTextX(canvasLayer.node.textElement.text, canvasLayer.strokeWidth);
-                canvasLayer.node.func = 'main';
-                canvasLayer.fixTo(controller.getDOMCanvas());
-                Layer.createTopPoint(canvasLayer);
-
-                ++_realCounter;
-
+                
                 layer.x = layer.ox;
                 layer.y = layer.oy;
                 layer.node.textElement.x = layer.node.textElement.ox;
                 layer.node.textElement.y = layer.node.textElement.oy;
 
-                $('#layer-menu')
-                    .clone(true)
-                    .attr('id', '')
-                    .appendTo(canvasLayer._DOMElement);
-
-                $('#show-menu')
-                    .clone(true)
-                    .attr('id', '')
-                    .appendTo(canvasLayer._DOMElement)
-                    .show();
-
-                canvasLayer.click = Layer.rect_click;
-                canvasLayer.dragstop = function(layer){}
-
-                canvasLayer.dragstart = function(layer) {
-                    controller.setSelection(layer);
-                    canvas.bringToFront(layer);
-                }
+                Layer._onSetDefinitive(canvasLayer);
             };
 
             var params = {
@@ -327,32 +332,10 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
         createDefinitive: function(x, y, type, name, params) {
             var layer = Layer.create(x, y, type, true);
-
-            // Force dragstop to be empty
-            layer.dragstop = function(layer){};
-
-            // Setup click and dragstart
-            layer.click = Layer.rect_click;
-            layer.dragstart(layer); // Calling sets the actual function
-            // TODO: AVOID REPEATING CODE!
-            layer.dragstop = function(layer){}
-            layer.dragstart = function(layer) {
-                controller.setSelection(layer);
-                canvas.bringToFront(layer);
-            }
-
-            // Basic setup (done on dragstop)
-            layer.node.counter = _realCounter;
-            layer.node.func = 'main';
             layer.node.params = _parser.decompile(params);
-            layer.node.textElement.text = name;
-            layer.node.textElement.node.func = 'text';
-            layer.node.textElement.x = Layer.getTextX(layer.node.textElement.text, layer.strokeWidth);
-            layer.fixTo(controller.getDOMCanvas());
-            Layer.createTopPoint(layer);
 
-            ++_realCounter;
-
+            this._onSetDefinitive(layer);
+            
             return layer;
         },
 
