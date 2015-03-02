@@ -4,7 +4,8 @@
 	<title>NetDraw</title>
 	
 	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="css/loading.css" />
 
 	<style type="text/css">
 		hml, body, div, canvas {
@@ -193,6 +194,20 @@
         	display: none;
         }
 
+        #loading {
+        	position: absolute;
+        	width: 100%;
+        	height: 100%;
+        	background-color: #333;
+        	z-index: 5;
+        }
+
+        #loading h1 {
+        	color: #fff;
+        	font-variant: small-caps;
+        	text-align: center;
+        }
+
         #precharge {
         	visibility: hidden;
         }
@@ -238,6 +253,12 @@
 				<textarea id="import_area" placeholder="Paste prototxt contents here"></textarea>
 			</div>
 		</div>
+	</div>
+
+	<!-- Loading -->
+	<div id="loading">
+		<h1>Loading... Please wait</h1>
+		<div class="box loading"></div>
 	</div>
 
 	<!-- Layer Menu -->

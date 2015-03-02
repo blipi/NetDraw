@@ -15,7 +15,6 @@ define(function (require) {
     // TODO: Controller
     var scroll_wrapper = $('#scroll_wrapper');
     var canvas = controller.getCanvas();
-    var timeout = null;
 
     function createNet(net) {
         console.log("[createNet]");
@@ -295,6 +294,8 @@ define(function (require) {
             var current = controller.getSelection();
             layer.remove(current);
         });
+
+        $('#loading').hide('puff');
     };
 
     initialize();
