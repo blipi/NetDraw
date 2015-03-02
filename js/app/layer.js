@@ -5,6 +5,38 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
     var _realCounter = 0;
     var _parser = new ProtoBuf();
 
+    var scrollGetter = function(_layer) {
+        if (!scrollGetter.prototype._instance) {
+            scrollGetter.prototype._instance = this;
+        }
+
+        scrollGetter.prototype._instance.layer = _layer;
+        return scrollGetter.prototype._instance;
+    }
+
+    scrollGetter.prototype = {
+        get top () {
+            return parseInt(canvas._scroll_wrapper.scrollTop());
+        },
+        get left () {
+            return parseInt(canvas._scroll_wrapper.scrollLeft());
+        },
+        get width() {
+            return parseInt(canvas.css('width'));
+        },
+        get height() {
+            return parseInt(canvas.css('height'));
+        },
+        get currentX() {
+            return this.layer.windowX;
+        },
+        get currentY() {
+            return this.layer.windowY;
+        }
+    };
+
+    new scrollGetter();
+
     var Layer = {
         remove: function(layer) {
 
@@ -136,12 +168,61 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 .show();
 
             layer.click = Layer.rect_click;
-            layer.dragstop = function(layer){}
+            layer.dragstop = function(layer){
+                clearInterval(layer.node.scrollInterval);
+                layer.node.scrollInterval = null;
+            }
 
             layer.dragstart = function(layer) {
                 controller.setSelection(layer);
                 canvas.bringToFront(layer);
             }
+        },
+
+        _checkLimits: function(layer) {
+            if (layer.node.scrollInterval) {
+                return;
+            }
+
+            layer.node.scrollInterval = setInterval(function(){
+                // BOTTOM
+                if (scrollGetter(layer).currentY >= scrollGetter(layer).height - 200) {
+                    canvas.css('height', scrollGetter(layer).height + 100);
+                    // HACK: Should not access _scroll_wrapper
+                    canvas._scroll_wrapper.scrollTop(scrollGetter(layer).height + 100);
+                    layer.y += 100;
+                }
+
+                // TOP
+                if (scrollGetter(layer).currentY - scrollGetter(layer).top <= 200) {
+                    if (scrollGetter(layer).top > 0) {
+                        canvas._scroll_wrapper.scrollTop(scrollGetter(layer).top - 75);
+                        layer.y -= 75;
+                    }
+                    else {
+                        // TODO: Expand upper limit
+                    }
+                }
+
+                // RIGHT
+                if (scrollGetter(layer).currentX >= scrollGetter(layer).width - 200) {
+                    canvas.css('width', scrollGetter(layer).width + 100);
+                    // HACK: Should not access _scroll_wrapper
+                    canvas._scroll_wrapper.scrollLeft(scrollGetter(layer).width + 100);
+                    layer.x += 100;
+                }
+
+                // TOP
+                if (scrollGetter(layer).currentX - scrollGetter(layer).left <= 200) {
+                    if (scrollGetter(layer).left > 0) {
+                        canvas._scroll_wrapper.scrollLeft(scrollGetter(layer).left - 75);
+                        layer.x -= 75;
+                    }
+                    else {
+                        // TODO: Expand upper limit
+                    }
+                }
+            }, 100);
         },
 
         create: function(x, y, type, visibility, into) {
@@ -163,6 +244,8 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             };
 
             var rect_drag = function(layer) {
+                Layer._checkLimits(layer);
+
                 var mappings = controller.getMappings();
                 var fromRelationships = mappings['from'][layer.node.id];
                 var toRelationships = mappings['to'][layer.node.id];
@@ -194,6 +277,9 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             };
 
             var rect_dragstop = function(layer) {
+                clearInterval(layer.node.scrollInterval);
+                layer.node.scrollInterval = null;
+                
                 var canvasLayer = Layer.create(layer.windowX, layer.windowY, layer.node.name, true);
                 
                 layer.x = layer.ox;

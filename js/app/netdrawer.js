@@ -212,85 +212,9 @@ define(function (require) {
             }
         };
 
-        var scrollGetter = {
-            get top () {
-                return parseInt(canvas._scroll_wrapper.scrollTop());
-            },
-            get left () {
-                return parseInt(canvas._scroll_wrapper.scrollLeft());
-            },
-            get width() {
-                return parseInt(canvas.css('width'));
-            },
-            get height() {
-                return parseInt(canvas.css('height'));
-            },
-            get currentX() {
-                var selection = controller.getSelection();
-                return selection.windowX;
-            },
-            get currentY() {
-                var selection = controller.getSelection();
-                return selection.windowY;
-            }
-        };
-
         var window_onmousedown = function(e) {
             mouse.mousedown(e);
             controller.clearSelection();
-
-            if (!timeout) {
-                // We must wait a little
-                setTimeout(function() {
-                    timeout = setInterval(function(){
-                        var selection = controller.getSelection();
-
-                        if (!selection || !mouse.isDown()) {
-                            clearInterval(timeout);
-                            timeout = null;
-                            return;
-                        }
-
-                        // BOTTOM
-                        if (scrollGetter.currentY >= scrollGetter.height - 200) {
-                            canvas.css('height', scrollGetter.height + 100);
-                            // HACK: Should not access _scroll_wrapper
-                            canvas._scroll_wrapper.scrollTop(scrollGetter.height + 100);
-                            selection.y += 100;
-                        }
-
-                        // TOP
-                        if (scrollGetter.currentY - scrollGetter.top <= 200) {
-                            if (scrollGetter.top > 0) {
-                                canvas._scroll_wrapper.scrollTop(scrollGetter.top - 75);
-                                selection.y -= 75;
-                            }
-                            else {
-                                // TODO: Expand upper limit
-                            }
-                        }
-
-                        // RIGHT
-                        if (scrollGetter.currentX >= scrollGetter.width - 200) {
-                            canvas.css('width', scrollGetter.width + 100);
-                            // HACK: Should not access _scroll_wrapper
-                            canvas._scroll_wrapper.scrollLeft(scrollGetter.width + 100);
-                            selection.x += 100;
-                        }
-
-                        // TOP
-                        if (scrollGetter.currentX - scrollGetter.left <= 200) {
-                            if (scrollGetter.left > 0) {
-                                canvas._scroll_wrapper.scrollLeft(scrollGetter.left - 75);
-                                selection.x -= 75;
-                            }
-                            else {
-                                // TODO: Expand upper limit
-                            }
-                        }
-                    }, 100)
-                }, 500);
-            }
         }
 
         var window_onmouseup = function(e) {
