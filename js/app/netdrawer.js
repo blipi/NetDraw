@@ -251,36 +251,35 @@ define(function (require) {
         });
 
         importOK.click(function() {
-            try {
-                $('#loading').show('puff', function(){
+            $('#loading').show('puff', function(){
+                try {
                     var parser = new ProtoBuf();
                     var net = parser.compile(importArea.val());
                     net = parser.upgrade(net);
                     canvas.removeAllLayers();
                     createNet(net);
                     importCancel.click();
+                }
+                catch (err) {
+                    if (!importTimeout) {
+                        importError.toggle('slow');
+                        importArea.animate({height: '-=30'}, 0);
+                    }
+                    else {
+                        clearTimeout(importTimeout);
+                    }
 
+                    importTimeout = setTimeout(function(){
+                        importArea.animate({height: '+=30'}, 0);
+                        importError.toggle('slow', function(){
+                            importTimeout = undefined;
+                        });
+                    }, 10000);
+                }
+                finally {
                     $('#loading').hide('puff');
-                });
-            }
-            catch (err) {
-                $('#loading').hide('puff');
-
-                if (!importTimeout) {
-                    importError.toggle('slow');
-                    importArea.animate({height: '-=30'}, 0);
                 }
-                else {
-                    clearTimeout(importTimeout);
-                }
-
-                importTimeout = setTimeout(function(){
-                    importArea.animate({height: '+=30'}, 0);
-                    importError.toggle('slow', function(){
-                        importTimeout = undefined;
-                    });
-                }, 10000);
-            }
+            });
         });
 
         var hideMenu = $('.hide-menu');
