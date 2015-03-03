@@ -123,6 +123,10 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
         rect_click: function(layer) {
             controller.setSelection(layer);
             canvas.bringToFront(layer);
+
+            if (mouse.isDoubleClick(layer)) {
+                Layer.createTopPoint(layer);
+            }
         },
 
         getTextX: function(text, b) {
@@ -140,7 +144,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             layer.node.textElement.x = Layer.getTextX(layer.node.textElement.text, layer.strokeWidth);
             layer.node.func = 'main';
             layer.fixTo(controller.getDOMCanvas());
-            Layer.createTopPoint(layer);
 
             ++_realCounter;
 
@@ -361,6 +364,12 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
                     layer.node.input = input;
                 }
+
+                // Trigger mouse click
+                mouse.click(e);
+
+                // Stop propagation
+                e.stopPropagation();
             };
 
             var textFeatures = features['text'];

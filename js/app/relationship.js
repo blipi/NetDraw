@@ -73,9 +73,9 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
 
         if (!connected) {
             canvas.removeLayer(drawingLine);
-        } else {
+        }
+        else {
             drawingLine.node.top.node.used = true;
-            layer.createTopPoint(drawingLine.node.from);
         }
 
         drawingLine.node.from.draggable = true;

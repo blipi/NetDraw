@@ -282,6 +282,12 @@ define(function (require) {
             });
         });
 
+        var layerMenu = $('#layer-menu');
+        layerMenu.click(function(e){
+            // Stop event from reaching the layer
+            e.stopPropagation();
+        });
+
         var hideMenu = $('.hide-menu');
         hideMenu.click(function(){
             $(this).parent().hide("highlight", {direction: "left"}, 'fast', function(){
