@@ -9,6 +9,15 @@
 
 	<script data-main="js/main" src="js/lib/require.js"></script>
 
+	<script>
+	    requirejs.onError = function (err) {
+	    	document.getElementById("loading-text").innerHTML = 'Something went wrong... Reloading in 5s';
+	        setTimeout(function() {
+	            location.reload();
+	        }, 5000);  
+	    };
+	</script>
+
 </head>
 <body>
 
@@ -49,7 +58,7 @@
 
 	<!-- Loading -->
 	<div id="loading">
-		<h1>Loading... Please wait</h1>
+		<h1 id="loading-text">Loading... Please wait</h1>
 		<div class="box loading"></div>
 	</div>
 
