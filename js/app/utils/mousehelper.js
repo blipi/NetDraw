@@ -25,6 +25,10 @@ define(['jquery', 'app/controller'], function ($, controller) {
             this._doubleClick = false;
             this._doubleClick_obj = obj;
 
+            if (dblClick) {
+                this._doubleClick_obj = null;
+            }
+
             return dblClick;
         }
 
