@@ -321,7 +321,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             }
 
             var text_onclick = function(layer, e) {
-                if (layer.node.func == 'text' && mouse.isDoubleClick()) { 
+                if (layer.node.func == 'text' && mouse.isDoubleClick(layer)) { 
                     if (layer.node.input)
                         return;
 
@@ -477,7 +477,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 e.stopPropagation();
 
                 // Delete top
-                if (mouse.isDoubleClick()) {
+                if (mouse.isDoubleClick(layer)) {
                     relationship.validate({pageX:-100, pageY:-100});
                     Layer.remove(layer);
                 }
@@ -507,10 +507,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             var top_drag = function(layer) {
                 // HACK: _DOMElement should not be exposed
                 layer.node.parent._DOMElement.draggable('disable');
-
-                if (mouse.isDoubleClick()) {
-                    return;
-                }
 
                 var fromRelationships = controller.getMappingsFor('from', layer.node.parent);
 
@@ -589,7 +585,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 e.stopPropagation();
 
                 // Delete bottom
-                if (mouse.isDoubleClick()) {
+                if (mouse.isDoubleClick(layer)) {
                     Layer.remove(layer);
                 }
 
@@ -600,7 +596,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             var bottom_onmousedown = function(layer) {
                 layer.node.parent._DOMElement.draggable('disable');
 
-                if (!mouse.isDoubleClick())
+                if (!mouse.isDoubleClick(layer))
                     return;
 
                 layer._DOMElement.draggable('disable');
@@ -619,7 +615,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 // HACK: _DOMElement should not be exposed
                 layer.node.parent._DOMElement.draggable('disable');
 
-                if (mouse.isDoubleClick()) {
+                if (mouse.isDoubleClick(layer)) {
                     return;
                 }
 
@@ -642,7 +638,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             };
 
             var bottom_ondragstop = function(layer) {
-                if (mouse.isDoubleClick())
+                if (mouse.isDoubleClick(layer))
                     return;
 
                 // HACK: _DOMElement should not be exposed

@@ -15,16 +15,17 @@ define(['jquery', 'app/controller'], function ($, controller) {
 
         this._doubleClick = false;
         this._doubleClick_last = 0;
+        this._doubleClick_obj = null;
         this._up_last = 0;
         this._click_last = 0;
         this._down = false;
 
-        this.isDoubleClick = function() {
-            if (Date.now() - this._click_last < 500) {
-                this._doubleClick = true;
-            }
+        this.isDoubleClick = function(obj) {
+            var dblClick = ((Date.now() - this._click_last < 500) || this._doubleClick) && this._doubleClick_obj == obj;
+            this._doubleClick = false;
+            this._doubleClick_obj = obj;
 
-            return this._doubleClick;
+            return dblClick;
         }
 
         this.isDown = function() {
