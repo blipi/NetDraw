@@ -44,13 +44,12 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 console.log("[layer.remove][top] {" + layer.node.name + '}');
 
                 var fromRelationships = controller.getMappingsFor('from', layer.node.parent);
-                
-                var n = fromRelationships.length;
                 var i = 0;
 
-                for (; i < n; ++i) {
+                for (; i < fromRelationships.length; ++i) {
                     if (fromRelationships[i].node.top == layer) {
                         relationship.remove(fromRelationships[i]);
+                        --i;
                     }
                 }
 
