@@ -599,11 +599,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
             var bottom_onmousedown = function(layer) {
                 layer.node.parent._DOMElement.draggable('disable');
-
-                if (!mouse.isDoubleClick(layer))
-                    return;
-
-                layer._DOMElement.draggable('disable');
             };
 
             var bottom_reenable = function(layer) {
