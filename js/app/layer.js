@@ -259,13 +259,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                     line.x2 = line.node.bottom.windowX;
                     line.y2 = line.node.bottom.windowY;
                 }
-
-                if ('input' in layer.node.textElement.node && layer.node.textElement.node.input) {
-                    layer.node.textElement.node.input.css({
-                        left: -2,
-                        top: layer.node.textElement.y - 3
-                    });
-                }
             };
 
             var rect_dragstop = function(layer) {
@@ -336,7 +329,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                     })
                     .css({
                         position: 'absolute',
-                        left: -2,
+                        left: 0,
                         top: 16,
                         width: 100,
                         height: 20,
