@@ -270,16 +270,15 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         this.moving = [];
         this._id = 0;
 
+        // DEPRECATED: TO BE REMOVED SOON
         // Do nothing, css already handles this
-        this.scaleCanvas = function(params) { return this; };
+        this.scaleCanvas = function(params) { throw "Not implemented"; };
         // Not implemented
-        this.restoreCanvas = function(params) { return this; };
+        this.restoreCanvas = function(params) { throw "Not implemented"; };
         // Not implemented
-        this.drawLayers = function(params) { return this; };
+        this.setLayer = function(params) { throw "Not implemented"; };
         // Not implemented
-        this.setLayer = function(params) { return this; };
-        // Not implemented
-        this.drawPolygon = function(params) { return this; }
+        this.drawPolygon = function(params) { throw "Not implemented"; }
 
         // Wrap JQuery calls
         this.css = function() {
@@ -453,9 +452,6 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             var element = $('<hr>');
             element.attr({
                 id: 'layer_' + Canvas()._id
-            })
-            .css({
-                border: parseInt(params.strokeWidth) + 'px ' + params.strokeStyle + ' solid',
             })
             .appendTo(Canvas()._DOMcanvas);
 

@@ -1,4 +1,4 @@
-define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship', 'utils/mousehelper'], function($, pb, style, controller, relationship, mouse) {
+define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mousehelper'], function($, pb, controller, relationship, mouse) {
 
     var canvas = controller.getCanvas();
     var _counter = 0;
@@ -133,7 +133,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             }
         },
 
-        getTextX: function(text, b) {
+        getTextX: function(text) {
             $('#test').css('font-size', 16).html(text);
             var textWidth = parseInt($('#test').css('width'));
 
@@ -145,7 +145,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             layer.node.counter = _realCounter;
             layer.node.textElement.text = layer.node.name + '_' + _realCounter;
             layer.node.textElement.node.func = 'text';
-            layer.node.textElement.x = Layer.getTextX(layer.node.textElement.text, layer.strokeWidth);
+            layer.node.textElement.x = Layer.getTextX(layer.node.textElement.text);
             layer.node.func = 'main';
             layer.fixTo(controller.getDOMCanvas());
 
@@ -224,9 +224,7 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             console.log("[layer.create] {" + x + "," + y + "," + type + "}");
 
             into = typeof(into) === 'undefined' ? false : into;
-            isDeletable = typeof(isDeletable) === 'undefined' ? true : isDeletable;
-
-            var features = style.getStyleForTypeName(type);           
+            isDeletable = typeof(isDeletable) === 'undefined' ? true : isDeletable;    
 
             /* Forward declaration of handlers */
             var rect_mousedown = function(layer, e) {
@@ -316,10 +314,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             var currentLayer = canvas.getLayer(-1);
             controller.createLayerMappings(currentLayer);
 
-            if ('default' in features) {
-                currentLayer.node.params = _parser.decompile(features['default']);
-            }
-
             var text_onclick = function(layer, e) {
                 if (layer.node.func == 'text' && mouse.isDoubleClick(layer)) { 
                     if (layer.node.input)
@@ -345,9 +339,8 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                         if (code == 13){
                             if ($(this).val()) {
                                 layer.text = $(this).val();
-                                layer.x = Layer.getTextX(layer.text, layer.node.parent.strokeWidth);
+                                layer.x = Layer.getTextX(layer.text);
                                 $(this).remove();
-                                canvas.drawLayers();
                                 layer.node.input = null;
                             }
                         }
@@ -369,21 +362,16 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 e.stopPropagation();
             };
 
-            var textFeatures = features['text'];
-            var layerName = 'name' in textFeatures ? textFeatures['name'] : type;
-            x = this.getTextX(layerName, features['strokeWidth']);
+            x = this.getTextX(type);
 
             canvas.drawTextInto(currentLayer, {
                 layer: true,
                 deletable: isDeletable,
-                fillStyle: textFeatures['fillStyle'],
-                strokeStyle: textFeatures['strokeStyle'],
-                strokeWidth: textFeatures['strokeWidth'],
-                x: x, y: textFeatures['y'],
-                ox: x, oy: textFeatures['y'],
+                x: x, y: 15,
+                ox: x, oy: 15,
                 fontSize: 16,
                 fontFamily: 'Verdana, sans-serif',
-                text: layerName,
+                text: type,
                 visible: visibility,
 
                 node: {
@@ -578,7 +566,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
         createBottomPoint: function(layer, ex, ey, bottomName) {
             console.log('[createBottomPoint] {' + layer.node.id + '}');
-            var features = style.getStyleFor(layer);
 
             bottomName = typeof bottomName === 'undefined' ? layer.node.textElement.text : bottomName;
 
@@ -620,7 +607,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
                 var rx = layer.x - layer.node.parent.x;
                 var ry = layer.y - layer.node.parent.y;
-                var d = layer.strokeMid;
 
                 var toRelationships = controller.getMappingsFor('to', layer.node.parent);
 
@@ -671,15 +657,10 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 }
             }
 
-            var circleFeatures = features['bottom'];
             canvas.drawArc(layer, {
                 layer: true,
                 draggable: true,
                 bringToFront: true,
-                strokeStyle: circleFeatures['strokeStyle'],
-                strokeWidth: circleFeatures['strokeWidth'],
-                strokeMid: features['strokeWidth'] / 2 - 1.5,
-                fillStyle: circleFeatures['fillStyle'],
 
                 x: Layer.findSuitableX(layer.node, occupied, 0, 97, 1.5, 15, ex),
                 y: ey,

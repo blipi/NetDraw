@@ -141,21 +141,11 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 canvas.removeLayer(currentLine);
             }
 
-
             var line_click = function(layer) {
                 controller.setSelection(layer);
-                layer.strokeStyle = "#a23";
-                canvas.drawLayers();
             }
 
             canvas.drawLine({
-                strokeStyle: '#000',
-                layer: true,
-                endArrow: true,
-                strokeWidth: 1,
-                rounded: true,
-                arrowRadius: 15,
-                arrowAngle: 90,
                 x: 0, y: 0,
 
                 x1: topPoint.windowX,
@@ -179,8 +169,6 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             if (validate) {
                 _validateRelationship();
             }
-
-            canvas.drawLayers();
         }
     }
 });

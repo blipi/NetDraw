@@ -129,7 +129,6 @@ define(function (require) {
         var createRelationship = function(netLayer, outLayer) {
             var _stablish = function(from, to) {
                 var top = layer.createTopPoint(from);
-                console.log(top);
                 relationship.create(from, to);
             }
 
@@ -184,8 +183,6 @@ define(function (require) {
 
             y -= 100;
         }
-
-        canvas.drawLayers();
     }
 
     function initialize()
@@ -196,7 +193,6 @@ define(function (require) {
             if (drawingLine != null) {
                 drawingLine.x2 = e.pageX - 155.0; // TODO: Magic numbers
                 drawingLine.y2 = e.pageY + scroll_wrapper.scrollTop();
-                canvas.drawLayers();
             }
         };
 
@@ -213,8 +209,6 @@ define(function (require) {
                 } else {
                     layer.remove(selection);
                 }
-
-                canvas.drawLayers();
             }
         };
 

@@ -86,14 +86,12 @@ define(function (require) {
             this.clearSelection();
             this._selection = selection;
             this._selection._DOMElement.addClass('selected');
-            this.getCanvas().drawLayers();
         }
 
         this.clearSelection = function() {
             if (this._selection) {
                 this._selection._DOMElement.removeClass('selected');
                 this._selection = null;
-                this.getCanvas().drawLayers();
             }
         }
 
