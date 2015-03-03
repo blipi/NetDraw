@@ -125,7 +125,12 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
             canvas.bringToFront(layer);
 
             if (mouse.isDoubleClick(layer)) {
-                Layer.createTopPoint(layer);
+                var top = Layer.createTopPoint(layer);
+
+                if (!controller.freeDrawing()) {
+                    controller.setInitialNode(layer);
+                    relationship.create(layer, layer, false, top);
+                }
             }
         },
 
@@ -571,7 +576,10 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                 mouseout: top_reenable,
             }, 'top');
 
-            layer.node.top.push(canvas.getLayer(-1));
+            var top = canvas.getLayer(-1);
+            layer.node.top.push(top);
+
+            return top;
         },
 
         createBottomPoint: function(layer, ex, ey, bottomName) {
