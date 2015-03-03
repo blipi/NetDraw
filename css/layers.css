@@ -41,6 +41,28 @@
 
 .arc-top.selected,
 .arc-bot.selected,
-.selected .bg {
+.layer.selected .bg {
 	border-color: #a23;
+}
+
+*:not(#menu) > .layer.vertical .bg {
+	transform: rotate(90deg);
+}
+
+*:not(#menu) > .layer.vertical > span {
+	transform: rotate(-270deg) scaleX(-1) scaleY(-1);
+}
+
+*:not(#menu) > .layer.vertical > input {
+	transform: rotate(-270deg) scaleX(-1) scaleY(-1);
+}
+
+*:not(#menu) > .layer.vertical > button {
+	top: 66px;
+	left: 66px;
+}
+
+*:not(#menu) > .layer.vertical .layer-menu {
+	top: 95px;
+	left: 40px;
 }
