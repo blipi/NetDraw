@@ -286,6 +286,8 @@ define(function (require) {
         layerMenu.click(function(e){
             // Stop event from reaching the layer
             e.stopPropagation();
+
+            canvas.bringToFront(controller.getSelection());
         });
 
         var hideMenu = $('.hide-menu');

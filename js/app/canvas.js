@@ -341,8 +341,14 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         // Move a layer
         this.bringToFront = function(layer) {
             this.max = typeof(this.max) === 'undefined' ? 3 : this.max;
-            layer._DOMElement.css('z-index', this.max + 1);
-            this.max += 1;
+            var current = parseInt(layer._DOMElement.css('z-index'));
+
+            current = isNaN(current) ? 0 : current;
+
+            if (current < this.max) {
+                layer._DOMElement.css('z-index', this.max + 1);
+                this.max += 1;
+            }
         }
 
         this.removeLayer = function(layer) {

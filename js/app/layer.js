@@ -172,6 +172,8 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                 controller.setSelection(layer);
                 canvas.bringToFront(layer);
             }
+
+            canvas.bringToFront(layer);
         },
 
         _checkLimits: function(layer) {
@@ -235,6 +237,7 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
             }
 
             var rect_ondragstart = function(layer) {
+                canvas.bringToFront(layer);
             };
 
             var rect_drag = function(layer) {
@@ -315,6 +318,8 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
             controller.createLayerMappings(currentLayer);
 
             var text_onclick = function(layer, e) {
+                canvas.bringToFront(layer.node.parent);
+
                 if (layer.node.func == 'text' && mouse.isDoubleClick(layer)) { 
                     if (layer.node.input)
                         return;
