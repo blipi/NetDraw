@@ -127,14 +127,20 @@ define(function (require) {
         }
 
         var createRelationship = function(netLayer, outLayer) {
+            var _stablish = function(from, to) {
+                var top = layer.createTopPoint(from);
+                console.log(top);
+                relationship.create(from, to);
+            }
+
             var _create = function(bottom) {
                 if ($.isArray(netToLayers[bottom])) {
                     for (k in netToLayers[bottom]) {
-                        relationship.create(netToLayers[bottom][k], outLayer);
+                        _stablish(netToLayers[bottom][k], outLayer);
                     }
                 }
                 else {
-                    relationship.create(netToLayers[bottom], outLayer);
+                    _stablish(netToLayers[bottom], outLayer);
                 }
             }
 

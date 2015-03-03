@@ -472,7 +472,6 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
 
         createTopPoint: function(layer, topName) {
             console.log('[layer.createTopPoint] {' + layer.node.id + '}');
-            var features = style.getStyleFor(layer);
 
             ++layer.node.topCount;
             topName = typeof topName === 'undefined' ? (layer.node.top.length ? layer.node.id + '_top_' + layer.node.topCount : layer.node.textElement.text) : topName;
@@ -549,13 +548,9 @@ define(['jquery', 'protobuf.2', 'app/style', 'app/controller', 'app/relationship
                     layer.y = 52;
             };
 
-            var circleFeatures = features['top'];
             canvas.drawArc(layer, {
                 layer: true,
                 bringToFront: true,
-                strokeStyle: circleFeatures['strokeStyle'],
-                strokeWidth: circleFeatures['strokeWidth'],
-                fillStyle: circleFeatures['fillStyle'],
 
                 x: Layer.findSuitableX(layer.node, layer.node.top, 0, 97, 1.5, 15),
                 y: 0,
