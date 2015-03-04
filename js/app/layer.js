@@ -142,25 +142,14 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
         },
 
         _onSetDefinitive: function(layer) {
-            layer.node.counter = _realCounter;
-            layer.node.textElement.text = layer.node.name + '_' + _realCounter;
-            layer.node.textElement.node.func = 'text';
-            layer.node.textElement.x = Layer.getTextX(layer.node.textElement.text);
+            //layer.node.textElement.text = layer.node.name + '_' + _realCounter;
+            //layer.node.textElement.node.func = 'text';
+            //layer.node.textElement.x = Layer.getTextX(layer.node.textElement.text);
             layer.node.func = 'main';
             layer.fixTo(controller.getDOMCanvas());
+            layer.prepareMenu();
 
             ++_realCounter;
-
-            $('#layer-menu')
-                .clone(true)
-                .attr('id', '')
-                .appendTo(layer._DOMElement);
-
-            $('#show-menu')
-                .clone(true)
-                .attr('id', '')
-                .appendTo(layer._DOMElement)
-                .show();
 
             layer.click = Layer.rect_click;
             layer.dragstop = function(layer){
@@ -280,6 +269,70 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                 Layer._onSetDefinitive(canvasLayer);
             };
 
+
+            var text_onclick = function(e) {
+                // Get layer
+                var layer = controller.getSelection();
+
+                // Menu items trigger this :(
+                if (!layer) {
+                    return;
+                }
+                
+                // Check for relationship validation
+                relationship.validate();
+
+                // Trigger mouse click
+                mouse.click(e);
+
+                // Stop propagation
+                e.stopPropagation();
+
+                if (layer.node.func == 'main') {
+                    canvas.bringToFront(layer);
+
+                    if (mouse.isDoubleClick(layer)) { 
+                        if (layer.node.input)
+                            return;
+
+                        var input = $('<input>');
+                        input.attr({
+                            type: 'text',
+                            value: layer.text
+                        })
+                        .css({
+                            position: 'absolute',
+                            left: 0,
+                            top: 16,
+                            width: 100,
+                            height: 20,
+                            'z-index': 5,
+                            'text-align': 'center'
+                        })
+                        .keydown(function(e){
+                            var code = e.keyCode || e.which;
+                            if (code == 13){
+                                if ($(this).val()) {
+                                    layer.text = $(this).val();
+                                    layer.x = Layer.getTextX(layer.text);
+                                    $(this).remove();
+                                    layer.node.input = null;
+                                }
+                            }
+
+                            // Avoid keys such as "DEL" to reach window
+                            e.stopPropagation();
+                        })
+                        .appendTo(layer.getDOM())
+                        .select();
+
+                        layer.node.input = input;
+                    }
+                }
+            };
+
+            var tx = this.getTextX(type);
+
             var params = {
                 layer: true,
                 draggable: true,
@@ -303,7 +356,14 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                 mousedown: rect_mousedown,
                 dragstart: rect_ondragstart,
                 drag: rect_drag,
-                dragstop: rect_dragstop
+                dragstop: rect_dragstop,
+
+                text: {
+                    x: tx,
+                    text: type,
+                    
+                    click: text_onclick,
+                }
             };
 
             if (into === false) {
@@ -317,78 +377,8 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
             var currentLayer = canvas.getLayer(-1);
             controller.createLayerMappings(currentLayer);
 
-            var text_onclick = function(layer, e) {
-                canvas.bringToFront(layer.node.parent);
 
-                if (layer.node.func == 'text' && mouse.isDoubleClick(layer)) { 
-                    if (layer.node.input)
-                        return;
-
-                    var input = $('<input>');
-                    input.attr({
-                        id: layer.node.parent.node.id,
-                        type: 'text',
-                        value: layer.text
-                    })
-                    .css({
-                        position: 'absolute',
-                        left: 0,
-                        top: 16,
-                        width: 100,
-                        height: 20,
-                        'z-index': 5,
-                        'text-align': 'center'
-                    })
-                    .keydown(function(e){
-                        var code = e.keyCode || e.which;
-                        if (code == 13){
-                            if ($(this).val()) {
-                                layer.text = $(this).val();
-                                layer.x = Layer.getTextX(layer.text);
-                                $(this).remove();
-                                layer.node.input = null;
-                            }
-                        }
-
-                        // Avoid keys such as "DEL" to reach window
-                        e.stopPropagation();
-                    })
-                    // HACK: _DOMElement should not be accessed
-                    .appendTo(layer.node.parent._DOMElement)
-                    .select();
-
-                    layer.node.input = input;
-                }
-
-                // Check for relationship validation
-                relationship.validate();
-
-                // Trigger mouse click
-                mouse.click(e);
-
-                // Stop propagation
-                e.stopPropagation();
-            };
-
-            x = this.getTextX(type);
-
-            canvas.createLayerText(currentLayer, {
-                layer: true,
-                deletable: isDeletable,
-                x: x, y: 15,
-                ox: x, oy: 15,
-                fontSize: 16,
-                fontFamily: 'Verdana, sans-serif',
-                text: type,
-                visible: visibility,
-
-                node: {
-                    parent: currentLayer,
-                    func: 'reserved'
-                },
-
-                click: text_onclick,
-            });
+            
 
             currentLayer.node.textElement = canvas.getLayer(-1);
 

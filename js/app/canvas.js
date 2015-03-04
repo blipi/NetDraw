@@ -11,7 +11,6 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
     };
 
     var BoundingBox = function(_x, _y, _w, _h) {
-        console.log({x: _x, y: _y, w: _w, h: _h});
         return {x: _x, y: _y, w: _w, h: _h};
     };
 
@@ -22,6 +21,10 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
         this.getDOM = function() {
             return this._DOMWrapper;
+        }
+
+        this.prepareMenu = function() {
+            this._DOMWrapper.children('button').show();
         }
 
         this._setCSS = function(what, value) {
@@ -100,14 +103,8 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         },
 
         set visible(v) {
-            this._setCSS('visibility', v ? 'visible' : 'hidden');
+            this._setCSS('display', v ? 'block' : 'none');
             this._visible = v;
-        },
-
-        // Text
-        set text(t) {
-            this._DOMElement.html(t);
-            this._text = t;
         },
 
         // Lines
@@ -410,13 +407,9 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         }
 
         // Draws a rectangle
-        this.createLayer = function(params) {
-            return this.createLayer(this._DOMcanvas, params);
-        }
-
-        // Draws a rectangle
         this.drawBoxInto = function(into, params) { 
             var element = $('<div class="' + params.className + '">')
+                .attr('id', params.id)
                 .css({left: params.x, top: params.y})
                 .prependTo(into);
 
@@ -432,6 +425,11 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         }
 
         // Draws a rectangle
+        this.createLayer = function(params) {
+            return this.createLayerInto(this._DOMcanvas, params);
+        }
+
+        // Draws a rectangle
         this.createLayerInto = function(into, params, containment, className) {     
             containment = typeof(containment) === 'undefined' ? true : containment;
             className = typeof(className) === 'undefined' ? 
@@ -443,6 +441,17 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
                 .attr('id', 'layer_' + Canvas()._id)
                 .addClass(className)
                 .prependTo(into);
+
+            // Delete layer menu id
+            element.children('.wrapper')
+                .children('.layer-menu')
+                    .attr('id', '');
+
+            // Delete show menu id
+            element.children('.wrapper')
+                .children('button')
+                    .attr('id', '');
+
 
             if (params.draggable) {
                 // Force a drag and dragstart to be present
@@ -467,27 +476,23 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
                 });
             }
 
+            if ('text' in params && typeof(params.text) === 'object') {
+                return this.createLayerText(layer, params.text);
+            }
+
             return this;
         }
 
         // Draws a text element
         this.createLayerText = function(layer, params) {
-            if (!("x" in params && "y" in params)) {
-                return null;
-            }
-
             var element = $('<span>')
-                .attr({
-                    id: 'layer_' + Canvas()._id
-                })
-                .css({
-                    'font-size': params.fontSize,
-                    'font-family': params.fontFamily,
-                })
+                .html(params.text)
+                .css('left', params.x)
                 .appendTo(layer.getDOM());
 
-            this.layers.push(new Layer(element, TYPE.TEXT, params));
-            ++this._id;
+            if (params.click) {
+                element.click(params.click);
+            }
 
             return this;
         }

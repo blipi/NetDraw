@@ -1,8 +1,12 @@
 define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller', 'caffeconstants'], function($, pb, layer, relationship, controller, caffe){
 
     var canvas = controller.getCanvas();
-    var instances = {};
+    var instances = {byGroup: {}, byBox: {}};
     var menuY = 50;
+
+    var MenuInstance = function(_box, _layers, _triggered) {
+        return {box: _box, layers: _layers, triggered: _triggered};
+    }
 
     var Menu = {
         create: function() {
@@ -73,48 +77,53 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                 className: 'menu-import'
             });
 
-            var menu_onclick = function(layer){
-                if (!instances[layer.g][3]) {
-                    /* Expand */
-                    for (g in instances) {
+            var menu_onclick = function(){
+                var group = instances['byBox'][$(this).attr('id')];
+                var instancesByGroup = instances['byGroup'];
+                var instance = instancesByGroup[group];
 
-                        this.animateLayer(instances[g][0], {
-                            y: menuY - 3
+                if (!instance.triggered) {
+                    /* Expand */
+                    for (g in instancesByGroup) {
+
+                        instancesByGroup[g].box.animate({
+                            top: menuY - 3
                         }, 'medium', 'swing');
 
-                        if (instances[g][0] == layer || instances[g][1] == layer) {
-                            canvas.bringToFront(instances[g][0]);
-                            canvas.bringToFront(instances[g][1]);
+                        if (instancesByGroup[g].box.attr('id') == $(this).attr('id')) {
+                            instancesByGroup[g].box.css('z-index', 2);
+                        }
+                        else {
+                            instancesByGroup[g].box.css('z-index', 1);
                         }
                     }
 
-                    for (l in instances[layer.g][2]) {
-                        instances[layer.g][2][l].visible = true;
-                        instances[layer.g][2][l].node.textElement.visible = true;
+                    for (var i = 0, len = instance.layers.length; i < len; ++i) {
+                        instance.layers[i].visible = true;
                     }
                 } else {
                     var ey = menuY;
                     
-                    for (l in instances[layer.g][2]) {
-                        instances[layer.g][2][l].visible = false;
-                        instances[layer.g][2][l].node.textElement.visible = false;
+                    for (var i = 0, len = instance.layers.length; i < len; ++i) {
+                        instance.layers[i].visible = false;
                     }
 
                     /* Expand */
-                    for (g in instances) {
+                    for (g in instancesByGroup) {
 
-                        this.animateLayer(instances[g][0], {
-                            y: ey - 3
+                        instancesByGroup[g].box.animate({
+                            top: ey - 3
                         }, 'medium', 'swing');
 
                         ey += 27;
                     }
                 }
 
-                instances[layer.g][3] = !instances[layer.g][3];
+                instance.triggered = !instance.triggered;
             };
 
             var ey = menuY;
+            var id = 0;
             for (group in groups) {
 
                 /* Box */
@@ -122,6 +131,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                     x: -3, y: -3 + ey,
                     click: menu_onclick,
                     text: group,
+                    id: 'box-' + id,
                     className: 'menu-box'
                 });
 
@@ -137,9 +147,11 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                     i += 1;
                 }
 
-                instances[group] = [box, layers, false];
+                instances['byGroup'][group] = MenuInstance(box, layers, false);
+                instances['byBox']['box-' + id] = group;
 
                 ey += 27;
+                ++id;
             }
         }
     };

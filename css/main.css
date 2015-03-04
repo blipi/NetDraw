@@ -104,16 +104,19 @@ hr
 	background-color: #ea940e;
 	border: 2px solid #000;
 	z-index: 1;
+	padding-left: 10px;
 }
 
 .menu-import {
 	background-color: #63ab2a;
 }
 
-.menu-import span,
-.menu-box span {
+.menu-import p,
+.menu-box p {
+	cursor: default;
 	font-size: 13px;
-    font-family: Verdana, sans-serif
+    font-family: Verdana, sans-serif;
+    color: #000;
 }
 
 #canvas {
@@ -173,6 +176,10 @@ hr
 {
 	outline: none !important;
 	box-shadow: 0 0 20px #428793;
+}
+
+#layer-sample {
+	visibility: hidden;
 }
 
 .layer-menu{
