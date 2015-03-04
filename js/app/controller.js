@@ -28,7 +28,7 @@ define(function (require) {
         this._moveArcs = false;
         this._freeDrawing = false;
 
-        this._drawOrientation = Orientation.VERTICAL;
+        this._drawOrientation = Orientation.HORIZONTAL;
 
         this._mappings = {
             'from': {},
