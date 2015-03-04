@@ -25,10 +25,12 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             if (current == drawingLine.node.from || f != 'main')
                 continue;
 
-            if (drawingLine.x2 >= current.x &&
-                drawingLine.y2 >= current.y &&
-                drawingLine.x2 <= current.x + current.width &&
-                drawingLine.y2 <= current.y + current.height)
+            var bb = current.boundingBox();
+
+            if (drawingLine.x2 >= bb.x &&
+                drawingLine.y2 >= bb.y &&
+                drawingLine.x2 <= bb.x + bb.w &&
+                drawingLine.y2 <= bb.y + bb.h)
             {
                 connected = true;
                 drawingLine.node.to = current;
@@ -37,30 +39,30 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 controller.getMappingsFor('to', drawingLine.node.to).push(drawingLine);
 
                 /* Fix position */
-                var left = drawingLine.x2 - current.x;
-                var top = drawingLine.y2 - current.y;
-                var minargs = [left, 97 - left, top, 52 - top];
+                var left = drawingLine.x2 - bb.x;
+                var top = drawingLine.y2 - bb.y;
+                var minargs = [left, bb.w - left, top, bb.h - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
                 var x = 0, y = 0;
                 if (idx == 0) {
-                    drawingLine.x2 = current.x;
+                    drawingLine.x2 = bb.x;
                     x = 0;
-                    y = drawingLine.y2 - current.y;
+                    y = drawingLine.y2 - bb.y;
                 }
                 else if (idx == 1) {
-                    drawingLine.x2 = current.x + 97;
-                    x = 97;
-                    y = drawingLine.y2 - current.y;
+                    drawingLine.x2 = bb.x + bb.w;
+                    x = bb.w;
+                    y = drawingLine.y2 - bb.y;
                 }
                 else if (idx == 2) {
-                    drawingLine.y2 = current.y;
-                    x = drawingLine.x2 - current.x;
+                    drawingLine.y2 = bb.y;
+                    x = drawingLine.x2 - bb.x;
                     y = 0;
                 }
                 else {
-                    drawingLine.y2 = current.y + 52;
-                    x = drawingLine.x2 - current.x;
-                    y = 52;
+                    drawingLine.y2 = bb.y + bb.h;
+                    x = drawingLine.x2 - bb.x;
+                    y = bb.h;
                 }
 
                 /* Draw bottom */

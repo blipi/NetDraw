@@ -6,7 +6,10 @@ define(function (require) {
 
     require('jcanvas');
 
-    var USE_HTML5_CANVAS = false;
+    var Orientation = {
+        HORIZONTAL: 0,
+        VERTICAL: 1
+    }
 
     var Controller = function() {
 
@@ -25,6 +28,7 @@ define(function (require) {
         this._moveArcs = false;
         this._freeDrawing = false;
 
+        this._drawOrientation = Orientation.VERTICAL;
 
         this._mappings = {
             'from': {},
@@ -43,11 +47,11 @@ define(function (require) {
             return this._freeDrawing;
         }
 
+        this.verticalDrawing = function() {
+            return this._drawOrientation == Orientation.VERTICAL;
+        }
+
         this.getCanvas = function() {
-            if (USE_HTML5_CANVAS) {
-                return $('#canvas');
-            }
-            
             return canvasObj;
         },
 

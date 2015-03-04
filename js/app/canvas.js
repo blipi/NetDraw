@@ -10,6 +10,11 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         LINE : {value: 3, name: "line"},
     };
 
+    var BoundingBox = function(_x, _y, _w, _h) {
+        console.log({x: _x, y: _y, w: _w, h: _h});
+        return {x: _x, y: _y, w: _w, h: _h};
+    };
+
     var Layer = function(DOMElement, type, params) {
         this._DOMElement = DOMElement;
         this._type = type;
@@ -31,6 +36,10 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             this._DOMElement.draggable({
                 containment: Canvas._DOMcanvas,
             });
+        }
+
+        this.boundingBox = function() {
+            return BoundingBox(this.x, this.y, this.width, this.height);
         }
 
         for (e in params) {
@@ -234,8 +243,18 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         get y1() { return this._y1; },
         get x2() { return this._x2; },
         get y2() { return this._y2; },
-        get width() { return parseInt(this._DOMElement.css('width')); },
-        get height() { return parseInt(this._DOMElement.css('height')); },
+        get width() { 
+            if (controller.verticalDrawing()) {
+                return parseInt(this._DOMElement.css('height'));
+            }
+            return parseInt(this._DOMElement.css('width'));
+        },
+        get height() { 
+            if (controller.verticalDrawing()) {
+                return parseInt(this._DOMElement.css('width')); 
+            }
+            return parseInt(this._DOMElement.css('height')); 
+        },
         get text() { return this._DOMElement.html(); },
 
         // Special cases
@@ -394,7 +413,9 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         // Draws a rectangle
         this.drawRectInto = function(into, params, containment, className) {     
             containment = typeof(containment) === 'undefined' ? true : containment;
-            className = typeof(className) === 'undefined' ? 'layer ' + params.node.name : className;
+            className = typeof(className) === 'undefined' ? 
+                'layer ' + (controller.verticalDrawing() ? 'vertical ' : '') + params.node.name : 
+                className;
 
             var element = $('<div class="' + className + '">');
             element.attr({
