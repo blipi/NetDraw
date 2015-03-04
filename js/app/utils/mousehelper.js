@@ -20,20 +20,16 @@ define(['jquery', 'app/controller'], function ($, controller) {
         this._down = false;
 
         this.isDoubleClick = function(obj) {
-            var dblClick = false;
-            
-            if (this._up_last - this._down_last > 200) {
-                // Clear drag (mousedown/mouseup won't work due to internal implementations)
-                this._up_last = 0;
-                this._down_last = 0;
+            if (MouseHelper()._up_last - MouseHelper()._down_last > 200) {
+                this._doubleClick_obj = null;
+                return;
             }
-            else {
-                dblClick = (Date.now() - this._click_last) < 500 && this._doubleClick_obj == obj;
-                this._doubleClick_obj = obj;
-
-                if (dblClick) {
-                    this._doubleClick_obj = null;
-                }
+            
+            var dblClick = (Date.now() - this._click_last) < 500 && this._doubleClick_obj == obj;
+            this._doubleClick_obj = obj;
+            
+            if (dblClick) {
+                this._doubleClick_obj = null;
             }
 
             return dblClick;
@@ -55,7 +51,15 @@ define(['jquery', 'app/controller'], function ($, controller) {
 
         this.click = function(e) {
             MouseHelper()._down = false;
-            MouseHelper()._click_last = Date.now();
+
+            if (MouseHelper()._up_last - MouseHelper()._down_last <= 200) {
+                MouseHelper()._click_last = Date.now();
+            }
+            else {
+                // Clear drag (mousedown/mouseup won't work due to internal implementations)
+                MouseHelper()._up_last = 0;
+                MouseHelper()._down_last = 0;
+            }
         }
     };
 

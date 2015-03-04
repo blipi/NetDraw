@@ -40,6 +40,9 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
     var Layer = {
         remove: function(layer) {
 
+            // Validate first, just in case we are currently drawing
+            relationship.validate();
+
             if (layer.node.func == 'top') {
                 console.log("[layer.remove][top] {" + layer.node.name + '}');
 
@@ -254,6 +257,9 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
             var rect_dragstop = function(layer) {
                 clearInterval(layer.node.scrollInterval);
                 layer.node.scrollInterval = null;
+
+                // Hack to make double click work
+                mouse.click(e);
                 
                 var canvasLayer = Layer.create(layer.windowX, layer.windowY, layer.node.name, true);
                 
@@ -261,64 +267,6 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                 layer.y = layer.oy;
 
                 Layer._onSetDefinitive(canvasLayer);
-            };
-
-
-            var text_onclick = function(e) {
-                // Get layer
-                var layer = controller.getSelection();
-
-                if (layer && layer.node.func == 'main') {
-                    canvas.bringToFront(layer);
-
-                    if (mouse.isDoubleClick(layer)) { 
-                        if (layer.node.input)
-                            return;
-
-                        var input = $('<input>');
-                        input.attr({
-                            type: 'text',
-                            value: layer.text
-                        })
-                        .css({
-                            position: 'absolute',
-                            left: 0,
-                            top: 16,
-                            width: 100,
-                            height: 20,
-                            'z-index': 5,
-                            'text-align': 'center'
-                        })
-                        .keydown(function(e){
-                            var code = e.keyCode || e.which;
-                            if (code == 13){
-                                if ($(this).val()) {
-                                    layer.text = $(this).val();
-                                    layer.textX = Layer.getTextX(layer.text);
-                                    
-                                    layer.node.input = null;
-                                    $(this).remove();
-                                }
-                            }
-
-                            // Avoid keys such as "DEL" to reach window
-                            e.stopPropagation();
-                        })
-                        .appendTo(layer.getDOM())
-                        .select();
-
-                        layer.node.input = input;
-                    }
-                }
-                
-                // Check for relationship validation
-                relationship.validate();
-
-                // Trigger mouse click
-                mouse.click(e);
-
-                // Stop propagation
-                e.stopPropagation();
             };
 
             var tx = this.getTextX(type);
@@ -349,9 +297,7 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
 
                 text: {
                     x: tx,
-                    text: type,
-                    
-                    click: text_onclick,
+                    text: type
                 }
             };
 

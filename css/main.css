@@ -258,7 +258,7 @@ hr
 }
 
 *:not(#menu) > .layer.vertical .layer-menu {
-	top: 73px;
-	left: 60px;
-	transform: rotate(45deg) scaleY(-1);
+	top: 65px;
+	left: -25px;
+	transform: scaleY(-1);
 }

@@ -305,6 +305,41 @@ define(function (require) {
             var current = controller.getSelection();
             layer.remove(current);
         });
+
+        var editName = $('.edit-name');
+        editName.click(function(){
+            var activeLayer = controller.getSelection();
+            if (activeLayer.node.input) { 
+                return
+            }
+
+            // TODO: Use some real CSS
+            var input = $('<input>');
+            input.attr({
+                type: 'text',
+                value: activeLayer.text
+            })
+            .keydown(function(e){
+                var code = e.keyCode || e.which;
+                if (code == 13){
+                    if ($(this).val()) {
+                        var activeLayer = controller.getSelection();
+                        activeLayer.text = $(this).val();
+                        activeLayer.textX = layer.getTextX(activeLayer.text);
+                        
+                        activeLayer.node.input = null;
+                        $(this).remove();
+                    }
+                }
+
+                // Avoid keys such as "DEL" to reach window
+                e.stopPropagation();
+            })
+            .appendTo(activeLayer.getDOM())
+            .select();
+
+            activeLayer.node.input = input;
+        })
         
         var showMenu = $('.show-menu');
         showMenu.click(function(e){
