@@ -130,6 +130,16 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             this._setAngle();
         },
 
+        set text(t) { 
+            if (typeof(t) === 'string') {
+                this._DOMWrapper.children('span').html(t);
+            }
+        },
+
+        set textX(x) { 
+            this._DOMWrapper.children('span').css('left', x);
+        },
+
         // Click and all callbacks
         set click(f) {
             this._DOMElement.unbind("click");
@@ -257,7 +267,7 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             }
             return parseInt(this._DOMElement.css('height')); 
         },
-        get text() { return this._DOMElement.html(); },
+        get text() { return this._DOMWrapper.children('span').html(); },
 
         // Special cases
         get dragstart() { return this._dragstart; }
@@ -511,18 +521,24 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         }
 
         this.createLayerArc = function(into, params, className) {
-            var element = $('<div class="arc-' + className + '">');
-            element
+            var element = $('<div class="arc-' + className + '">')
                 .attr({
-                    id: 'layer_' + Canvas()._id
+                    id: 'layer_' + this._id
                 })
                 .appendTo(into.getDOM());
 
             if (params.draggable) {
-                // Force a drag and dragstart to be present
-                if (!('dragstart' in params)) params.dragstart = function(){};
-                if (!('drag' in params)) params.drag = function(){};
-                if (!('dragstop' in params)) params.dragstop = function(){};
+                if ('dragstart' in params) {
+                    element.on("dragstart", params.dragstart);
+                }
+
+                if ('drag' in params) {
+                    element.on("drag", params.drag);
+                }
+
+                if ('dragstop' in params) {
+                    element.on("dragstop", params.dragstop);
+                }
             }
 
             this.layers.push(new Layer(element, TYPE.ARC, params));

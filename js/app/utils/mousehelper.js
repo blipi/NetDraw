@@ -13,20 +13,27 @@ define(['jquery', 'app/controller'], function ($, controller) {
         
         MouseHelper.prototype._instance = this;
 
-        this._doubleClick = false;
-        this._doubleClick_last = 0;
-        this._doubleClick_obj = null;
+        this._down_last = 0;
         this._up_last = 0;
         this._click_last = 0;
+        this._doubleClick_obj = null;
         this._down = false;
 
         this.isDoubleClick = function(obj) {
-            var dblClick = ((Date.now() - this._click_last < 500) || this._doubleClick) && this._doubleClick_obj == obj;
-            this._doubleClick = false;
-            this._doubleClick_obj = obj;
+            var dblClick = false;
+            
+            if (this._up_last - this._down_last > 200) {
+                // Clear drag (mousedown/mouseup won't work due to internal implementations)
+                this._up_last = 0;
+                this._down_last = 0;
+            }
+            else {
+                dblClick = (Date.now() - this._click_last) < 500 && this._doubleClick_obj == obj;
+                this._doubleClick_obj = obj;
 
-            if (dblClick) {
-                this._doubleClick_obj = null;
+                if (dblClick) {
+                    this._doubleClick_obj = null;
+                }
             }
 
             return dblClick;
@@ -37,14 +44,8 @@ define(['jquery', 'app/controller'], function ($, controller) {
         }
 
         this.mousedown = function(e) {
-            if (Date.now() - MouseHelper()._doubleClick_last < 300) {
-                MouseHelper()._doubleClick = true;
-            } else {
-                MouseHelper()._doubleClick = false;
-            }
-            
-            MouseHelper()._doubleClick_last = Date.now();
             MouseHelper()._down = true;
+            MouseHelper()._down_last = Date.now();
         }
 
         this.mouseup = function(e) {

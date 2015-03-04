@@ -88,9 +88,6 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
 
             console.log("[layer.remove] {" + layer.node.id + '}');
 
-            // Remove layer's text and top point
-            canvas.removeLayer(layer.node.textElement);
-
             for (var i in layer.node.top) {
                 canvas.removeLayer(layer.node.top[i]);
             }
@@ -142,9 +139,8 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
         },
 
         _onSetDefinitive: function(layer) {
-            //layer.node.textElement.text = layer.node.name + '_' + _realCounter;
-            //layer.node.textElement.node.func = 'text';
-            //layer.node.textElement.x = Layer.getTextX(layer.node.textElement.text);
+            layer.text = layer.node.name + '_' + _realCounter;
+            layer.textX = Layer.getTextX(layer.text);
             layer.node.func = 'main';
             layer.fixTo(controller.getDOMCanvas());
             layer.prepareMenu();
@@ -263,8 +259,6 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                 
                 layer.x = layer.ox;
                 layer.y = layer.oy;
-                layer.node.textElement.x = layer.node.textElement.ox;
-                layer.node.textElement.y = layer.node.textElement.oy;
 
                 Layer._onSetDefinitive(canvasLayer);
             };
@@ -274,21 +268,7 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                 // Get layer
                 var layer = controller.getSelection();
 
-                // Menu items trigger this :(
-                if (!layer) {
-                    return;
-                }
-                
-                // Check for relationship validation
-                relationship.validate();
-
-                // Trigger mouse click
-                mouse.click(e);
-
-                // Stop propagation
-                e.stopPropagation();
-
-                if (layer.node.func == 'main') {
+                if (layer && layer.node.func == 'main') {
                     canvas.bringToFront(layer);
 
                     if (mouse.isDoubleClick(layer)) { 
@@ -314,9 +294,10 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                             if (code == 13){
                                 if ($(this).val()) {
                                     layer.text = $(this).val();
-                                    layer.x = Layer.getTextX(layer.text);
-                                    $(this).remove();
+                                    layer.textX = Layer.getTextX(layer.text);
+                                    
                                     layer.node.input = null;
+                                    $(this).remove();
                                 }
                             }
 
@@ -329,6 +310,15 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                         layer.node.input = input;
                     }
                 }
+                
+                // Check for relationship validation
+                relationship.validate();
+
+                // Trigger mouse click
+                mouse.click(e);
+
+                // Stop propagation
+                e.stopPropagation();
             };
 
             var tx = this.getTextX(type);
@@ -348,7 +338,6 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                     name: type,
                     id: type + '_' + _counter,
 
-                    textElement: null,
                     top: [],
                     topCount: 0,
                 },
@@ -376,11 +365,6 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
 
             var currentLayer = canvas.getLayer(-1);
             controller.createLayerMappings(currentLayer);
-
-
-            
-
-            currentLayer.node.textElement = canvas.getLayer(-1);
 
             ++_counter;
             return currentLayer;
@@ -459,7 +443,11 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
             console.log('[layer.createTopPoint] {' + layer.node.id + '}');
 
             ++layer.node.topCount;
-            topName = typeof topName === 'undefined' ? (layer.node.top.length ? layer.node.id + '_top_' + layer.node.topCount : layer.node.textElement.text) : topName;
+            topName = typeof topName === 'undefined' ? 
+                (layer.node.top.length ? 
+                    layer.node.id + '_top_' + layer.node.topCount : 
+                    layer.text) : 
+                topName;
 
             var top_onclick = function(layer, e) {
                 controller.setSelection(layer);
@@ -533,16 +521,10 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                     layer.y = 52;
             };
 
-            canvas.drawArc(layer, {
-                layer: true,
-                bringToFront: true,
-
+            canvas.createLayerArc(layer, {
                 x: Layer.findSuitableX(layer.node, layer.node.top, 0, 97, 1.5, 15),
                 y: 0,
                 radius: 7,
-
-                groups: [layer.node.id],
-                dragGroups: [layer.node.id],
 
                 node: {
                     parent: layer,
@@ -565,7 +547,7 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
         createBottomPoint: function(layer, ex, ey, bottomName) {
             console.log('[createBottomPoint] {' + layer.node.id + '}');
 
-            bottomName = typeof bottomName === 'undefined' ? layer.node.textElement.text : bottomName;
+            bottomName = typeof bottomName === 'undefined' ? layer.text : bottomName;
 
             var bottom_onclick = function(layer, e) {
                 controller.setSelection(layer);
@@ -655,17 +637,12 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                 }
             }
 
-            canvas.drawArc(layer, {
-                layer: true,
+            canvas.createLayerArc(layer, {
                 draggable: true,
-                bringToFront: true,
 
                 x: Layer.findSuitableX(layer.node, occupied, 0, 97, 1.5, 15, ex),
                 y: ey,
                 radius: 7,
-
-                groups: [layer.node.id],
-                dragGroups: [layer.node.id],
 
                 node: {
                     parent: layer,

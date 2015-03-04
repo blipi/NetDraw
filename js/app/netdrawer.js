@@ -287,6 +287,9 @@ define(function (require) {
             // Stop event from reaching the layer
             e.stopPropagation();
 
+            // Trigger click
+            mouse.click(e);
+
             canvas.bringToFront(controller.getSelection());
         });
 
@@ -296,19 +299,25 @@ define(function (require) {
                 $(this).siblings('.show-menu').show("highlight", {direction: "left"}, 'fast');
             });
         });
-        
-        var showMenu = $('.show-menu');
-        showMenu.click(function(){
-            $(this).hide("highlight", {direction: "left"}, 'fast', function(){
-                canvas.bringToFront(controller.getSelection());
-                $(this).parent().children('.layer-menu').show("highlight", {direction: "left"}, 'fast');
-            });
-        });
 
         var deleteLayer = $('.delete-layer');
         deleteLayer.click(function(){
             var current = controller.getSelection();
             layer.remove(current);
+        });
+        
+        var showMenu = $('.show-menu');
+        showMenu.click(function(e){
+            $(this).hide("highlight", {direction: "left"}, 'fast', function(){
+                canvas.bringToFront(controller.getSelection());
+                $(this).parent().children('.layer-menu').show("highlight", {direction: "left"}, 'fast');
+            });
+
+            // Stop event from reaching the layer
+            e.stopPropagation()
+
+            // Trigger click
+            mouse.click(e);
         });
 
         // Dynamically load bootstrap and page css (Must do in this order to preserve hierarchy)

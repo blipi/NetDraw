@@ -49,33 +49,3 @@
 .layer.selected .bg {
 	border-color: #a23;
 }
-
-*:not(#menu) > .layer.vertical {
-	transform: rotate(90deg) scaleY(-1);
-	transform-origin: 0px 0px;
-}
-
-*:not(#menu) > .layer.vertical > .wrapper > span {
-	transform: scaleX(-1);
-}
-
-*:not(#menu) > .layer.vertical > .wrapper > input {
-	transform: scaleX(-1);
-}
-
-/*
-*:not(#menu) > .layer.vertical > .wrapper > button {
-	top: -12px;
-	transform: rotate(-45deg);
-}
-*/
-
-*:not(#menu) > .layer.vertical > .wrapper > button > span {
-	margin-left: 2px;
-}
-
-*:not(#menu) > .layer.vertical .layer-menu {
-	top: 73px;
-	left: 60px;
-	transform: rotate(45deg) scaleY(-1);
-}
