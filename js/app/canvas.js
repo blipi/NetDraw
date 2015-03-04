@@ -17,7 +17,12 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
     var Layer = function(DOMElement, type, params) {
         this._DOMElement = DOMElement;
+        this._DOMWrapper = DOMElement.children('.wrapper');
         this._type = type;
+
+        this.getDOM = function() {
+            return this._DOMWrapper;
+        }
 
         this._setCSS = function(what, value) {
             this._DOMElement.css(what, value);
@@ -405,27 +410,39 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         }
 
         // Draws a rectangle
-        this.drawRect = function(params) {
-            return this.drawRectInto(this._DOMcanvas, params);
+        this.createLayer = function(params) {
+            return this.createLayer(this._DOMcanvas, params);
         }
 
+        // Draws a rectangle
+        this.drawBoxInto = function(into, params) { 
+            var element = $('<div class="' + params.className + '">')
+                .css({left: params.x, top: params.y})
+                .prependTo(into);
+
+            if (params.click) {
+                element.click(params.click);
+            }
+
+            if (params.text) {
+                element.append($('<p>' + params.text + '</p>'));
+            }
+
+            return element;
+        }
 
         // Draws a rectangle
-        this.drawRectInto = function(into, params, containment, className) {     
+        this.createLayerInto = function(into, params, containment, className) {     
             containment = typeof(containment) === 'undefined' ? true : containment;
             className = typeof(className) === 'undefined' ? 
                 'layer ' + (controller.verticalDrawing() ? 'vertical ' : '') + params.node.name : 
                 className;
 
-            var element = $('<div class="' + className + '">');
-            element.attr({
-                id: 'layer_' + Canvas()._id
-            })
-            .prependTo(into);
-
-            if (className.split(' ')[0] == 'layer') {
-                $('<div class="bg">').prependTo(element);
-            }
+            var element = $('#layer-sample')
+                .clone(true)
+                .attr('id', 'layer_' + Canvas()._id)
+                .addClass(className)
+                .prependTo(into);
 
             if (params.draggable) {
                 // Force a drag and dragstart to be present
@@ -454,20 +471,20 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         }
 
         // Draws a text element
-        this.drawTextInto = function(into, params) {
+        this.createLayerText = function(layer, params) {
             if (!("x" in params && "y" in params)) {
                 return null;
             }
 
-            var element = $('<span>');
-            element.attr({
-                id: 'layer_' + Canvas()._id
-            })
-            .css({
-                'font-size': params.fontSize,
-                'font-family': params.fontFamily,
-            })
-            .appendTo(into._DOMElement);
+            var element = $('<span>')
+                .attr({
+                    id: 'layer_' + Canvas()._id
+                })
+                .css({
+                    'font-size': params.fontSize,
+                    'font-family': params.fontFamily,
+                })
+                .appendTo(layer.getDOM());
 
             this.layers.push(new Layer(element, TYPE.TEXT, params));
             ++this._id;
@@ -488,15 +505,13 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             return this;
         }
 
-        this.drawArc = function(into, params, className) {
-            var containment = into._DOMElement;
-
+        this.createLayerArc = function(into, params, className) {
             var element = $('<div class="arc-' + className + '">');
             element
                 .attr({
                     id: 'layer_' + Canvas()._id
                 })
-                .appendTo(into._DOMElement);
+                .appendTo(into.getDOM());
 
             if (params.draggable) {
                 // Force a drag and dragstart to be present
@@ -508,12 +523,8 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             this.layers.push(new Layer(element, TYPE.ARC, params));
             ++this._id;
 
-            var container = into._DOMElement;
+            var container = into.getDOM();
             if (params.draggable) {
-                if (!containment) {
-                    container = $('#wrapper');
-                }
-
                 element.draggable({
                     containment: container,
                 });

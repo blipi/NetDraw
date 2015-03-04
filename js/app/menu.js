@@ -66,27 +66,11 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
             var menuObj = $('#menu');
 
             // Import button
-            canvas.drawRectInto(menuObj, {
-                layer: true,
-                draggable: false,
-                deletable: false,
-                fromCenter: false,
+            canvas.drawBoxInto(menuObj, {
                 x: -3, y: 12,
-
-                click: showImport
-            }, undefined, 'menu-import');
-
-            var box = canvas.getLayer(-1);
-
-            /* Text */
-            canvas.drawTextInto(box, {
-                layer: true,
-                draggable: false,
-                deletable: false,
-                x: 20, y: 0,
-                text: "Import prototxt",
-
-                click: showImport
+                click: showImport,
+                text: 'Import prototext',
+                className: 'menu-import'
             });
 
             var menu_onclick = function(layer){
@@ -134,35 +118,13 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
             for (group in groups) {
 
                 /* Box */
-                canvas.drawRectInto(menu, {
-                    layer: true,
-                    draggable: false,
-                    deletable: false,
-                    fromCenter: false,
+                var box = canvas.drawBoxInto(menu, {
                     x: -3, y: -3 + ey,
-
-                    expanded: false,
-                    g: group,
-
-                    click: menu_onclick
-                }, undefined, 'menu-box');
-
-                var box = canvas.getLayer(-1);
-
-                /* Text */
-                canvas.drawTextInto(box, {
-                    layer: true,
-                    draggable: false,
-                    deletable: false,
-                    x: 10, y: 0,
+                    click: menu_onclick,
                     text: group,
-
-                    expanded: false,
-                    g: group,
+                    className: 'menu-box'
                 });
 
-                var text = canvas.getLayer(-1);
-                
                 console.log("================");
                 console.log(group);
 
@@ -175,7 +137,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                     i += 1;
                 }
 
-                instances[group] = [box, text, layers, false];
+                instances[group] = [box, layers, false];
 
                 ey += 27;
             }

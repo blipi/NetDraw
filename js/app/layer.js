@@ -308,10 +308,10 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
 
             if (into === false) {
                 /* Draw all usable elements */
-                canvas.drawRect(params);
+                canvas.createLayer(params);
             }
             else {
-                canvas.drawRectInto(into, params, false);
+                canvas.createLayerInto(into, params, false);
             }
 
             var currentLayer = canvas.getLayer(-1);
@@ -372,7 +372,7 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
 
             x = this.getTextX(type);
 
-            canvas.drawTextInto(currentLayer, {
+            canvas.createLayerText(currentLayer, {
                 layer: true,
                 deletable: isDeletable,
                 x: x, y: 15,
