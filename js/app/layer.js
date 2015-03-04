@@ -360,6 +360,9 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
                     layer.node.input = input;
                 }
 
+                // Check for relationship validation
+                relationship.validate();
+
                 // Trigger mouse click
                 mouse.click(e);
 
