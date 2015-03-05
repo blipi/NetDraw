@@ -63,7 +63,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                 var importArea = $('#import_area');
 
                 importArea.val('');
-                importProto.toggle('fast');
+                importProto.show('slide', 'fast');
                 controller.getWrapper().css('z-index', '-1');
             }
 

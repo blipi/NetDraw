@@ -412,7 +412,11 @@ define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mou
             };
 
             var top_mousedown = function(layer, e) {
-                layer.node.parent._DOMElement.draggable('disable');
+                // No drag on layer
+                e.stopPropagation();
+
+                // Trigger mouse
+                mouse.mousedown(e);
 
                 if (layer.node.used)
                     return;

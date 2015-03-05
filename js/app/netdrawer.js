@@ -247,7 +247,7 @@ define(function (require) {
 
         importCancel.click(function() {
             wrapper.css('z-index', 1);
-            importProto.toggle('fast');
+            importProto.hide('slide', 'fast');
         });
 
         importOK.click(function() {
