@@ -128,11 +128,6 @@ hr
 	height: 100%;
 }
 
-.layer
-{
-
-}
-
 #test
 {
     position: absolute;
@@ -237,6 +232,16 @@ hr
 	transform: rotate(90deg) scaleY(-1);
 	transform-origin: 0px 0px;
 }
+
+*:not(#menu) > .layer.vertical > .no-rotate {
+	position: absolute;
+	transform: rotate(90deg) scaleY(-1);
+	transform-origin: 0px 0px;
+	width: 55px;
+	height: 100px;
+	z-index: 2;
+}
+
 
 *:not(#menu) > .layer.vertical > .wrapper > span {
 	transform: scaleX(-1);

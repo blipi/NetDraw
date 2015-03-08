@@ -1,4 +1,4 @@
-define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $, layer, controller) {
+define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], function(require, $, layer, controller, bottom) {
 
     var canvas = controller.getCanvas();
     var layer = null;
@@ -25,7 +25,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
             if (current == drawingLine.node.from || f != 'main')
                 continue;
 
-            var bb = current.boundingBox();
+            var bb = current.rotationBox();
 
             if (drawingLine.x2 >= bb.x &&
                 drawingLine.y2 >= bb.y &&
@@ -66,7 +66,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller'], function(require, $
                 }
 
                 /* Draw bottom */
-                drawingLine.node.bottom = layer.createBottomPoint(current, x, y);
+                drawingLine.node.bottom = bottom.create(current, x, y);
                 drawingLine.x2 = drawingLine.node.bottom.windowX;
 
                 break;

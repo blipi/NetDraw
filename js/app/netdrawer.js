@@ -7,7 +7,9 @@ define(function (require) {
         layer = require('app/layer'),
         relationship = require('app/relationship'),
         canvasObj = require('app/canvas'),
-        mouse = require('utils/mousehelper');
+        mouse = require('utils/mousehelper'),
+        top = require('app/top'),
+        bottom = require('app/bottom');
 
     require('jquery-ui');
     require('loadCSS');
@@ -128,7 +130,7 @@ define(function (require) {
 
         var createRelationship = function(netLayer, outLayer) {
             var _stablish = function(from, to) {
-                var top = layer.createTopPoint(from);
+                var top = from.createTop();
                 relationship.create(from, to);
             }
 
@@ -156,32 +158,64 @@ define(function (require) {
             }
         }
 
-        var totalHeight = parseInt(canvas.css('height'));
-        var needHeight = levelsCount * 100;
-        totalHeight = needHeight > totalHeight ? needHeight : totalHeight;
-        canvas.css('height', totalHeight);
+        if (controller.verticalDrawing()) {
 
-        var centerX = (parseInt(canvas.css('width')) - 170) / 2 - maxWidth / 2;
-        var y = totalHeight - 75;
-        for (level in levels) {
-            var layersInLevel = levels[level];
+            var totalHeight = parseInt(canvas.css('height'));
+            var needHeight = maxWidth;
+            totalHeight = needHeight > totalHeight ? needHeight : totalHeight;
+            canvas.css('height', totalHeight);
 
-            console.log("===============");
-            console.log("Level " + level);
+            var centerY = (parseInt(canvas.css('height')) - 170) / 2 - maxWidth / 2;
+            var y = totalHeight - 75;
+            for (level in levels) {
+                var layersInLevel = levels[level];
 
-            var len = levels[level].length;
-            var x = 170 + centerX + (maxWidth / 2) - (len * layerSeparation.x / 2);
-            for (var i = 0; i < len; ++i) {
-                var current = net[levels[level][i]]['layer'];
-                var outLayer = layer.createDefinitive(x, y, current.type.value, current.name.value, current);
+                console.log("===============");
+                console.log("Level " + level);
 
-                createRelationship(current, outLayer);
-                addToNetLayers(current, outLayer);          
+                var len = levels[level].length;
+                var x = 170 + centerX + (maxWidth / 2) - (len * layerSeparation.x / 2);
+                for (var i = 0; i < len; ++i) {
+                    var current = net[levels[level][i]]['layer'];
+                    var outLayer = layer.createDefinitive(x, y, current.type.value, current.name.value, current);
 
-                x += 160;
+                    createRelationship(current, outLayer);
+                    addToNetLayers(current, outLayer);          
+
+                    x += 160;
+                }
+
+                y -= 100;
             }
+        }
+        else {
+            var totalHeight = parseInt(canvas.css('height'));
+            var needHeight = levelsCount * 100;
+            totalHeight = needHeight > totalHeight ? needHeight : totalHeight;
+            canvas.css('height', totalHeight);
 
-            y -= 100;
+            var centerX = (parseInt(canvas.css('width')) - 170) / 2 - maxWidth / 2;
+            var y = totalHeight - 75;
+            for (level in levels) {
+                var layersInLevel = levels[level];
+
+                console.log("===============");
+                console.log("Level " + level);
+
+                var len = levels[level].length;
+                var x = 170 + centerX + (maxWidth / 2) - (len * layerSeparation.x / 2);
+                for (var i = 0; i < len; ++i) {
+                    var current = net[levels[level][i]]['layer'];
+                    var outLayer = layer.createDefinitive(x, y, current.type.value, current.name.value, current);
+
+                    createRelationship(current, outLayer);
+                    addToNetLayers(current, outLayer);          
+
+                    x += 160;
+                }
+
+                y -= 100;
+            }
         }
     }
 
@@ -235,6 +269,8 @@ define(function (require) {
 
         menu.create();
         relationship.initialize();
+        top.initialize();
+        bottom.initialize();
 
         /* Setup some HTML hooks */
         var wrapper = controller.getWrapper();

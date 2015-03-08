@@ -2,6 +2,27 @@
 	border: 1px solid #000;
 }
 
+.layer {
+	position: absolute;
+	width: 100px;
+	height: 55px;
+}
+
+.layer .no-rotate
+{
+	position: absolute;
+	top: 0px;
+    width: 100px;
+    height: 55px;
+}
+
+.layer .wrapper
+{
+	position: absolute;
+	top: 0px;
+}
+
+
 .layer .arc-top,
 .layer .arc-bot {
 	position: absolute;
@@ -18,13 +39,6 @@
 	background-color: #000;
 	border-color: #fff;
 }
-
-.layer {
-	position: absolute;
-	width: auto;
-	height: auto;
-}
-
 .layer .glyphicon {
 	position: relative !important;
 }
@@ -54,8 +68,9 @@
     text-align: center;
 }
 
+hr.selected,
 .arc-top.selected,
 .arc-bot.selected,
 .layer.selected .bg {
-	border-color: #a23;
+	border-color: #a23 !important;
 }

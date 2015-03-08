@@ -1,6 +1,7 @@
-define(['require', 'jquery', 'app/layer'], function(require, $, layer){
+define(['require', 'jquery', 'app/top'], function(require, $, top){
 
     var controller = null;
+    var layer = null;
     var mouse = null;
 
     var TYPE = {
@@ -17,10 +18,15 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
     var Layer = function(DOMElement, type, params) {
         this._DOMElement = DOMElement;
         this._DOMWrapper = DOMElement.children('.wrapper');
+        this._DOMNoRotate = DOMElement.children('.no-rotate');
         this._type = type;
 
         this.getDOM = function() {
             return this._DOMWrapper;
+        }
+
+        this.getStaticDOM = function() {
+            return this._DOMNoRotate;
         }
 
         this.prepareMenu = function() {
@@ -48,6 +54,30 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
 
         this.boundingBox = function() {
             return BoundingBox(this.x, this.y, this.width, this.height);
+        }
+
+        this.rotationBox = function() {
+            var bb = this.boundingBox();
+            if (controller.verticalDrawing()) {
+                var tmp = bb.w;
+                bb.w = bb.h;
+                bb.h = tmp;
+            }
+
+            return bb;
+        }
+
+        this.createTop = function() {
+            top.create(this);
+        }
+
+        this.createBottom = function() {
+            bottom.create(this);
+        }
+
+
+        this.remove = function() {
+            layer.remove(this);
         }
 
         for (e in params) {
@@ -255,18 +285,8 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
         get y1() { return this._y1; },
         get x2() { return this._x2; },
         get y2() { return this._y2; },
-        get width() { 
-            if (controller.verticalDrawing()) {
-                return parseInt(this._DOMElement.css('height'));
-            }
-            return parseInt(this._DOMElement.css('width'));
-        },
-        get height() { 
-            if (controller.verticalDrawing()) {
-                return parseInt(this._DOMElement.css('width')); 
-            }
-            return parseInt(this._DOMElement.css('height')); 
-        },
+        get width() { return parseInt(this._DOMElement.css('width')); },
+        get height() { return parseInt(this._DOMElement.css('height')); },
         get text() { return this._DOMWrapper.children('span').html(); },
 
         // Special cases
@@ -283,6 +303,7 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
    
         this.initialize = function() {
             controller = require('app/controller');
+            layer = require('app/layer');
             mouse = require('utils/mousehelper');
 
             this._wrapper = controller.getWrapper();
@@ -525,7 +546,7 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
                 .attr({
                     id: 'layer_' + this._id
                 })
-                .appendTo(into.getDOM());
+                .appendTo(into.getStaticDOM());
 
             if (params.draggable) {
                 if ('dragstart' in params) {
@@ -544,7 +565,7 @@ define(['require', 'jquery', 'app/layer'], function(require, $, layer){
             this.layers.push(new Layer(element, TYPE.ARC, params));
             ++this._id;
 
-            var container = into.getDOM();
+            var container = into.getStaticDOM();
             if (params.draggable) {
                 element.draggable({
                     containment: container,
