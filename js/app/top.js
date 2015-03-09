@@ -127,25 +127,24 @@ define(['require', 'jquery'], function(require, $) {
         	var bb = layer.rotationBox();
         	var num = layer.node.top.length;
 
-        	console.log(bb);
         	var r = {x: bb.w, y: bb.h - 4}
 
         	if (controller.verticalDrawing()) {
         		var min = bb.h / 2 - ((num + 1) * 14 + num * 2) / 2;
 	    		for (var y = min, e = 0; e < num; ++e, y += 16) {
-	    			this.move(layer, layer.node.top[e], layer.node.top[e].x, y + 5); // TODO Magic numbers, compensate margin
+	    			this.move(layer, layer.node.top[e], layer.node.top[e].x, y + 10); // TODO Magic numbers, compensate margin
 	    		}
 
-	    		r.y = y + 5;
+	    		r.y = y + 10;
         	}
         	else {
         		var min = bb.w / 2 - ((num + 1) * 14 + num * 2) / 2;
 	    		for (var x = min, e = 0; e < num; ++e, x += 16) {
-	    			this.move(layer, layer.node.top[e], x + 5, layer.node.top[e].y); // TODO Magic numbers, compensate margin
+	    			this.move(layer, layer.node.top[e], x + 10, layer.node.top[e].y); // TODO Magic numbers, compensate margin
 	    		}
 
 	    		r.y = 0;
-	    		r.x = x + 5;
+	    		r.x = x + 10;
 	    	}
 
         	return r;

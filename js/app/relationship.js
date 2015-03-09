@@ -147,14 +147,16 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
                 controller.setSelection(layer);
             }
 
+            var bb = topLayer.rotationBox();
+
             canvas.drawLine({
                 x: 0, y: 0,
 
                 x1: topPoint.windowX,
                 y1: topPoint.windowY,
 
-                x2: topLayer.node.bottom ? topLayer.node.bottom.x : (bottomLayer == topLayer ? topPoint.windowX : topLayer.windowX + 60),
-                y2: topLayer.node.bottom ? topLayer.node.bottom.y : (bottomLayer == topLayer ? topPoint.windowY : topLayer.windowY + 26),
+                x2: bottomLayer == topLayer ? topPoint.windowX : topLayer.windowX + bb.w/2,
+                y2: bottomLayer == topLayer ? topPoint.windowY : topLayer.windowY + bb.h/2,
 
                 node: {
                     func: 'line',

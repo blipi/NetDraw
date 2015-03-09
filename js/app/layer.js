@@ -288,7 +288,6 @@ function($, pb, controller, relationship, mouse, top, bottom) {
                     id: type + '_' + _counter,
 
                     top: [],
-                    bottom: [],
                     topCount: 0,
                 },
 
