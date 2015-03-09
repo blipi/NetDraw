@@ -1,8 +1,9 @@
-define(['require', 'jquery', 'app/top'], function(require, $, top){
+define(['require', 'jquery', 'app/top', 'protobuf.2'], function(require, $, top, pb){
 
     var controller = null;
     var layer = null;
     var mouse = null;
+    var parser = new ProtoBuf();
 
     var TYPE = {
         RECT : {value: 0, name: "rect"},
@@ -435,6 +436,23 @@ define(['require', 'jquery', 'app/top'], function(require, $, top){
             type = typeof(type) === 'undefined' ? 'swing' : type;
 
             layer._DOMElement.animate(params);
+        }
+
+        this.getProto = function() {
+            var proto = '';
+
+            for (var i = 0, len = this.layers.length; i < len; ++i) {
+                if ('deletable' in this.layers[i] && !this.layers[i].deletable)
+                    continue;
+
+                if (this.layers[i].node.func != 'main')
+                    continue;
+
+                var params = 'layer {' + this.layers[i].node.params + '}\n';
+                proto += params;
+            }
+            
+            return proto;
         }
 
         // Draws a rectangle

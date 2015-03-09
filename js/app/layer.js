@@ -143,13 +143,13 @@ function($, pb, controller, relationship, mouse, top, bottom) {
         },
 
         _onSetDefinitive: function(layer) {
-            layer.text = layer.node.name + '_' + _realCounter;
-            layer.textX = Layer.getTextX(layer.text);
+            //layer.text = layer.node.name + '_' + _realCounter;
+            //layer.textX = Layer.getTextX(layer.text);
             layer.node.func = 'main';
             layer.fixTo(controller.getDOMCanvas());
             layer.prepareMenu();
 
-            ++_realCounter;
+            //++_realCounter;
 
             layer.click = Layer.rect_click;
             layer.dragstop = function(layer){

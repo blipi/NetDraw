@@ -21,6 +21,7 @@ define(function (require) {
 
     function createNet(net) {
         console.log("[createNet]");
+        canvas.removeAllLayers();
 
         var levelMapper = {};
 
@@ -162,11 +163,11 @@ define(function (require) {
 
             var totalHeight = parseInt(canvas.css('height'));
             var needHeight = maxWidth;
-            totalHeight = needHeight > totalHeight ? needHeight : totalHeight;
+            totalHeight = needHeight;
             canvas.css('height', totalHeight);
 
-            var centerY = (parseInt(canvas.css('height')) - 170) / 2 - maxWidth / 2;
-            var y = totalHeight - 75;
+            var centerY = totalHeight / 2;
+            var x = 20;
             for (level in levels) {
                 var layersInLevel = levels[level];
 
@@ -174,7 +175,7 @@ define(function (require) {
                 console.log("Level " + level);
 
                 var len = levels[level].length;
-                var x = 170 + centerX + (maxWidth / 2) - (len * layerSeparation.x / 2);
+                var y = centerY - (len * 120 / 2);
                 for (var i = 0; i < len; ++i) {
                     var current = net[levels[level][i]]['layer'];
                     var outLayer = layer.createDefinitive(x, y, current.type.value, current.name.value, current);
@@ -182,10 +183,10 @@ define(function (require) {
                     createRelationship(current, outLayer);
                     addToNetLayers(current, outLayer);          
 
-                    x += 160;
+                    y += 120;
                 }
 
-                y -= 100;
+                x += 100;
             }
         }
         else {
@@ -274,12 +275,20 @@ define(function (require) {
 
         /* Setup some HTML hooks */
         var wrapper = controller.getWrapper();
+        var modeChange = $('input[name=mode]');
         var importProto = $('#import_prototxt');
         var importError = $('#import_error');
         var importArea = $('#import_area');
         var importOK = $('#import_ok');
         var importCancel = $('#import_cancel');
         var importTimeout = undefined;
+
+        modeChange.click(function() {
+            controller._drawOrientation = $(this).attr('id') == 'ver' ? 1 : 0;
+            var parser = new ProtoBuf();
+            var net = parser.compile(canvas.getProto());
+            createNet(net);
+        });
 
         importCancel.click(function() {
             wrapper.css('z-index', 1);
@@ -292,7 +301,6 @@ define(function (require) {
                     var parser = new ProtoBuf();
                     var net = parser.compile(importArea.val());
                     net = parser.upgrade(net);
-                    canvas.removeAllLayers();
                     createNet(net);
                     importCancel.click();
                 }

@@ -148,6 +148,10 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
             }
 
             var bb = topLayer.rotationBox();
+            // HACK Should not edit this value like this
+            if (controller.verticalDrawing()) {
+                bb.w = 0;
+            }
 
             canvas.drawLine({
                 x: 0, y: 0,
