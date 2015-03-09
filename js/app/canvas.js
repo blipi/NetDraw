@@ -448,7 +448,9 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function(require, $, top,
                 if (this.layers[i].node.func != 'main')
                     continue;
 
-                var params = 'layer {' + this.layers[i].node.params + '}\n';
+                var parser = new ProtoBuf();
+                var params = parser.decompile(this.layers[i].node.params);
+                params = 'layer {' + params + '}\n';
                 proto += params;
             }
             

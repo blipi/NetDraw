@@ -142,9 +142,11 @@ function($, pb, controller, relationship, mouse, top, bottom) {
             return x;
         },
 
-        _onSetDefinitive: function(layer) {
-            //layer.text = layer.node.name + '_' + _realCounter;
-            //layer.textX = Layer.getTextX(layer.text);
+        _onSetDefinitive: function(layer, name) {
+            if (typeof(name) !== 'undefined') {
+                layer.text = name;
+                layer.textX = Layer.getTextX(name);
+            }
             layer.node.func = 'main';
             layer.fixTo(controller.getDOMCanvas());
             layer.prepareMenu();
@@ -287,6 +289,10 @@ function($, pb, controller, relationship, mouse, top, bottom) {
                     name: type,
                     id: type + '_' + _counter,
 
+                    params: {
+                        name: new Value(true, type), 
+                        type: new Value(true, type),
+                    },
                     top: [],
                     topCount: 0,
                 },
@@ -319,9 +325,9 @@ function($, pb, controller, relationship, mouse, top, bottom) {
 
         createDefinitive: function(x, y, type, name, params) {
             var layer = Layer.create(x, y, type, true);
-            layer.node.params = _parser.decompile(params);
+            layer.node.params = params;
 
-            this._onSetDefinitive(layer);
+            this._onSetDefinitive(layer, name);
             
             return layer;
         },

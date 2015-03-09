@@ -275,7 +275,7 @@ define(function (require) {
 
         /* Setup some HTML hooks */
         var wrapper = controller.getWrapper();
-        var modeChange = $('input[name=mode]');
+        var modeChange = $('#orientation-hor, #orientation-ver');
         var importProto = $('#import_prototxt');
         var importError = $('#import_error');
         var importArea = $('#import_area');
@@ -284,7 +284,7 @@ define(function (require) {
         var importTimeout = undefined;
 
         modeChange.click(function() {
-            controller._drawOrientation = $(this).attr('id') == 'ver' ? 1 : 0;
+            controller._drawOrientation = $(this).attr('id') == 'orientation-hor' ? 1 : 0;
             var parser = new ProtoBuf();
             var net = parser.compile(canvas.getProto());
             createNet(net);
@@ -370,6 +370,9 @@ define(function (require) {
                         var activeLayer = controller.getSelection();
                         activeLayer.text = $(this).val();
                         activeLayer.textX = layer.getTextX(activeLayer.text);
+
+                        activeLayer.node.params['name'].value = activeLayer.text;
+                        console.log(activeLayer.node.params);
                         
                         activeLayer.node.input = null;
                         $(this).remove();

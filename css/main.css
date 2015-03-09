@@ -100,6 +100,12 @@ hr
 {
 	position: absolute;
 	bottom: 0px;
+	text-align: center;
+	margin: 5px;
+	border: 1px dashed #000;
+	border-radius: 15px;
+	width: 135px;
+	padding: 5px;
 }
 
 .menu-import,
@@ -226,7 +232,7 @@ hr
 	visibility: hidden;
 }
 
-.btn-default.btn-circle span {
+:not(#mode-change) > .btn-default.btn-circle span {
 	margin-left: 2px;
 	top: -1px;
 }
