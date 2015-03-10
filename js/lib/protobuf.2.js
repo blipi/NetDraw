@@ -17,7 +17,7 @@ var tokens = {
 var Value = function (quoted, value) {
     this.quoted = quoted;
     this.value = value;
-}
+};
 
 var ProtoBuf = function () {
 
@@ -33,11 +33,11 @@ var ProtoBuf = function () {
 
     this.isnumber = function (c) {
         return c >= '0' && c <= '9';
-    }
+    };
 
     this.isletter = function (c) {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
-    }
+    };
 
     this.getsym = function () {
         var c = this.protobuf.charAt(this.i++);
@@ -68,7 +68,7 @@ var ProtoBuf = function () {
 
         this.oldc = this.c;
         this.c = c;
-    }
+    };
 
     this.accept = function (s) {
         if (this.sym == s) {
@@ -77,7 +77,7 @@ var ProtoBuf = function () {
         }
 
         return false;
-    }
+    };
 
     this.expect = function (s) {
         if (this.accept(s)) {
@@ -86,10 +86,10 @@ var ProtoBuf = function () {
 
         console.log(this);
         throw 'Unexpected symbol in \'expect\'';
-    }
+    };
 
     this.value = function () {
-        while (this.accept(tokens.IDENT)) {;}
+        while (this.accept(tokens.IDENT)) {}
 
         if (this.accept(tokens.QUOTE)) {
             this.quoted = true;
@@ -99,16 +99,14 @@ var ProtoBuf = function () {
                 this.buffer += this.c;
                 this.getsym();
             }
-        } else if (this.number()) { ; // Nothing on purpous
-        } else if (this.name()) { ; // Nothing on purpous
-        } else {
+        } else if (!this.number() || !this.name()) {
             console.log(this);
             throw 'Unexpected symbon in \'value\'';
         }
     }
 
     this.number = function () {
-        while (this.accept(tokens.IDENT)) {;}
+        while (this.accept(tokens.IDENT)) {}
 
         var decimals = false;
 
@@ -129,10 +127,10 @@ var ProtoBuf = function () {
         }
 
         return false;
-    }
+    };
 
     this.name = function () {
-        while (this.accept(tokens.IDENT)) {;}
+        while (this.accept(tokens.IDENT)) {}
 
         if (this.accept(tokens.LETTER)) {
             this.buffer = this.oldc;
@@ -145,10 +143,10 @@ var ProtoBuf = function () {
         }
 
         return false;
-    }
+    };
 
     this.handleLBRACE = function (keyname) {
-        while (this.accept(tokens.IDENT)) {;}
+        while (this.accept(tokens.IDENT)) {}
 
         if (keyname in this.object || $.isArray(this.object)) {
             if (!$.isArray(this.object)) {
@@ -168,7 +166,7 @@ var ProtoBuf = function () {
         }
 
         this.expression();
-    }
+    };
 
     this.expression = function () {
         // Ignore ident
@@ -198,7 +196,7 @@ var ProtoBuf = function () {
         if (this.name()) {
             var keyname = this.buffer;
 
-            while (this.accept(tokens.IDENT)) {;}
+            while (this.accept(tokens.IDENT)) {}
 
             if (this.accept(tokens.COLON)) {
 
@@ -242,9 +240,9 @@ var ProtoBuf = function () {
             this.expression();
         } else {
             console.log(this);
-            throw 'Unexpected symbol in \'expression\''
+            throw 'Unexpected symbol in \'expression\'';
         }
-    }
+    };
 
     this.compile = function (pb) {
         // It must end with \n, if not, inject it
@@ -279,11 +277,11 @@ var ProtoBuf = function () {
             }
 
             return layer;
-        }
+        };
 
         var upgradeLayer = function (layer) {
             return upgradeLayerType(layer.layers || layer.layer);
-        }
+        };
 
         var upgradedObj = [];
 
@@ -296,7 +294,7 @@ var ProtoBuf = function () {
         }
 
         return upgradedObj;
-    }
+    };
 
     this.decompile = function (pb, version) {
         version = typeof(version) === 'undefined' ? Version.V1 : version;
@@ -319,7 +317,7 @@ var ProtoBuf = function () {
             } else {
                 decompiled_string += keyname + ': ' + (obj.quoted ? '"' : '') + obj.value + (obj.quoted ? '"' : '') + '\n';
             }
-        }
+        };
         var add_obj = function (keyname) {
             decompiled_string += Array(number_of_ident).join('\t');
 
@@ -331,11 +329,11 @@ var ProtoBuf = function () {
             } else {
                 decompiled_string += keyname + ' {\n';
             }
-        }
+        };
         var close_obj = function () {
             decompiled_string += Array(number_of_ident).join('\t')
             decompiled_string += '}\n';
-        }
+        };
 
         var iterative_decompile = function (obj, previous_key) {
 
@@ -363,10 +361,10 @@ var ProtoBuf = function () {
                     }
                 }
             }
-        }
+        };
 
         iterative_decompile(pb);
 
         return decompiled_string;
-    }
+    };
 };
