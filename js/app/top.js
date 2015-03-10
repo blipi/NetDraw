@@ -16,6 +16,10 @@ define(['require', 'jquery'], function (require, $) {
         remove: function (layer) {
             console.log('[top.remove] {' + layer.node.name + '}');
 
+            // Validate first, just in case we are currently drawing
+            // Might happen if [SUPR] is pressed
+            relationship.validate();
+
             var fromRelationships = controller.getMappingsFor('from', layer.node.parent);
             var i = 0;
 

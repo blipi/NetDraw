@@ -50,9 +50,6 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
 
     var Layer = {
         remove: function (layer) {
-            // Validate first, just in case we are currently drawing
-            relationship.validate();
-
             if (layer.node.func == 'top') {
                 throw '[DEPRECATED] Should not be called';
             } else if (layer.node.func == 'bottom') {
