@@ -253,11 +253,11 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
 
                 node: {
                     func: 'reserved',
-                    name: type,
+                    name: type + '_' + _realCounter,
                     id: type + '_' + _counter,
 
                     params: {
-                        name: new Value(true, type),
+                        name: new Value(true, type + '_' + _realCounter),
                         type: new Value(true, type),
                     },
                     top: [],
@@ -286,6 +286,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
             controller.createLayerMappings(currentLayer);
 
             ++_counter;
+            ++_realCounter;
             return currentLayer;
         },
 

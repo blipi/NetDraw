@@ -73,10 +73,6 @@ define(['require', 'jquery'], function (require, $) {
                 // Trigger mouse
                 mouse.mousedown(e);
 
-                if (layer.node.used) {
-                    return;
-                }
-
                 if (!controller.freeDrawing()) {
                     controller.setInitialNode(layer.node.parent);
                 }

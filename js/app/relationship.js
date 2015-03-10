@@ -76,8 +76,6 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
 
         if (!connected) {
             canvas.removeLayer(drawingLine);
-        } else {
-            drawingLine.node.top.node.used = true;
         }
 
         drawingLine.node.from.draggable = true;
@@ -116,9 +114,6 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
 
             // Remove bottom point
             canvas.removeLayer(line.node.bottom);
-
-            // Flag as not used, we keep top, as it may already have a special name defined
-            line.node.top.node.used = false;
 
             // Remove line itself
             canvas.removeLayer(line);
