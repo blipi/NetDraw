@@ -13,6 +13,33 @@ define(['require', 'jquery'], function (require, $) {
             relationship = require('app/relationship');
         },
 
+        remove: function (layer) {
+            console.log('[top.remove] {' + layer.node.name + '}');
+
+            var fromRelationships = controller.getMappingsFor('from', layer.node.parent);
+            var i = 0;
+
+            for (; i < fromRelationships.length; ++i) {
+                if (fromRelationships[i].node.top == layer) {
+                    relationship.remove(fromRelationships[i]);
+                    --i;
+                }
+            }
+
+            var total = layer.node.parent.node.top.length;
+            var idx = -1;
+            for (i = 0; i < total; ++i) {
+                if (layer.node.parent.node.top[i] == layer)
+                {
+                    idx = i;
+                    break;
+                }
+            }
+
+            layer.node.parent.node.top.splice(idx, 1);
+            canvas.removeLayer(layer);
+        },
+
         create: function (layer, topName) {
             console.log('[top.create] {' + layer.node.id + '}');
 

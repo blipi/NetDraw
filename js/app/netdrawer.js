@@ -238,7 +238,7 @@ define(function (require) {
                 if (relationship.is(selection)) {
                     relationship.remove(selection);
                 } else {
-                    layer.remove(selection);
+                    selection.remove();
                 }
             }
         };

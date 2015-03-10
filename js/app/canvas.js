@@ -1,4 +1,4 @@
-define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top, pb) {
+define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (require, $, top, bottom, pb) {
 
     var controller = null;
     var layer = null;
@@ -77,7 +77,13 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
         };
 
         this.remove = function () {
-            layer.remove(this);
+            if (this.node.func == 'top') {
+                top.remove(this);
+            } else if (this.node.func == 'bottom') {
+                bottom.remove(this);
+            } else {
+                layer.remove(this);
+            }
         };
 
         for (var e in params) {

@@ -3,12 +3,30 @@ define(['require', 'jquery'], function (require, $) {
     var canvas = null;
     var controller = null;
     var mouse = null;
+    var relationship = null;
 
     var Bottom = {
         initialize: function () {
             canvas = require('app/canvas');
             controller = require('app/controller');
             mouse = require('utils/mousehelper');
+            relationship = require('app/relationship');
+        },
+
+        remove: function (layer) {
+            console.log('[bottom.remove] {' + layer.node.name + '}');
+
+            // Find the relationship assosiated with this bottom point and delete it
+            var toRelationships = controller.getMappingsFor('to', layer.node.parent);
+            var n = toRelationships.length;
+            var i = 0;
+
+            for (; i < n; ++i) {
+                if (toRelationships[i].node.bottom == layer) {
+                    relationship.remove(toRelationships[i]);
+                    break;
+                }
+            }
         },
 
         create: function (layer, ex, ey) {

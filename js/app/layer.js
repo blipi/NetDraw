@@ -45,48 +45,9 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
             relationship.validate();
 
             if (layer.node.func == 'top') {
-                console.log('[layer.remove][top] {' + layer.node.name + '}');
-
-                var fromRelationships = controller.getMappingsFor('from', layer.node.parent);
-                var i = 0;
-
-                for (; i < fromRelationships.length; ++i) {
-                    if (fromRelationships[i].node.top == layer) {
-                        relationship.remove(fromRelationships[i]);
-                        --i;
-                    }
-                }
-
-                var total = layer.node.parent.node.top.length;
-                var idx = -1;
-                for (i = 0; i < total; ++i) {
-                    if (layer.node.parent.node.top[i] == layer)
-                    {
-                        idx = i;
-                        break;
-                    }
-                }
-
-                layer.node.parent.node.top.splice(idx, 1);
-                canvas.removeLayer(layer);
-
-                return;
+                throw '[DEPRECATED] Should not be called';
             } else if (layer.node.func == 'bottom') {
-                console.log('[layer.remove][bottom] {' + layer.node.name + '}');
-
-                // Find the relationship assosiated with this bottom point and delete it
-                var toRelationships = controller.getMappingsFor('to', layer.node.parent);
-                var n = toRelationships.length;
-                var i = 0;
-
-                for (; i < n; ++i) {
-                    if (toRelationships[i].node.bottom == layer) {
-                        relationship.remove(toRelationships[i]);
-                        break;
-                    }
-                }
-
-                return;
+                throw '[DEPRECATED] Should not be called';
             }
 
             console.log('[layer.remove] {' + layer.node.id + '}');
@@ -254,7 +215,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
                 }
             };
 
-            var rect_dragstop = function (layer) {
+            var rect_dragstop = function (layer, e) {
                 clearInterval(layer.node.scrollInterval);
                 layer.node.scrollInterval = null;
 
