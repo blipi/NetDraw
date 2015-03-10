@@ -1,12 +1,13 @@
-define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], function(require, $, layer, controller, bottom) {
+define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], function (require, $, layer, controller, bottom) {
 
     var canvas = controller.getCanvas();
     var layer = null;
 
     function _validateRelationship(e) {
         var drawingLine = controller.getDrawingLine();
-        if (drawingLine == null)
+        if (drawingLine == null) {
             return;
+        }
 
         console.log('[relationship._validateRelationship]');
 
@@ -19,11 +20,13 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
             var current = layers[i];
 
             var f = null;
-            if ('node' in current && 'func' in current.node)
+            if ('node' in current && 'func' in current.node) {
                 f = current.node.func;
+            }
 
-            if (current == drawingLine.node.from || f != 'main')
+            if (current == drawingLine.node.from || f != 'main') {
                 continue;
+            }
 
             var bb = current.rotationBox();
 
@@ -43,23 +46,21 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
                 var top = drawingLine.y2 - bb.y;
                 var minargs = [left, bb.w - left, top, bb.h - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
-                var x = 0, y = 0;
+                var x = 0;
+                var y = 0;
                 if (idx == 0) {
                     drawingLine.x2 = bb.x;
                     x = 0;
                     y = drawingLine.y2 - bb.y;
-                }
-                else if (idx == 1) {
+                } else if (idx == 1) {
                     drawingLine.x2 = bb.x + bb.w;
                     x = bb.w;
                     y = drawingLine.y2 - bb.y;
-                }
-                else if (idx == 2) {
+                } else if (idx == 2) {
                     drawingLine.y2 = bb.y;
                     x = drawingLine.x2 - bb.x;
                     y = 0;
-                }
-                else {
+                } else {
                     drawingLine.y2 = bb.y + bb.h;
                     x = drawingLine.x2 - bb.x;
                     y = bb.h;
@@ -75,8 +76,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
 
         if (!connected) {
             canvas.removeLayer(drawingLine);
-        }
-        else {
+        } else {
             drawingLine.node.top.node.used = true;
         }
 
@@ -88,15 +88,14 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
     function _checkDrawingMode(e) {
         if (controller.freeDrawing()) {
             _validateRelationship(e);
-        }
-        else if (controller.getInitialNode()) {
+        } else if (controller.getInitialNode()) {
             _validateRelationship(e);
         }
     }
 
     return {
 
-        initialize: function() {
+        initialize: function () {
             // Circular dependency, async load layer
             layer = require('app/layer');
 
@@ -104,15 +103,15 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
             $(window).click(_checkDrawingMode);
         },
 
-        validate: function(e) {
-            _validateRelationship(e);            
+        validate: function (e) {
+            _validateRelationship(e);
         },
 
-        is: function(line) {
+        is: function (line) {
             return 'node' in line && 'func' in line.node && line.node.func == 'line';
         },
 
-        remove: function(line) {
+        remove: function (line) {
             console.log('[relationship.remove] {' + line.node.top.node.name + ' -> ' + line.node.bottom.node.name + '}');
 
             // Remove bottom point
@@ -128,12 +127,12 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
             controller.removeBothMappings(line);
         },
 
-        create: function(bottomLayer, topLayer, validate, topPoint) {
+        create: function (bottomLayer, topLayer, validate, topPoint) {
             console.log('[relationship.create] {' + bottomLayer.node.id + ',' + topLayer.node.id + '}');
 
             validate = typeof(validate) === 'undefined' ? true : validate;
-    
-            topPoint = typeof(topPoint) === 'undefined' ? 
+
+            topPoint = typeof(topPoint) === 'undefined' ?
                 bottomLayer.node.top[bottomLayer.node.top.length - 1] :  // We start from BottomLayer's Top point!
                 topPoint;
 
@@ -143,7 +142,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
                 canvas.removeLayer(currentLine);
             }
 
-            var line_click = function(layer) {
+            var line_click = function (layer) {
                 controller.setSelection(layer);
             }
 
@@ -159,8 +158,8 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
                 x1: topPoint.windowX,
                 y1: topPoint.windowY,
 
-                x2: bottomLayer == topLayer ? topPoint.windowX : topLayer.windowX + bb.w/2,
-                y2: bottomLayer == topLayer ? topPoint.windowY : topLayer.windowY + bb.h/2,
+                x2: bottomLayer == topLayer ? topPoint.windowX : topLayer.windowX + bb.w / 2,
+                y2: bottomLayer == topLayer ? topPoint.windowY : topLayer.windowY + bb.h / 2,
 
                 node: {
                     func: 'line',

@@ -1,13 +1,13 @@
-define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mousehelper','app/top', 'app/bottom'], 
+define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mousehelper', 'app/top', 'app/bottom'],
 
-function($, pb, controller, relationship, mouse, top, bottom) {
+function ($, pb, controller, relationship, mouse, top, bottom) {
 
     var canvas = controller.getCanvas();
     var _counter = 0;
     var _realCounter = 0;
     var _parser = new ProtoBuf();
 
-    var scrollGetter = function(_layer) {
+    var scrollGetter = function (_layer) {
         if (!scrollGetter.prototype._instance) {
             scrollGetter.prototype._instance = this;
         }
@@ -40,12 +40,12 @@ function($, pb, controller, relationship, mouse, top, bottom) {
     new scrollGetter();
 
     var Layer = {
-        remove: function(layer) {
+        remove: function (layer) {
             // Validate first, just in case we are currently drawing
             relationship.validate();
 
             if (layer.node.func == 'top') {
-                console.log("[layer.remove][top] {" + layer.node.name + '}');
+                console.log('[layer.remove][top] {' + layer.node.name + '}');
 
                 var fromRelationships = controller.getMappingsFor('from', layer.node.parent);
                 var i = 0;
@@ -71,9 +71,8 @@ function($, pb, controller, relationship, mouse, top, bottom) {
                 canvas.removeLayer(layer);
 
                 return;
-            }
-            else if (layer.node.func == 'bottom') {
-                console.log("[layer.remove][bottom] {" + layer.node.name + '}');
+            } else if (layer.node.func == 'bottom') {
+                console.log('[layer.remove][bottom] {' + layer.node.name + '}');
 
                 // Find the relationship assosiated with this bottom point and delete it
                 var toRelationships = controller.getMappingsFor('to', layer.node.parent);
@@ -90,7 +89,7 @@ function($, pb, controller, relationship, mouse, top, bottom) {
                 return;
             }
 
-            console.log("[layer.remove] {" + layer.node.id + '}');
+            console.log('[layer.remove] {' + layer.node.id + '}');
 
             for (var i in layer.node.top) {
                 canvas.removeLayer(layer.node.top[i]);
@@ -98,7 +97,7 @@ function($, pb, controller, relationship, mouse, top, bottom) {
 
             var fromRelationships = controller.getMappingsFor('from', layer);
             var toRelationships = controller.getMappingsFor('to', layer);
-            
+
             // Relationship.remove deletes entries from mappings, thus we must
             // use a while over the array and delete [0]
             while (fromRelationships.length) {
@@ -120,7 +119,7 @@ function($, pb, controller, relationship, mouse, top, bottom) {
             }
         },
 
-        rect_click: function(layer) {
+        rect_click: function (layer) {
             controller.setSelection(layer);
             canvas.bringToFront(layer);
 
@@ -134,15 +133,15 @@ function($, pb, controller, relationship, mouse, top, bottom) {
             }
         },
 
-        getTextX: function(text) {
+        getTextX: function (text) {
             $('#test').css('font-size', 16).html(text);
             var textWidth = parseInt($('#test').css('width'));
 
-            var x = 100/2.0 - textWidth / 2.0 - 2;
+            var x = 100 / 2.0 - textWidth / 2.0 - 2;
             return x;
         },
 
-        _onSetDefinitive: function(layer, name) {
+        _onSetDefinitive: function (layer, name) {
             if (typeof(name) !== 'undefined') {
                 layer.text = name;
                 layer.textX = Layer.getTextX(name);
@@ -151,15 +150,13 @@ function($, pb, controller, relationship, mouse, top, bottom) {
             layer.fixTo(controller.getDOMCanvas());
             layer.prepareMenu();
 
-            //++_realCounter;
-
             layer.click = Layer.rect_click;
-            layer.dragstop = function(layer){
+            layer.dragstop = function (layer) {
                 clearInterval(layer.node.scrollInterval);
                 layer.node.scrollInterval = null;
             }
 
-            layer.dragstart = function(layer) {
+            layer.dragstart = function (layer) {
                 controller.setSelection(layer);
                 canvas.bringToFront(layer);
             }
@@ -167,12 +164,12 @@ function($, pb, controller, relationship, mouse, top, bottom) {
             canvas.bringToFront(layer);
         },
 
-        _checkLimits: function(layer) {
+        _checkLimits: function (layer) {
             if (layer.node.scrollInterval) {
                 return;
             }
 
-            layer.node.scrollInterval = setInterval(function(){
+            layer.node.scrollInterval = setInterval(function () {
                 // BOTTOM
                 if (scrollGetter(layer).currentY >= scrollGetter(layer).height - 200) {
                     canvas.css('height', scrollGetter(layer).height + 100);
@@ -186,8 +183,7 @@ function($, pb, controller, relationship, mouse, top, bottom) {
                     if (scrollGetter(layer).top > 0) {
                         canvas._scroll_wrapper.scrollTop(scrollGetter(layer).top - 75);
                         layer.y -= 75;
-                    }
-                    else {
+                    } else {
                         // TODO: Expand upper limit
                     }
                 }
@@ -205,42 +201,42 @@ function($, pb, controller, relationship, mouse, top, bottom) {
                     if (scrollGetter(layer).left > 0) {
                         canvas._scroll_wrapper.scrollLeft(scrollGetter(layer).left - 75);
                         layer.x -= 75;
-                    }
-                    else {
+                    } else {
                         // TODO: Expand upper limit
                     }
                 }
             }, 100);
         },
 
-        create: function(x, y, type, visibility, into, isDeletable) {
-            console.log("[layer.create] {" + x + "," + y + "," + type + "}");
+        create: function (x, y, type, visibility, into, isDeletable) {
+            console.log('[layer.create] {' + x + ',' + y + ',' + type + '}');
 
             into = typeof(into) === 'undefined' ? false : into;
-            isDeletable = typeof(isDeletable) === 'undefined' ? true : isDeletable;    
+            isDeletable = typeof(isDeletable) === 'undefined' ? true : isDeletable;
 
             /* Forward declaration of handlers */
-            var rect_mousedown = function(layer, e) {
+            var rect_mousedown = function (layer, e) {
                 if (layer.node.func == 'main') {
                     controller.setSelection(layer);
                     e.stopPropagation();
                 }
             }
 
-            var rect_ondragstart = function(layer) {
+            var rect_ondragstart = function (layer) {
                 canvas.bringToFront(layer);
             };
 
-            var rect_drag = function(layer) {
+            var rect_drag = function (layer) {
                 Layer._checkLimits(layer);
 
+                // TODO Use newer controller methods
                 var mappings = controller.getMappings();
-                var fromRelationships = mappings['from'][layer.node.id];
-                var toRelationships = mappings['to'][layer.node.id];
+                var fromRelationships = mappings.from[layer.node.id];
+                var toRelationships = mappings.to[layer.node.id];
 
                 var n = fromRelationships.length;
                 var i = 0;
-            
+
                 for (; i < n; ++i) {
                     var line = fromRelationships[i];
                     line.x1 = line.node.top.windowX;
@@ -257,15 +253,15 @@ function($, pb, controller, relationship, mouse, top, bottom) {
                 }
             };
 
-            var rect_dragstop = function(layer) {
+            var rect_dragstop = function (layer) {
                 clearInterval(layer.node.scrollInterval);
                 layer.node.scrollInterval = null;
 
                 // Hack to make double click work
                 mouse.click(e);
-                
+
                 var canvasLayer = Layer.create(layer.windowX, layer.windowY, layer.node.name, true);
-                
+
                 layer.x = layer.ox;
                 layer.y = layer.oy;
 
@@ -290,7 +286,7 @@ function($, pb, controller, relationship, mouse, top, bottom) {
                     id: type + '_' + _counter,
 
                     params: {
-                        name: new Value(true, type), 
+                        name: new Value(true, type),
                         type: new Value(true, type),
                     },
                     top: [],
@@ -311,8 +307,7 @@ function($, pb, controller, relationship, mouse, top, bottom) {
             if (into === false) {
                 /* Draw all usable elements */
                 canvas.createLayer(params);
-            }
-            else {
+            } else {
                 canvas.createLayerInto(into, params, false);
             }
 
@@ -323,12 +318,12 @@ function($, pb, controller, relationship, mouse, top, bottom) {
             return currentLayer;
         },
 
-        createDefinitive: function(x, y, type, name, params) {
+        createDefinitive: function (x, y, type, name, params) {
             var layer = Layer.create(x, y, type, true);
             layer.node.params = params;
 
             this._onSetDefinitive(layer, name);
-            
+
             return layer;
         },
     };

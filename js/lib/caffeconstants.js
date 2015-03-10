@@ -6,7 +6,7 @@ var Version = {
 };
 
 var V1LayerParameter = {
-    LayerType : {
+    LayerType: {
         NONE: -1,
         ACCURACY: 0,
         BNLL: 1,
@@ -49,7 +49,7 @@ var V1LayerParameter = {
     MaxLayers: 30
 };
 
-var UpgradeV0LayerType = function(type) {
+var UpgradeV0LayerType = function (type) {
     // By CONSTANT usage
     for (name in V1LayerParameter.LayerType) {
         if (name == type) {
@@ -58,229 +58,229 @@ var UpgradeV0LayerType = function(type) {
     }
 
     // By name
-    if (type == "accuracy") {
+    if (type == 'accuracy') {
         return V1LayerParameter.LayerType.ACCURACY;
-    } else if (type == "bnll") {
+    } else if (type == 'bnll') {
         return V1LayerParameter.LayerType.BNLL;
-    } else if (type == "concat") {
+    } else if (type == 'concat') {
         return V1LayerParameter.LayerType.CONCAT;
-    } else if (type == "conv") {
+    } else if (type == 'conv') {
         return V1LayerParameter.LayerType.CONVOLUTION;
-    } else if (type == "data") {
+    } else if (type == 'data') {
         return V1LayerParameter.LayerType.DATA;
-    } else if (type == "dropout") {
+    } else if (type == 'dropout') {
         return V1LayerParameter.LayerType.DROPOUT;
-    } else if (type == "euclidean_loss") {
+    } else if (type == 'euclidean_loss') {
         return V1LayerParameter.LayerType.EUCLIDEAN_LOSS;
-    } else if (type == "flatten") {
+    } else if (type == 'flatten') {
         return V1LayerParameter.LayerType.FLATTEN;
-    } else if (type == "hdf5_data") {
+    } else if (type == 'hdf5_data') {
         return V1LayerParameter.LayerType.HDF5_DATA;
-    } else if (type == "hdf5_output") {
+    } else if (type == 'hdf5_output') {
         return V1LayerParameter.LayerType.HDF5_OUTPUT;
-    } else if (type == "im2col") {
+    } else if (type == 'im2col') {
         return V1LayerParameter.LayerType.IM2COL;
-    } else if (type == "images") {
+    } else if (type == 'images') {
         return V1LayerParameter.LayerType.IMAGE_DATA;
-    } else if (type == "infogain_loss") {
+    } else if (type == 'infogain_loss') {
         return V1LayerParameter.LayerType.INFOGAIN_LOSS;
-    } else if (type == "innerproduct") {
+    } else if (type == 'innerproduct') {
         return V1LayerParameter.LayerType.INNER_PRODUCT;
-    } else if (type == "lrn") {
+    } else if (type == 'lrn') {
         return V1LayerParameter.LayerType.LRN;
-    } else if (type == "multinomial_logistic_loss") {
+    } else if (type == 'multinomial_logistic_loss') {
         return V1LayerParameter.LayerType.MULTINOMIAL_LOGISTIC_LOSS;
-    } else if (type == "pool") {
+    } else if (type == 'pool') {
         return V1LayerParameter.LayerType.POOLING;
-    } else if (type == "relu") {
+    } else if (type == 'relu') {
         return V1LayerParameter.LayerType.RELU;
-    } else if (type == "sigmoid") {
+    } else if (type == 'sigmoid') {
         return V1LayerParameter.LayerType.SIGMOID;
-    } else if (type == "softmax") {
+    } else if (type == 'softmax') {
         return V1LayerParameter.LayerType.SOFTMAX;
-    } else if (type == "softmax_loss") {
+    } else if (type == 'softmax_loss') {
         return V1LayerParameter.LayerType.SOFTMAX_LOSS;
-    } else if (type == "split") {
+    } else if (type == 'split') {
         return V1LayerParameter.LayerType.SPLIT;
-    } else if (type == "tanh") {
+    } else if (type == 'tanh') {
         return V1LayerParameter.LayerType.TANH;
-    } else if (type == "window_data") {
+    } else if (type == 'window_data') {
         return V1LayerParameter.LayerType.WINDOW_DATA;
     } else {
         return V1LayerParameter.LayerType.NONE;
     }
 };
 
-var UpgradeV1LayerType = function(type) {
+var UpgradeV1LayerType = function (type) {
     switch (type) {
         case V1LayerParameter.LayerType.NONE:
-            return "Default";
+            return 'Default';
         case V1LayerParameter.LayerType.ABSVAL:
-            return "AbsVal";
+            return 'AbsVal';
         case V1LayerParameter.LayerType.ACCURACY:
-            return "Accuracy";
+            return 'Accuracy';
         case V1LayerParameter.LayerType.ARGMAX:
-            return "ArgMax";
+            return 'ArgMax';
         case V1LayerParameter.LayerType.BNLL:
-            return "BNLL";
+            return 'BNLL';
         case V1LayerParameter.LayerType.CONCAT:
-            return "Concat";
+            return 'Concat';
         case V1LayerParameter.LayerType.CONTRASTIVE_LOSS:
-            return "ContrastiveLoss";
+            return 'ContrastiveLoss';
         case V1LayerParameter.LayerType.CONVOLUTION:
-            return "Convolution";
+            return 'Convolution';
         case V1LayerParameter.LayerType.DECONVOLUTION:
-            return "Deconvolution";
+            return 'Deconvolution';
         case V1LayerParameter.LayerType.DATA:
-            return "Data";
+            return 'Data';
         case V1LayerParameter.LayerType.DROPOUT:
-            return "Dropout";
+            return 'Dropout';
         case V1LayerParameter.LayerType.DUMMY_DATA:
-            return "DummyData";
+            return 'DummyData';
         case V1LayerParameter.LayerType.EUCLIDEAN_LOSS:
-            return "EuclideanLoss";
+            return 'EuclideanLoss';
         case V1LayerParameter.LayerType.ELTWISE:
-            return "Eltwise";
+            return 'Eltwise';
         case V1LayerParameter.LayerType.EXP:
-            return "Exp";
+            return 'Exp';
         case V1LayerParameter.LayerType.FLATTEN:
-            return "Flatten";
+            return 'Flatten';
         case V1LayerParameter.LayerType.HDF5_DATA:
-            return "HDF5Data";
+            return 'HDF5Data';
         case V1LayerParameter.LayerType.HDF5_OUTPUT:
-            return "HDF5Output";
+            return 'HDF5Output';
         case V1LayerParameter.LayerType.HINGE_LOSS:
-            return "HingeLoss";
+            return 'HingeLoss';
         case V1LayerParameter.LayerType.IM2COL:
-            return "Im2col";
+            return 'Im2col';
         case V1LayerParameter.LayerType.IMAGE_DATA:
-            return "ImageData";
+            return 'ImageData';
         case V1LayerParameter.LayerType.INFOGAIN_LOSS:
-            return "InfogainLoss";
+            return 'InfogainLoss';
         case V1LayerParameter.LayerType.INNER_PRODUCT:
-            return "InnerProduct";
+            return 'InnerProduct';
         case V1LayerParameter.LayerType.LRN:
-            return "LRN";
+            return 'LRN';
         case V1LayerParameter.LayerType.MEMORY_DATA:
-            return "MemoryData";
+            return 'MemoryData';
         case V1LayerParameter.LayerType.MULTINOMIAL_LOGISTIC_LOSS:
-            return "MultinomialLogisticLoss";
+            return 'MultinomialLogisticLoss';
         case V1LayerParameter.LayerType.MVN:
-            return "MVN";
+            return 'MVN';
         case V1LayerParameter.LayerType.POOLING:
-            return "Pooling";
+            return 'Pooling';
         case V1LayerParameter.LayerType.POWER:
-            return "Power";
+            return 'Power';
         case V1LayerParameter.LayerType.RELU:
-            return "ReLU";
+            return 'ReLU';
         case V1LayerParameter.LayerType.SIGMOID:
-            return "Sigmoid";
+            return 'Sigmoid';
         case V1LayerParameter.LayerType.SIGMOID_CROSS_ENTROPY_LOSS:
-            return "SigmoidCrossEntropyLoss";
+            return 'SigmoidCrossEntropyLoss';
         case V1LayerParameter.LayerType.SILENCE:
-            return "Silence";
+            return 'Silence';
         case V1LayerParameter.LayerType.SOFTMAX:
-            return "Softmax";
+            return 'Softmax';
         case V1LayerParameter.LayerType.SOFTMAX_LOSS:
-            return "SoftmaxWithLoss";
+            return 'SoftmaxWithLoss';
         case V1LayerParameter.LayerType.SPLIT:
-            return "Split";
+            return 'Split';
         case V1LayerParameter.LayerType.SLICE:
-            return "Slice";
+            return 'Slice';
         case V1LayerParameter.LayerType.TANH:
-            return "TanH";
+            return 'TanH';
         case V1LayerParameter.LayerType.WINDOW_DATA:
-            return "WindowData";
+            return 'WindowData';
         case V1LayerParameter.LayerType.THRESHOLD:
-            return "Threshold";
+            return 'Threshold';
         default:
-            return "";
+            return '';
     }
 };
 
-var GetV0LayerType = function(type) {
+var GetV0LayerType = function (type) {
     switch (type) {
-        case "Default":
-            return "NONE";
-        case "AbsVal":
-            return "ABSVAL";
-        case "Accuracy":
-            return "ACCURACY";
-        case "ArgMax":
-            return "ARGMAX";
-        case "BNLL":
-            return "BNLL";
-        case "Concat":
-            return "CONCAT";        
-        case "ContrastiveLoss":
-            return "CONTRASTIVE_LOSS";
-        case "Convolution":
-            return "CONVOLUTION";
-        case "Deconvolution":
-            return "DECONVOLUTION";
-        case "Data":
-            return "DATA";
-        case "Dropout":
-            return "DROPOUT";
-        case "DummyData":
-            return "DUMMY_DATA";
-        case "EuclideanLoss":
-            return "EUCLIDEAN_LOSS";
-        case "Eltwise":
-            return "ELTWISE";
-        case "Exp":
-            return "EXP";
-        case "Flatten":
-            return "FLATTEN";
-        case "HDF5Data":
-            return "HDF5_DATA";
-        case "HDF5Output":
-            return "HDF5_OUTPUT";
-        case "HingeLoss":
-            return "HINGE_LOSS";
-        case "Im2col":
-            return "IM2COL";
-        case "ImageData":
-            return "IMAGE_DATA";
-        case "InfogainLoss":
-            return "INFOGAIN_LOSS";
-        case "InnerProduct":
-            return "INNER_PRODUCT";
-        case "LRN":
-            return "LRN";
-        case "MemoryData":
-            return "MEMORY_DATA";
-        case "MultinomialLogisticLoss":
-            return "MULTINOMIAL_LOGISTIC_LOSS";
-        case "MVN":
-            return "MVN";
-        case "Pooling":
-            return "POOLING";
-        case "Power":
-            return "POWER";
-        case "ReLU":
-            return "RELU";
-        case "Sigmoid":
-            return "SIGMOID";
-        case "SigmoidCrossEntropyLoss":
-            return "SIGMOID_CROSS_ENTROPY_LOSS";
-        case "Silence":
-            return "SILENCE";
-        case "Softmax":
-            return "SOFTMAX";
-        case "SoftmaxWithLoss":
-            return "SOFTMAX_LOSS";
-        case "Split":
-            return "SPLIT";
-        case "Slice":
-            return "SLICE";
-        case "TanH":
-            return "TANH";
-        case "WindowData":
-            return "WINDOW_DATA";
-        case "Threshold":
-            return "THRESHOLD";
+        case 'Default':
+            return 'NONE';
+        case 'AbsVal':
+            return 'ABSVAL';
+        case 'Accuracy':
+            return 'ACCURACY';
+        case 'ArgMax':
+            return 'ARGMAX';
+        case 'BNLL':
+            return 'BNLL';
+        case 'Concat':
+            return 'CONCAT';
+        case 'ContrastiveLoss':
+            return 'CONTRASTIVE_LOSS';
+        case 'Convolution':
+            return 'CONVOLUTION';
+        case 'Deconvolution':
+            return 'DECONVOLUTION';
+        case 'Data':
+            return 'DATA';
+        case 'Dropout':
+            return 'DROPOUT';
+        case 'DummyData':
+            return 'DUMMY_DATA';
+        case 'EuclideanLoss':
+            return 'EUCLIDEAN_LOSS';
+        case 'Eltwise':
+            return 'ELTWISE';
+        case 'Exp':
+            return 'EXP';
+        case 'Flatten':
+            return 'FLATTEN';
+        case 'HDF5Data':
+            return 'HDF5_DATA';
+        case 'HDF5Output':
+            return 'HDF5_OUTPUT';
+        case 'HingeLoss':
+            return 'HINGE_LOSS';
+        case 'Im2col':
+            return 'IM2COL';
+        case 'ImageData':
+            return 'IMAGE_DATA';
+        case 'InfogainLoss':
+            return 'INFOGAIN_LOSS';
+        case 'InnerProduct':
+            return 'INNER_PRODUCT';
+        case 'LRN':
+            return 'LRN';
+        case 'MemoryData':
+            return 'MEMORY_DATA';
+        case 'MultinomialLogisticLoss':
+            return 'MULTINOMIAL_LOGISTIC_LOSS';
+        case 'MVN':
+            return 'MVN';
+        case 'Pooling':
+            return 'POOLING';
+        case 'Power':
+            return 'POWER';
+        case 'ReLU':
+            return 'RELU';
+        case 'Sigmoid':
+            return 'SIGMOID';
+        case 'SigmoidCrossEntropyLoss':
+            return 'SIGMOID_CROSS_ENTROPY_LOSS';
+        case 'Silence':
+            return 'SILENCE';
+        case 'Softmax':
+            return 'SOFTMAX';
+        case 'SoftmaxWithLoss':
+            return 'SOFTMAX_LOSS';
+        case 'Split':
+            return 'SPLIT';
+        case 'Slice':
+            return 'SLICE';
+        case 'TanH':
+            return 'TANH';
+        case 'WindowData':
+            return 'WINDOW_DATA';
+        case 'Threshold':
+            return 'THRESHOLD';
         default:
-            return "";
+            return '';
     }
 };

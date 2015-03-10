@@ -1,4 +1,4 @@
-define(function(require){
+define(function (require){
     var $ = require('jquery');
     var caffe = require('caffeconstants')
 
@@ -10,7 +10,7 @@ define(function(require){
         strokeWidth: 4,
         strokeStyle: '#000',
 
-        text : {
+        text: {
             name: 'Conv',
             fillStyle: '#000',
             strokeWidth: 1,
@@ -37,7 +37,7 @@ define(function(require){
         strokeWidth: 3,
         strokeStyle: '#000',
 
-        text : {
+        text: {
             fillStyle: '#000',
             strokeWidth: 1,
             strokeStyle: '#000',
@@ -61,15 +61,15 @@ define(function(require){
         substypes: ['text', 'top', 'bottom'],
         featuresMapping: {},
 
-        getStyleFor: function(layer) {
-            var getType = function(layer) {
+        getStyleFor: function (layer) {
+            var getType = function (layer) {
                 return 'type' in layer.node ?
                     layer.node.type :
                     ('parent' in layer.node ?
                         getType(layer.node.parent) :
                         ('from' in layer.node ?
                             getType(layer.node.from) :
-                            "Default"
+                            'Default'
                         )
                     );
             }
@@ -82,15 +82,15 @@ define(function(require){
                 Style.featuresMapping[type];
         },
 
-        getStyleForTypeName: function(type) {
+        getStyleForTypeName: function (type) {
             return type in Style.featuresMapping ?
-                Style.featuresMapping[type]:
-                Style.featuresMapping["Default"];
+                Style.featuresMapping[type] :
+                Style.featuresMapping.Default;
         },
 
-        getSelectionColorFor: function(layer) {
+        getSelectionColorFor: function (layer) {
             var style = this.getStyleFor(layer);
-            return 'selection' in style ? style['selection'] : "#a23";
+            return 'selection' in style ? style.selection : '#a23';
         },
     };
 

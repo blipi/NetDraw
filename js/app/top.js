@@ -1,4 +1,4 @@
-define(['require', 'jquery'], function(require, $) {
+define(['require', 'jquery'], function (require, $) {
 
     var canvas = null;
     var controller = null;
@@ -6,14 +6,14 @@ define(['require', 'jquery'], function(require, $) {
     var relationship = null;
 
     var Top = {
-        initialize: function() {
+        initialize: function () {
             canvas = require('app/canvas');
             controller = require('app/controller');
             mouse = require('utils/mousehelper');
             relationship = require('app/relationship');
         },
 
-        create: function(layer, topName) {
+        create: function (layer, topName) {
             console.log('[top.create] {' + layer.node.id + '}');
 
             ++layer.node.topCount;
@@ -23,7 +23,7 @@ define(['require', 'jquery'], function(require, $) {
                     layer.text) :
                 topName;
 
-            var top_onclick = function(layer, e) {
+            var top_onclick = function (layer, e) {
                 controller.setSelection(layer);
 
                 // Stop propagation makes the mouse helper not work
@@ -39,15 +39,16 @@ define(['require', 'jquery'], function(require, $) {
                 mouse.click(e);
             };
 
-            var top_mousedown = function(layer, e) {
+            var top_mousedown = function (layer, e) {
                 // No drag on layer
                 e.stopPropagation();
 
                 // Trigger mouse
                 mouse.mousedown(e);
 
-                if (layer.node.used)
+                if (layer.node.used) {
                     return;
+                }
 
                 if (!controller.freeDrawing()) {
                     controller.setInitialNode(layer.node.parent);
@@ -56,12 +57,12 @@ define(['require', 'jquery'], function(require, $) {
                 relationship.create(layer.node.parent, layer.node.parent, false, layer);
             };
 
-            var top_reenable = function(layer) {
+            var top_reenable = function (layer) {
                 // HACK: _DOMElement should not be exposed
                 layer.node.parent._DOMElement.draggable('enable');
             };
 
-            var top_drag = function(layer) {
+            var top_drag = function (layer) {
                 // HACK: _DOMElement should not be exposed
                 layer.node.parent._DOMElement.draggable('disable');
 
@@ -79,7 +80,7 @@ define(['require', 'jquery'], function(require, $) {
                 }
             };
 
-            var top_dragstop = function(layer) {
+            var top_dragstop = function (layer) {
                 // TODO: That 6 is due to borderWidth * 2
                 // TODO: Use width from style
                 // TODO: Use border from style
@@ -89,14 +90,15 @@ define(['require', 'jquery'], function(require, $) {
                 var minargs = [left, 97 - left, top, 52 - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
 
-                if (idx == 0)
+                if (idx == 0) {
                     layer.x = 0;
-                else if (idx == 1)
+                } else if (idx == 1) {
                     layer.x = 97;
-                else if (idx == 2)
+                } else if (idx == 2) {
                     layer.y = 0;
-                else
+                } else {
                     layer.y = 52;
+                }
             };
 
             var bb = this.findSuitable(layer);
@@ -123,7 +125,7 @@ define(['require', 'jquery'], function(require, $) {
             return top;
         },
 
-        findSuitable: function(layer) {
+        findSuitable: function (layer) {
             var bb = layer.rotationBox();
             var num = layer.node.top.length;
 
@@ -132,15 +134,16 @@ define(['require', 'jquery'], function(require, $) {
             if (controller.verticalDrawing()) {
                 var min = bb.h / 2 - ((num + 1) * 14 + num * 2) / 2;
                 for (var y = min, e = 0; e < num; ++e, y += 16) {
-                    this.move(layer, layer.node.top[e], layer.node.top[e].x, y + 10); // TODO Magic numbers, compensate margin
+                    // TODO Magic numbers, compensate margin
+                    this.move(layer, layer.node.top[e], layer.node.top[e].x, y + 10);
                 }
 
                 r.y = y + 10;
-            }
-            else {
+            } else {
                 var min = bb.w / 2 - ((num + 1) * 14 + num * 2) / 2;
                 for (var x = min, e = 0; e < num; ++e, x += 16) {
-                    this.move(layer, layer.node.top[e], x + 10, layer.node.top[e].y); // TODO Magic numbers, compensate margin
+                    // TODO Magic numbers, compensate margin
+                    this.move(layer, layer.node.top[e], x + 10, layer.node.top[e].y);
                 }
 
                 r.y = 0;
@@ -150,12 +153,12 @@ define(['require', 'jquery'], function(require, $) {
             return r;
         },
 
-        move: function(layer, node, x, y) {
+        move: function (layer, node, x, y) {
             node.x = x;
             node.y = y;
 
             var mappings = controller.getMappings();
-            var fromRelationships = mappings['from'][layer.node.id];
+            var fromRelationships = mappings.from[layer.node.id];
 
             for (var i = 0, n = fromRelationships.length; i < n; ++i) {
                 var line = fromRelationships[i];

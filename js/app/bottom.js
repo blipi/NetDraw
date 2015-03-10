@@ -1,22 +1,22 @@
-define(['require', 'jquery'], function(require, $) {
+define(['require', 'jquery'], function (require, $) {
 
     var canvas = null;
     var controller = null;
     var mouse = null;
 
     var Bottom = {
-        initialize: function() {
+        initialize: function () {
             canvas = require('app/canvas');
             controller = require('app/controller');
             mouse = require('utils/mousehelper');
         },
 
-        create: function(layer, ex, ey) {
+        create: function (layer, ex, ey) {
             console.log('[bottom.create] {' + layer.node.id + '}');
 
             bottomName = typeof bottomName === 'undefined' ? layer.text : bottomName;
 
-            var bottom_onclick = function(layer, e) {
+            var bottom_onclick = function (layer, e) {
                 controller.setSelection(layer);
 
                 // Stop propagation makes the mouse helper not work
@@ -31,19 +31,19 @@ define(['require', 'jquery'], function(require, $) {
                 mouse.click(e);
             };
 
-            var bottom_onmousedown = function(layer, e) {
+            var bottom_onmousedown = function (layer, e) {
                 e.stopPropagation();
 
                 mouse.mousedown(e);
             };
 
-            var bottom_reenable = function(layer) {
+            var bottom_reenable = function (layer) {
             };
 
-            var bottom_ondragstart = function(layer) {
+            var bottom_ondragstart = function (layer) {
             };
 
-            var bottom_ondrag = function(layer) {
+            var bottom_ondrag = function (layer) {
                 var rx = layer.x - layer.node.parent.x;
                 var ry = layer.y - layer.node.parent.y;
 
@@ -61,7 +61,7 @@ define(['require', 'jquery'], function(require, $) {
                 }
             };
 
-            var bottom_ondragstop = function(layer) {
+            var bottom_ondragstop = function (layer) {
                 // TODO: That 6 is due to borderWidth * 2
                 // TODO: Use width from style
                 // TODO: Use border from style
@@ -71,17 +71,15 @@ define(['require', 'jquery'], function(require, $) {
                 var top = layer.y;
                 var minargs = [left, bb.w - left, top, bb.h - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
-                var x = 0, y = 0;
+                var x = 0
+                var y = 0;
                 if (idx == 0) {
                     layer.x = 0;
-                }
-                else if (idx == 1) {
+                } else if (idx == 1) {
                     layer.x = bb.w;
-                }
-                else if (idx == 2) {
+                } else if (idx == 2) {
                     layer.y = 0;
-                }
-                else {
+                } else {
                     layer.y = bb.h;
                 }
             };
