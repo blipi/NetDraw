@@ -1,26 +1,26 @@
 define(['require', 'jquery'], function(require, $) {
 
-	var canvas = null;
-	var controller = null;
-	var mouse = null;
-	var relationship = null;
+    var canvas = null;
+    var controller = null;
+    var mouse = null;
+    var relationship = null;
 
     var Top = {
-    	initialize: function() {
-    		canvas = require('app/canvas');
-    		controller = require('app/controller');
-    		mouse = require('utils/mousehelper');
-    		relationship = require('app/relationship');
-    	},
+        initialize: function() {
+            canvas = require('app/canvas');
+            controller = require('app/controller');
+            mouse = require('utils/mousehelper');
+            relationship = require('app/relationship');
+        },
 
         create: function(layer, topName) {
             console.log('[top.create] {' + layer.node.id + '}');
 
             ++layer.node.topCount;
-            topName = typeof topName === 'undefined' ? 
-                (layer.node.top.length ? 
-                    layer.node.id + '_top_' + layer.node.topCount : 
-                    layer.text) : 
+            topName = typeof topName === 'undefined' ?
+                (layer.node.top.length ?
+                    layer.node.id + '_top_' + layer.node.topCount :
+                    layer.text) :
                 topName;
 
             var top_onclick = function(layer, e) {
@@ -52,7 +52,7 @@ define(['require', 'jquery'], function(require, $) {
                 if (!controller.freeDrawing()) {
                     controller.setInitialNode(layer.node.parent);
                 }
-                
+
                 relationship.create(layer.node.parent, layer.node.parent, false, layer);
             };
 
@@ -124,45 +124,45 @@ define(['require', 'jquery'], function(require, $) {
         },
 
         findSuitable: function(layer) {
-        	var bb = layer.rotationBox();
-        	var num = layer.node.top.length;
+            var bb = layer.rotationBox();
+            var num = layer.node.top.length;
 
-        	var r = {x: bb.w, y: bb.h - 4}
+            var r = {x: bb.w, y: bb.h - 4}
 
-        	if (controller.verticalDrawing()) {
-        		var min = bb.h / 2 - ((num + 1) * 14 + num * 2) / 2;
-	    		for (var y = min, e = 0; e < num; ++e, y += 16) {
-	    			this.move(layer, layer.node.top[e], layer.node.top[e].x, y + 10); // TODO Magic numbers, compensate margin
-	    		}
+            if (controller.verticalDrawing()) {
+                var min = bb.h / 2 - ((num + 1) * 14 + num * 2) / 2;
+                for (var y = min, e = 0; e < num; ++e, y += 16) {
+                    this.move(layer, layer.node.top[e], layer.node.top[e].x, y + 10); // TODO Magic numbers, compensate margin
+                }
 
-	    		r.y = y + 10;
-        	}
-        	else {
-        		var min = bb.w / 2 - ((num + 1) * 14 + num * 2) / 2;
-	    		for (var x = min, e = 0; e < num; ++e, x += 16) {
-	    			this.move(layer, layer.node.top[e], x + 10, layer.node.top[e].y); // TODO Magic numbers, compensate margin
-	    		}
+                r.y = y + 10;
+            }
+            else {
+                var min = bb.w / 2 - ((num + 1) * 14 + num * 2) / 2;
+                for (var x = min, e = 0; e < num; ++e, x += 16) {
+                    this.move(layer, layer.node.top[e], x + 10, layer.node.top[e].y); // TODO Magic numbers, compensate margin
+                }
 
-	    		r.y = 0;
-	    		r.x = x + 10;
-	    	}
+                r.y = 0;
+                r.x = x + 10;
+            }
 
-        	return r;
+            return r;
         },
 
         move: function(layer, node, x, y) {
-        	node.x = x;
-        	node.y = y;
+            node.x = x;
+            node.y = y;
 
-        	var mappings = controller.getMappings();
+            var mappings = controller.getMappings();
             var fromRelationships = mappings['from'][layer.node.id];
 
             for (var i = 0, n = fromRelationships.length; i < n; ++i) {
                 var line = fromRelationships[i];
-            	if (line.node.top == node) {
- 	                line.x1 = line.node.top.windowX;
-	                line.y1 = line.node.top.windowY;
-	            }
+                if (line.node.top == node) {
+                     line.x1 = line.node.top.windowX;
+                    line.y1 = line.node.top.windowY;
+                }
             }
         }
     }

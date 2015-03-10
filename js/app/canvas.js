@@ -161,13 +161,13 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function(require, $, top,
             this._setAngle();
         },
 
-        set text(t) { 
+        set text(t) {
             if (typeof(t) === 'string') {
                 this._DOMWrapper.children('span').html(t);
             }
         },
 
-        set textX(x) { 
+        set textX(x) {
             this._DOMWrapper.children('span').css('left', x);
         },
 
@@ -205,7 +205,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function(require, $, top,
 
         set dragstart(f) {
             this._dragstart = f;
-            
+
             this._DOMElement.unbind("dragstart");
             this._DOMElement.on("dragstart", function(event, ui){
                 var canvas = Canvas();
@@ -238,7 +238,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function(require, $, top,
                 if (ui && ui.helper && !$(this).hasClass('ui-draggable-disabled')) {
                     var canvas = Canvas();
                     var layer = canvas.findLayer($(this).attr('id'));
-                
+
                     var x = parseInt(ui.helper.css('left'));
                     var y = parseInt(ui.helper.css('top'));
 
@@ -299,9 +299,9 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function(require, $, top,
         if ( Canvas.prototype._instance ) {
             return Canvas.prototype._instance;
         }
-        
+
         Canvas.prototype._instance = this;
-   
+
         this.initialize = function() {
             controller = require('app/controller');
             layer = require('app/layer');
@@ -311,7 +311,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function(require, $, top,
             this._scroll_wrapper = $('#scroll_wrapper');
             this._DOMcanvas = controller.getDOMCanvas();
             this._canvas = controller.getCanvas();
-            
+
         };
 
         // ******************************************************** //
@@ -453,12 +453,12 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function(require, $, top,
                 params = 'layer {' + params + '}\n';
                 proto += params;
             }
-            
+
             return proto;
         }
 
         // Draws a rectangle
-        this.drawBoxInto = function(into, params) { 
+        this.drawBoxInto = function(into, params) {
             var element = $('<div class="' + params.className + '">')
                 .attr('id', params.id)
                 .css({left: params.x, top: params.y})
@@ -481,10 +481,10 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function(require, $, top,
         }
 
         // Draws a rectangle
-        this.createLayerInto = function(into, params, containment, className) {     
+        this.createLayerInto = function(into, params, containment, className) {
             containment = typeof(containment) === 'undefined' ? true : containment;
-            className = typeof(className) === 'undefined' ? 
-                'layer ' + (controller.verticalDrawing() ? 'vertical ' : '') + params.node.name : 
+            className = typeof(className) === 'undefined' ?
+                'layer ' + (controller.verticalDrawing() ? 'vertical ' : '') + params.node.name :
                 className;
 
             var element = $('#layer-sample')

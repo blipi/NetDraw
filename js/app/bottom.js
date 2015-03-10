@@ -1,15 +1,15 @@
 define(['require', 'jquery'], function(require, $) {
 
-	var canvas = null;
-	var controller = null;
-	var mouse = null;
+    var canvas = null;
+    var controller = null;
+    var mouse = null;
 
     var Bottom = {
-    	initialize: function() {
-    		canvas = require('app/canvas');
-    		controller = require('app/controller');
-    		mouse = require('utils/mousehelper');
-    	},
+        initialize: function() {
+            canvas = require('app/canvas');
+            controller = require('app/controller');
+            mouse = require('utils/mousehelper');
+        },
 
         create: function(layer, ex, ey) {
             console.log('[bottom.create] {' + layer.node.id + '}');
