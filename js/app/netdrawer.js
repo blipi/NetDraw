@@ -33,7 +33,7 @@ define(function (require) {
             }
 
             return -1;
-        }
+        };
 
         var findLayer = function (search) {
             var i = net.length;
@@ -52,7 +52,7 @@ define(function (require) {
             }
 
             return null;
-        }
+        };
 
         var i = 0;
         var n = net.length;
@@ -73,7 +73,7 @@ define(function (require) {
 
                 if (bottomName != current.name.value) {
                     var top = findLayer(bottomName);
-                    if (top != null) {
+                    if (top !== null) {
                         currentLevel = levelMapper[top.name.value][0] + 1;
                         found = true;
                     }
@@ -90,10 +90,10 @@ define(function (require) {
         }
 
         // Find out the max number of layers in a level of the net
-        var layerSeparation = {x: 160, y: -100}
+        var layerSeparation = {x: 160, y: -100};
         var maxLayersPerLevel = 0;
         var levelsCount = 0;
-        for (level in levels) {
+        for (var level in levels) {
             ++levelsCount;
             if (levels[level].length > maxLayersPerLevel) {
                 maxLayersPerLevel = levels[level].length;
@@ -114,42 +114,42 @@ define(function (require) {
                 } else {
                     netToLayers[top] = outLayer;
                 }
-            }
+            };
 
             if ('top' in netLayer) {
                 if ('value' in netLayer.top) {
                     _addTop(netLayer.top.value);
                 } else if ($.isArray(netLayer.top))
                 {
-                    for (k in netLayer.top) {
+                    for (var k in netLayer.top) {
                         _addTop(netLayer.top[k].value);
                     }
                 }
             }
-        }
+        };
 
         var createRelationship = function (netLayer, outLayer) {
             var _stablish = function (from, to) {
                 var top = from.createTop();
                 relationship.create(from, to);
-            }
+            };
 
             var _create = function (bottom) {
                 if ($.isArray(netToLayers[bottom])) {
-                    for (k in netToLayers[bottom]) {
+                    for (var k in netToLayers[bottom]) {
                         _stablish(netToLayers[bottom][k], outLayer);
                     }
                 } else {
                     _stablish(netToLayers[bottom], outLayer);
                 }
-            }
+            };
 
             if ('bottom' in netLayer) {
                 if ('value' in netLayer.bottom) {
                     _create(netLayer.bottom.value);
                 } else if ($.isArray(netLayer.bottom))
                 {
-                    for (k in netLayer.bottom) {
+                    for (var k in netLayer.bottom) {
                         _create(netLayer.bottom[k].value);
                     }
                 }
@@ -221,7 +221,7 @@ define(function (require) {
         var window_onmousemove = function (e) {
             var drawingLine = controller.getDrawingLine();
 
-            if (drawingLine != null) {
+            if (drawingLine !== null) {
                 drawingLine.x2 = e.pageX - 155.0; // TODO: Magic numbers
                 drawingLine.y2 = e.pageY + scroll_wrapper.scrollTop();
             }
@@ -246,11 +246,11 @@ define(function (require) {
         var window_onmousedown = function (e) {
             mouse.mousedown(e);
             controller.clearSelection();
-        }
+        };
 
         var window_onmouseup = function (e) {
             mouse.mouseup(e);
-        }
+        };
 
         var window_onclick = function (e) {
             mouse.click(e);
@@ -277,7 +277,7 @@ define(function (require) {
         var importArea = $('#import_area');
         var importOK = $('#import_ok');
         var importCancel = $('#import_cancel');
-        var importTimeout = undefined;
+        var importTimeout = null;
 
         modeChange.click(function () {
             controller._drawOrientation = $(this).attr('id') == 'orientation-hor' ? 1 : 0;
@@ -348,7 +348,7 @@ define(function (require) {
         editName.click(function () {
             var activeLayer = controller.getSelection();
             if (activeLayer.node.input) {
-                return
+                return;
             }
 
             // TODO: Use some real CSS
@@ -380,7 +380,7 @@ define(function (require) {
             .select();
 
             activeLayer.node.input = input;
-        })
+        });
 
         var showMenu = $('.show-menu');
         showMenu.click(function (e) {
@@ -390,7 +390,7 @@ define(function (require) {
             });
 
             // Stop event from reaching the layer
-            e.stopPropagation()
+            e.stopPropagation();
 
             // Trigger click
             mouse.click(e);
@@ -402,7 +402,7 @@ define(function (require) {
                 $('#loading').hide('puff');
             });
         });
-    };
+    }
 
     initialize();
 });

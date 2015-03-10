@@ -90,7 +90,7 @@ define(['require', 'jquery'], function (require, $) {
                 var minargs = [left, 97 - left, top, 52 - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
 
-                if (idx == 0) {
+                if (idx === 0) {
                     layer.x = 0;
                 } else if (idx == 1) {
                     layer.x = 97;
@@ -129,7 +129,7 @@ define(['require', 'jquery'], function (require, $) {
             var bb = layer.rotationBox();
             var num = layer.node.top.length;
 
-            var r = {x: bb.w, y: bb.h - 4}
+            var r = {x: bb.w, y: bb.h - 4};
 
             if (controller.verticalDrawing()) {
                 var min = bb.h / 2 - ((num + 1) * 14 + num * 2) / 2;
@@ -168,7 +168,7 @@ define(['require', 'jquery'], function (require, $) {
                 }
             }
         }
-    }
+    };
 
     return Top;
 });

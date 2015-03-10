@@ -71,9 +71,9 @@ define(['require', 'jquery'], function (require, $) {
                 var top = layer.y;
                 var minargs = [left, bb.w - left, top, bb.h - top];
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
-                var x = 0
+                var x = 0;
                 var y = 0;
-                if (idx == 0) {
+                if (idx === 0) {
                     layer.x = 0;
                 } else if (idx == 1) {
                     layer.x = bb.w;
@@ -108,7 +108,7 @@ define(['require', 'jquery'], function (require, $) {
 
             return canvas.getLayer(-1);
         },
-    }
+    };
 
     return Bottom;
 });

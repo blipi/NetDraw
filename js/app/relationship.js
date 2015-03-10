@@ -1,11 +1,11 @@
-define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], function (require, $, layer, controller, bottom) {
+define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require, $, controller, bottom) {
 
     var canvas = controller.getCanvas();
     var layer = null;
 
     function _validateRelationship(e) {
         var drawingLine = controller.getDrawingLine();
-        if (drawingLine == null) {
+        if (drawingLine === null) {
             return;
         }
 
@@ -48,7 +48,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
                 var idx = minargs.indexOf(Math.min.apply(window, minargs));
                 var x = 0;
                 var y = 0;
-                if (idx == 0) {
+                if (idx === 0) {
                     drawingLine.x2 = bb.x;
                     x = 0;
                     y = drawingLine.y2 - bb.y;
@@ -83,7 +83,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
         drawingLine.node.from.draggable = true;
         drawingLine.node.top.draggable = true;
         controller.clearDrawingLine();
-    };
+    }
 
     function _checkDrawingMode(e) {
         if (controller.freeDrawing()) {
@@ -144,7 +144,7 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
 
             var line_click = function (layer) {
                 controller.setSelection(layer);
-            }
+            };
 
             var bb = topLayer.rotationBox();
             // HACK Should not edit this value like this
@@ -177,5 +177,5 @@ define(['require', 'jquery', 'app/layer', 'app/controller', 'app/bottom'], funct
                 _validateRelationship();
             }
         }
-    }
+    };
 });

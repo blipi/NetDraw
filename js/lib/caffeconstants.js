@@ -51,7 +51,7 @@ var V1LayerParameter = {
 
 var UpgradeV0LayerType = function (type) {
     // By CONSTANT usage
-    for (name in V1LayerParameter.LayerType) {
+    for (var name in V1LayerParameter.LayerType) {
         if (name == type) {
             return V1LayerParameter.LayerType[name];
         }

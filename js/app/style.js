@@ -1,8 +1,8 @@
 define(function (require){
     var $ = require('jquery');
-    var caffe = require('caffeconstants')
+    var caffe = require('caffeconstants');
 
-    var stylesArray = {}
+    var stylesArray = {};
 
     // Convolution
     stylesArray[V1LayerParameter.LayerType.CONVOLUTION] = {
@@ -72,7 +72,7 @@ define(function (require){
                             'Default'
                         )
                     );
-            }
+            };
 
             var type = getType(layer);
             var subtype = layer.node.func;

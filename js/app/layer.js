@@ -14,7 +14,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
 
         scrollGetter.prototype._instance.layer = _layer;
         return scrollGetter.prototype._instance;
-    }
+    };
 
     scrollGetter.prototype = {
         get top () {
@@ -154,12 +154,12 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
             layer.dragstop = function (layer) {
                 clearInterval(layer.node.scrollInterval);
                 layer.node.scrollInterval = null;
-            }
+            };
 
             layer.dragstart = function (layer) {
                 controller.setSelection(layer);
                 canvas.bringToFront(layer);
-            }
+            };
 
             canvas.bringToFront(layer);
         },
@@ -220,7 +220,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
                     controller.setSelection(layer);
                     e.stopPropagation();
                 }
-            }
+            };
 
             var rect_ondragstart = function (layer) {
                 canvas.bringToFront(layer);
@@ -236,9 +236,10 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
 
                 var n = fromRelationships.length;
                 var i = 0;
+                var line = null;
 
                 for (; i < n; ++i) {
-                    var line = fromRelationships[i];
+                    line = fromRelationships[i];
                     line.x1 = line.node.top.windowX;
                     line.y1 = line.node.top.windowY;
                 }
@@ -247,7 +248,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
                 i = 0;
 
                 for (; i < n; ++i) {
-                    var line = toRelationships[i];
+                    line = toRelationships[i];
                     line.x2 = line.node.bottom.windowX;
                     line.y2 = line.node.bottom.windowY;
                 }

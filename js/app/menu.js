@@ -1,4 +1,4 @@
-define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller', 'caffeconstants'], function($, pb, layer, relationship, controller, caffe){
+define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller', 'caffeconstants'], function ($, pb, layer, relationship, controller, caffe) {
 
     var canvas = controller.getCanvas();
     var instances = {byGroup: {}, byBox: {}};
@@ -6,7 +6,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
 
     var MenuInstance = function (_box, _layers, _triggered) {
         return {box: _box, layers: _layers, triggered: _triggered};
-    }
+    };
 
     var Menu = {
         create: function () {
@@ -66,7 +66,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                 importArea.val('');
                 importProto.show('slide', 'fast');
                 controller.getWrapper().css('z-index', '-1');
-            }
+            };
 
             var menuObj = $('#menu');
 
@@ -85,7 +85,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
 
                 if (!instance.triggered) {
                     /* Expand */
-                    for (g in instancesByGroup) {
+                    for (var g in instancesByGroup) {
 
                         instancesByGroup[g].box.animate({
                             top: menuY - 3
@@ -109,7 +109,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                     }
 
                     /* Expand */
-                    for (g in instancesByGroup) {
+                    for (var g in instancesByGroup) {
 
                         instancesByGroup[g].box.animate({
                             top: ey - 3
@@ -124,7 +124,7 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
 
             var ey = menuY;
             var id = 0;
-            for (group in groups) {
+            for (var group in groups) {
 
                 /* Box */
                 var box = canvas.drawBoxInto(menu, {

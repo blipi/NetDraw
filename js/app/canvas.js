@@ -24,19 +24,19 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
 
         this.getDOM = function () {
             return this._DOMWrapper;
-        }
+        };
 
         this.getStaticDOM = function () {
             return this._DOMNoRotate;
-        }
+        };
 
         this.prepareMenu = function () {
             this._DOMWrapper.children('button').show();
-        }
+        };
 
         this._setCSS = function (what, value) {
             this._DOMElement.css(what, value);
-        }
+        };
 
         this._setAngle = function () {
             if ('_x1' in this && '_y1' in this && '_x2' in this && '_y2' in this) {
@@ -45,17 +45,17 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
                 this._setCSS('transform', 'rotate(' + angle + 'deg)');
                 this._setCSS('width', Math.sqrt(Math.pow(this._x1 - this._x2, 2) + Math.pow(this._y1 - this._y2, 2)));
             }
-        }
+        };
 
         this.fixTo = function (to) {
             this._DOMElement.draggable({
                 containment: Canvas._DOMcanvas,
             });
-        }
+        };
 
         this.boundingBox = function () {
             return BoundingBox(this.x, this.y, this.width, this.height);
-        }
+        };
 
         this.rotationBox = function () {
             var bb = this.boundingBox();
@@ -66,25 +66,24 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
             }
 
             return bb;
-        }
+        };
 
         this.createTop = function () {
             top.create(this);
-        }
+        };
 
         this.createBottom = function () {
             bottom.create(this);
-        }
-
+        };
 
         this.remove = function () {
             layer.remove(this);
-        }
+        };
 
-        for (e in params) {
+        for (var e in params) {
             this[e] = params[e];
         }
-    }
+    };
 
     Layer.prototype = {
         set x(ex) {
@@ -173,7 +172,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
         // Click and all callbacks
         set click(f) {
             this._DOMElement.unbind('click');
-            this._DOMElement.click(function(e){
+            this._DOMElement.click(function (e) {
                 f.call(Canvas(), Canvas().findLayer($(this).attr('id')), e);
             });
         },
@@ -181,7 +180,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
         // Click and all callbacks
         set mousedown(f) {
             this._DOMElement.unbind('mousedown');
-            this._DOMElement.mousedown(function(e){
+            this._DOMElement.mousedown(function (e) {
                 f.call(Canvas(), Canvas().findLayer($(this).attr('id')), e);
             });
         },
@@ -189,7 +188,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
         // Click and all callbacks
         set mouseup(f) {
             this._DOMElement.unbind('mouseup');
-            this._DOMElement.mouseup(function(e){
+            this._DOMElement.mouseup(function (e) {
                 f.call(Canvas(), Canvas().findLayer($(this).attr('id')), e);
             });
         },
@@ -197,7 +196,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
         // Click and all callbacks
         set mouseout(f) {
             this._DOMElement.unbind('mouseout');
-            this._DOMElement.mouseout(function(e){
+            this._DOMElement.mouseout(function (e) {
                 f.call(Canvas(), Canvas().findLayer($(this).attr('id')), e);
             });
         },
@@ -206,7 +205,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
             this._dragstart = f;
 
             this._DOMElement.unbind('dragstart');
-            this._DOMElement.on('dragstart', function(event, ui){
+            this._DOMElement.on('dragstart', function (event, ui) {
                 var canvas = Canvas();
                 var layers = canvas.getLayers();
                 var layer = canvas.findLayer($(this).attr('id'));
@@ -214,8 +213,8 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
 
                 var toMove = [];
 
-                for (i in layers) {
-                    for (k in dragGroups) {
+                for (var i in layers) {
+                    for (var k in dragGroups) {
                         if ($.inArray(dragGroups[k], layers[i].dragGroups) >= 0) {
                             toMove.push(layers[i]);
                             break;
@@ -226,14 +225,14 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
                 canvas.moving = toMove;
 
                 layer._dragstart.call(canvas, layer, event);
-            })
+            });
         },
 
         set drag(f) {
             this._drag = f;
 
             this._DOMElement.unbind('drag');
-            this._DOMElement.on('drag', function(event, ui){
+            this._DOMElement.on('drag', function (event, ui) {
                 if (ui && ui.helper && !$(this).hasClass('ui-draggable-disabled')) {
                     var canvas = Canvas();
                     var layer = canvas.findLayer($(this).attr('id'));
@@ -241,14 +240,14 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
                     var x = parseInt(ui.helper.css('left'));
                     var y = parseInt(ui.helper.css('top'));
 
-                    for (i in canvas.moving) {
+                    for (var i in canvas.moving) {
                         var offsetTop = layer.y - canvas.moving[i].y;
                         var offsetleft = layer.x - canvas.moving[i].x;
 
                         canvas.moving[i]._DOMElement.css({
                             top: y - offsetTop,
                             left: x - offsetleft
-                        })
+                        });
                     }
 
                     layer._x = x;
@@ -256,14 +255,14 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
 
                     layer._drag.call(canvas, layer, event);
                 }
-            })
+            });
         },
 
         set dragstop(f) {
             this._dragstop = f;
 
             this._DOMElement.unbind('dragstop');
-            this._DOMElement.on('dragstop', function (event, ui){
+            this._DOMElement.on('dragstop', function (event, ui) {
                 var canvas = Canvas();
                 var layer = canvas.findLayer($(this).attr('id'));
 
@@ -275,10 +274,10 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
         // ----------------------------- //
         //          GETTERS              //
         // ----------------------------- //
-        get rawX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft()},
-        get rawY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop() },
-        get windowX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft() - 155}, // TODO: Magic numbers
-        get windowY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop() },
+        get rawX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft(); },
+        get rawY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop(); },
+        get windowX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft() - 155; }, // TODO: Magic numbers
+        get windowY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop(); },
         get x() { return this._x; },
         get y() { return this._y; },
         get x1() { return this._x1; },
@@ -291,7 +290,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
 
         // Special cases
         get dragstart() { return this._dragstart; }
-    }
+    };
 
     var Canvas = function () {
 
@@ -330,45 +329,45 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
         // Not implemented
         this.setLayer = function (params) { throw 'Not implemented'; };
         // Not implemented
-        this.drawPolygon = function (params) { throw 'Not implemented'; }
+        this.drawPolygon = function (params) { throw 'Not implemented'; };
 
         // Wrap JQuery calls
         this.css = function () {
             return this._DOMcanvas.css.apply(this._DOMcanvas, arguments);
-        }
+        };
         this.attr = function () {
             return this._DOMcanvas.attr.apply(this._DOMcanvas, arguments);
-        }
+        };
         this.click = function (f) {
             return this._DOMcanvas.click(function (e) {
                 f.call(Canvas()._DOMcanvas, e);
             });
-        }
+        };
         this.mousedown = function (f) {
             return this._DOMcanvas.mousedown(function (e) {
                 f.call(Canvas()._DOMcanvas, e);
             });
-        }
+        };
         this.mousemove = function (f) {
             return this._DOMcanvas.mousemove(function (e) {
                 f.call(Canvas()._DOMcanvas, e);
             });
-        }
+        };
         this.mouseout = function (f) {
             return this._DOMcanvas.mouseout(function (e) {
                 f.call(Canvas()._DOMcanvas, e);
             });
-        }
+        };
         this.mouseup = function (f) {
             return this._DOMcanvas.mouseup(function (e) {
                 f.call(Canvas()._DOMcanvas, e);
             });
-        }
+        };
 
         // Return layers array
         this.getLayers = function () {
             return this.layers;
-        }
+        };
 
         // Return a layer
         this.getLayer = function (idx) {
@@ -377,18 +376,18 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
             }
 
             return this.layers[this.layers.length + idx];
-        }
+        };
 
         // Find a layer
         this.findLayer = function (id) {
-            for (i in this.layers) {
+            for (var i in this.layers) {
                 if (this.layers[i]._DOMElement.attr('id') == id) {
                     return this.layers[i];
                 }
             }
 
             return null;
-        }
+        };
 
         // Move a layer
         this.bringToFront = function (layer) {
@@ -401,7 +400,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
                 layer._DOMElement.css('z-index', this.max + 1);
                 this.max += 1;
             }
-        }
+        };
 
         this.removeLayer = function (layer) {
             layer._DOMElement.remove();
@@ -412,7 +411,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
                     break;
                 }
             }
-        }
+        };
 
         this.removeAllLayers = function () {
             var start = 0;
@@ -426,7 +425,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
 
                 this.removeLayer(this.layers[start]);
             }
-        }
+        };
 
         // Animates a layers
         this.animateLayer = function (layer, params, speed, type) {
@@ -437,7 +436,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
             type = typeof(type) === 'undefined' ? 'swing' : type;
 
             layer._DOMElement.animate(params);
-        }
+        };
 
         this.getProto = function () {
             var proto = '';
@@ -458,7 +457,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
             }
 
             return proto;
-        }
+        };
 
         // Draws a rectangle
         this.drawBoxInto = function (into, params) {
@@ -476,12 +475,12 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
             }
 
             return element;
-        }
+        };
 
         // Draws a rectangle
         this.createLayer = function (params) {
             return this.createLayerInto(this._DOMcanvas, params);
-        }
+        };
 
         // Draws a rectangle
         this.createLayerInto = function (into, params, containment, className) {
@@ -505,7 +504,6 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
             element.children('.wrapper')
                 .children('button')
                     .attr('id', '');
-
 
             if (params.draggable) {
                 // Force a drag and dragstart to be present
@@ -535,7 +533,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
             }
 
             return this;
-        }
+        };
 
         // Draws a text element
         this.createLayerText = function (layer, params) {
@@ -549,7 +547,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
             }
 
             return this;
-        }
+        };
 
         this.drawLine = function (params) {
             var element = $('<hr>');
@@ -562,7 +560,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
             ++this._id;
 
             return this;
-        }
+        };
 
         this.createLayerArc = function (into, params, className) {
             var element = $('<div class="arc-' + className + '">')
@@ -596,7 +594,7 @@ define(['require', 'jquery', 'app/top', 'protobuf.2'], function (require, $, top
             }
 
             return this;
-        }
+        };
     };
 
     return new Canvas();
