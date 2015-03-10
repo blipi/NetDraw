@@ -68,8 +68,8 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             return bb;
         };
 
-        this.createTop = function () {
-            top.create(this);
+        this.createTop = function (name) {
+            top.create(this, name);
         };
 
         this.createBottom = function () {

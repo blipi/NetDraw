@@ -114,8 +114,13 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
         _onSetDefinitive: function (layer, name) {
             if (typeof(name) !== 'undefined') {
                 layer.text = name;
-                layer.textX = Layer.getTextX(name);
+            } else {
+                layer.text = layer.node.name + '_' + _realCounter;
+                ++_realCounter;
             }
+            layer.textX = Layer.getTextX(layer.text);
+            layer.node.params.name = new Value(true, layer.text);
+
             layer.node.func = 'main';
             layer.fixTo(controller.getDOMCanvas());
             layer.prepareMenu();
@@ -253,11 +258,10 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
 
                 node: {
                     func: 'reserved',
-                    name: type + '_' + _realCounter,
+                    name: type,
                     id: type + '_' + _counter,
 
                     params: {
-                        name: new Value(true, type + '_' + _realCounter),
                         type: new Value(true, type),
                     },
                     top: [],
@@ -286,7 +290,6 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
             controller.createLayerMappings(currentLayer);
 
             ++_counter;
-            ++_realCounter;
             return currentLayer;
         },
 

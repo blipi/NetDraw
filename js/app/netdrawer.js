@@ -129,18 +129,18 @@ define(function (require) {
         };
 
         var createRelationship = function (netLayer, outLayer) {
-            var _stablish = function (from, to) {
-                var top = from.createTop();
+            var _stablish = function (from, to, name) {
+                var top = from.createTop(name);
                 relationship.create(from, to);
             };
 
             var _create = function (bottom) {
                 if ($.isArray(netToLayers[bottom])) {
                     for (var k in netToLayers[bottom]) {
-                        _stablish(netToLayers[bottom][k], outLayer);
+                        _stablish(netToLayers[bottom][k], outLayer, bottom);
                     }
                 } else {
-                    _stablish(netToLayers[bottom], outLayer);
+                    _stablish(netToLayers[bottom], outLayer, bottom);
                 }
             };
 
@@ -154,7 +154,7 @@ define(function (require) {
                     }
                 }
             }
-        }
+        };
 
         if (controller.verticalDrawing()) {
 

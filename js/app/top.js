@@ -43,12 +43,21 @@ define(['require', 'jquery'], function (require, $) {
         create: function (layer, topName) {
             console.log('[top.create] {' + layer.node.id + '}');
 
-            ++layer.node.topCount;
-            topName = typeof topName === 'undefined' ?
-                (layer.node.top.length ?
+            // Check if the top already exists
+            if (typeof(topName) !== 'undefined') {
+                // Does it already exist?
+                for (var i = 0, len = layer.node.top.length; i < len; ++i) {
+                    if (layer.node.top[i].node.name == topName) {
+                        return layer.node.top[i];
+                    }
+                }
+            } else {
+                topName = layer.node.top.length ?
                     layer.node.id + '_top_' + layer.node.topCount :
-                    layer.text) :
-                topName;
+                    layer.text;
+            }
+
+            ++layer.node.topCount;
 
             var top_onclick = function (layer, e) {
                 controller.setSelection(layer);

@@ -99,7 +99,7 @@ var ProtoBuf = function () {
                 this.buffer += this.c;
                 this.getsym();
             }
-        } else if (!this.number() || !this.name()) {
+        } else if (!this.number() && !this.name()) {
             console.log(this);
             throw 'Unexpected symbon in \'value\'';
         }
