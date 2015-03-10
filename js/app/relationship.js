@@ -67,7 +67,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 }
 
                 /* Draw bottom */
-                drawingLine.node.bottom = bottom.create(current, x, y);
+                drawingLine.node.bottom = bottom.create(current, x, y, drawingLine.node.top.node.name);
                 drawingLine.x2 = drawingLine.node.bottom.windowX;
 
                 break;

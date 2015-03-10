@@ -280,9 +280,11 @@ define(function (require) {
         var importTimeout = null;
 
         modeChange.click(function () {
-            controller._drawOrientation = $(this).attr('id') == 'orientation-hor' ? 1 : 0;
+            controller._drawOrientation = $(this).attr('id') == 'orientation-hor' ? 0 : 1;
             var parser = new ProtoBuf();
             var net = parser.compile(canvas.getProto());
+            console.log(canvas.getProto());
+            console.log(net);
             createNet(net);
         });
 

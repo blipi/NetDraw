@@ -1,3 +1,12 @@
+function clone(obj) {
+    if (obj === null || typeof(obj) !== 'object') { return obj; }
+    var copy = obj.constructor();
+    for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) { copy[attr] = obj[attr]; }
+    }
+    return copy;
+}
+
 define(['jquery', 'protobuf.2', 'app/controller', 'app/relationship', 'utils/mousehelper', 'app/top', 'app/bottom'],
 
 function ($, pb, controller, relationship, mouse, top, bottom) {
@@ -282,7 +291,12 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
 
         createDefinitive: function (x, y, type, name, params) {
             var layer = Layer.create(x, y, type, true);
-            layer.node.params = params;
+
+            layer.node.params = clone(params);
+
+            // Params should not include:
+            layer.node.params.top = [];
+            layer.node.params.bottom = [];
 
             this._onSetDefinitive(layer, name);
 

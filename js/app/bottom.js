@@ -21,6 +21,7 @@ define(['require', 'jquery'], function (require, $) {
             var n = toRelationships.length;
             var i = 0;
 
+            // Bottom points are automatically removed by relationship.remove
             for (; i < n; ++i) {
                 if (toRelationships[i].node.bottom == layer) {
                     relationship.remove(toRelationships[i]);
@@ -29,7 +30,7 @@ define(['require', 'jquery'], function (require, $) {
             }
         },
 
-        create: function (layer, ex, ey) {
+        create: function (layer, ex, ey, bottomName) {
             console.log('[bottom.create] {' + layer.node.id + '}');
 
             bottomName = typeof bottomName === 'undefined' ? layer.text : bottomName;
@@ -123,6 +124,17 @@ define(['require', 'jquery'], function (require, $) {
                 drag: bottom_ondrag,
                 dragstop: bottom_ondragstop,
             }, 'bot');
+
+            // We must now add this bottom arc to the params
+            // Make sure it exists and that it is an array
+            if (!('bottom' in layer.node.params)) {
+                layer.node.params.bottom = [];
+            } else if (!$.isArray(layer.node.params.bottom)) {
+                layer.node.params.bottom = [layer.node.params.bottom];
+            }
+
+            // Add bottom
+            layer.node.params.bottom.push(new Value(true, bottomName));
 
             return canvas.getLayer(-1);
         },

@@ -149,6 +149,17 @@ define(['require', 'jquery'], function (require, $) {
             var top = canvas.getLayer(-1);
             layer.node.top.push(top);
 
+            // We must now add this top arc to the params
+            // Make sure it exists and that it is an array
+            if (!('top' in layer.node.params)) {
+                layer.node.params.top = [];
+            } else if (!$.isArray(layer.node.params.top)) {
+                layer.node.params.top = [layer.node.params.top];
+            }
+
+            // Add top
+            layer.node.params.top.push(new Value(true, topName));
+
             return top;
         },
 
