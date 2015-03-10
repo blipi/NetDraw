@@ -445,21 +445,51 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
         };
 
         this.getProto = function () {
+            var parser = new ProtoBuf();
+            var queue = [];
+            var parsed = [];
             var proto = '';
 
-            for (var i = 0, len = this.layers.length; i < len; ++i) {
-                if ('deletable' in this.layers[i] && !this.layers[i].deletable) {
-                    continue;
-                }
-
-                if (this.layers[i].node.func != 'main') {
-                    continue;
-                }
-
-                var parser = new ProtoBuf();
-                var params = parser.decompile(this.layers[i].node.params);
+            var follow = function (layer) {
+                var params = parser.decompile(layer.node.params);
                 params = 'layer {' + params + '}\n';
                 proto += params;
+
+                var fromRelationships = controller.getMappingsFor('from', layer);
+                for (var i = 0, len = fromRelationships.length; i < len; ++i) {
+                    var layer = fromRelationships[i].node.to;
+
+                    if ($.inArray(layer.node.id, parsed) < 0) {
+                        queue.push(layer);
+                        parsed.push(layer.node.id);
+                    }
+                }
+            };
+
+            // Find a layer with no bottom (that is, an initial layer)
+            for (var i = 0, len = this.layers.length; i < len; ++i) {
+                var layer = this.layers[i];
+
+                // Skip non deletable layers, that is, menu items
+                if ('deletable' in layer && !layer.deletable) {
+                    continue;
+                }
+
+                // Skip non layers (ie. lines or top/bot)
+                if (layer.node.func != 'main') {
+                    continue;
+                }
+
+                var toRelationships = controller.getMappingsFor('to', layer);
+                if (toRelationships.length === 0) {
+                    // Start queue all relationships
+                    follow(layer);
+                }
+
+                // Until queue is empty, follow queue layer
+                while (queue.length) {
+                    follow(queue.shift());
+                }
             }
 
             return proto;
