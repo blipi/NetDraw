@@ -40,6 +40,8 @@ define(['require', 'jquery'], function (require, $) {
                 }
             }
 
+            // TODO: Delete top from node.params
+
             layer.node.parent.node.top.splice(idx, 1);
             canvas.removeLayer(layer);
         },
@@ -117,10 +119,6 @@ define(['require', 'jquery'], function (require, $) {
             };
 
             var top_dragstop = function (layer) {
-                // TODO: That 6 is due to borderWidth * 2
-                // TODO: Use width from style
-                // TODO: Use border from style
-
                 var left = layer.x;
                 var top = layer.y;
                 var minargs = [left, 97 - left, top, 52 - top];
@@ -181,7 +179,7 @@ define(['require', 'jquery'], function (require, $) {
             if (controller.verticalDrawing()) {
                 var min = bb.h / 2 - ((num + 1) * 14 + num * 2) / 2;
                 for (var y = min, e = 0; e < num; ++e, y += 16) {
-                    // TODO Magic numbers, compensate margin
+                    // TODO: Magic numbers, compensate margin
                     this.move(layer, layer.node.top[e], layer.node.top[e].x, y + 10);
                 }
 
@@ -189,7 +187,7 @@ define(['require', 'jquery'], function (require, $) {
             } else {
                 var min = bb.w / 2 - ((num + 1) * 14 + num * 2) / 2;
                 for (var x = min, e = 0; e < num; ++e, x += 16) {
-                    // TODO Magic numbers, compensate margin
+                    // TODO: Magic numbers, compensate margin
                     this.move(layer, layer.node.top[e], x + 10, layer.node.top[e].y);
                 }
 

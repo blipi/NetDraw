@@ -201,7 +201,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
             var rect_drag = function (layer) {
                 Layer._checkLimits(layer);
 
-                // TODO Use newer controller methods
+                // TODO: Use newer controller methods
                 var mappings = controller.getMappings();
                 var fromRelationships = mappings.from[layer.node.id];
                 var toRelationships = mappings.to[layer.node.id];
@@ -230,7 +230,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
                 clearInterval(layer.node.scrollInterval);
                 layer.node.scrollInterval = null;
 
-                // Hack to make double click work
+                // HACK Make double click work on draggable menu items
                 mouse.click(e);
 
                 var canvasLayer = Layer.create(layer.windowX, layer.windowY, layer.node.name, true);

@@ -81,9 +81,6 @@ define(['require', 'jquery'], function (require, $) {
             };
 
             var bottom_ondragstop = function (layer) {
-                // TODO: That 6 is due to borderWidth * 2
-                // TODO: Use width from style
-                // TODO: Use border from style
                 var bb = layer.node.parent.rotationBox();
 
                 var left = layer.x;

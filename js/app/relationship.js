@@ -115,6 +115,8 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
             // Remove bottom point
             canvas.removeLayer(line.node.bottom);
 
+            // TODO: Delete bottom from line.to.node.params
+
             // Remove line itself
             canvas.removeLayer(line);
 
@@ -142,7 +144,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
             };
 
             var bb = topLayer.rotationBox();
-            // HACK Should not edit this value like this
+            // HACK: Should not edit this value like this
             if (controller.verticalDrawing()) {
                 bb.w = 0;
             }

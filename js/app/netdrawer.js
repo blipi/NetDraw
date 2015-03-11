@@ -1,7 +1,6 @@
 define(function (require) {
     var $ = require('jquery');
     var pb = require('protobuf');
-    var style = require('app/style');
     var menu = require('app/menu');
     var controller = require('app/controller');
     var layer = require('app/layer');
@@ -353,7 +352,6 @@ define(function (require) {
                 return;
             }
 
-            // TODO: Use some real CSS
             var input = $('<input>');
             input.attr({
                 type: 'text',

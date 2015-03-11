@@ -1,7 +1,6 @@
 define(function (require) {
 
     var $ = require('jquery');
-    var style = require('app/style');
     var canvasObj = require('app/canvas');
 
     require('jcanvas');
