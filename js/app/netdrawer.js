@@ -280,11 +280,15 @@ define(function (require) {
 
         modeChange.click(function () {
             controller._drawOrientation = $(this).attr('id') == 'orientation-hor' ? 0 : 1;
-            var parser = new ProtoBuf();
-            var net = parser.compile(canvas.getProto());
-            console.log(canvas.getProto());
-            console.log(net);
-            createNet(net);
+
+            var netDef = canvas.getProto();
+            if (netDef === false) {
+                alert('Your net seems to have a cycle');
+            } else {
+                var parser = new ProtoBuf();
+                var net = parser.compile(netDef);
+                createNet(net);
+            }
         });
 
         importCancel.click(function () {

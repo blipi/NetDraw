@@ -375,6 +375,29 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             return this.layers;
         };
 
+        this.getMainLayers = function () {
+            var mainLayers = [];
+
+            // Find a layer with no bottom (that is, an initial layer)
+            for (var i = 0, len = this.layers.length; i < len; ++i) {
+                var layer = this.layers[i];
+
+                // Skip non deletable layers, that is, menu items
+                if ('deletable' in layer && !layer.deletable) {
+                    continue;
+                }
+
+                // Skip non layers (ie. lines or top/bot)
+                if (layer.node.func != 'main') {
+                    continue;
+                }
+
+                mainLayers.push(layer);
+            }
+
+            return mainLayers;
+        };
+
         // Return a layer
         this.getLayer = function (idx) {
             if (idx >= 0) {
@@ -429,7 +452,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                     continue;
                 }
 
-                this.removeLayer(this.layers[start]);
+                this.layers[start].remove();
             }
         };
 
@@ -466,19 +489,30 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 }
             };
 
+            var layers = this.getMainLayers();
+            var V = [];
+            var E = controller.getDAG();
+
+            for (var i = 0, len = layers.length; i < len; ++i) {
+                V.push(layers[i].node.dagNODE);
+            }
+
+            var strongDAG = tarjan(V, E);
+            // Every entry on the array must be an array of size 1!
+            for (var i = 0, len = strongDAG.length; i < len; ++i) {
+                if (strongDAG[i].length > 1) {
+                    // We must reset all dagNODE
+                    for (var j = 0, end = V.length; j < end; ++j) {
+                        V[j].reset();
+                    }
+
+                    return false;
+                }
+            }
+
             // Find a layer with no bottom (that is, an initial layer)
-            for (var i = 0, len = this.layers.length; i < len; ++i) {
-                var layer = this.layers[i];
-
-                // Skip non deletable layers, that is, menu items
-                if ('deletable' in layer && !layer.deletable) {
-                    continue;
-                }
-
-                // Skip non layers (ie. lines or top/bot)
-                if (layer.node.func != 'main') {
-                    continue;
-                }
+            for (var i = 0, len = layers.length; i < len; ++i) {
+                var layer = layers[i];
 
                 var toRelationships = controller.getMappingsFor('to', layer);
                 if (toRelationships.length === 0) {
@@ -546,6 +580,10 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 if (!('dragstart' in params)) { params.dragstart = function () {}; }
                 if (!('drag' in params)) { params.drag = function () {}; }
                 if (!('dragstop' in params)) { params.dragstop = function () {}; }
+            }
+
+            if (params.node.id) {
+                params.node.dagNODE = new Node(params.node.id);
             }
 
             var layer = new Layer(element, TYPE.RECT, params);

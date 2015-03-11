@@ -38,8 +38,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 connected = true;
                 drawingLine.node.to = current;
 
-                controller.getMappingsFor('from', drawingLine.node.from).push(drawingLine);
-                controller.getMappingsFor('to', drawingLine.node.to).push(drawingLine);
+                controller.createMapping(drawingLine);
 
                 /* Fix position */
                 var left = drawingLine.x2 - bb.x;
