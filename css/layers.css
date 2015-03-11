@@ -72,5 +72,5 @@ hr.selected,
 .arc-top.selected,
 .arc-bot.selected,
 .layer.selected .bg {
-	border-color: #a23 !important;
+	border-color: #a23;
 }

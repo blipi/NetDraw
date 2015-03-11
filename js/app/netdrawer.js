@@ -403,7 +403,10 @@ define(function (require) {
         // Dynamically load bootstrap and page css (Must do in this order to preserve hierarchy)
         loadCSS('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css', undefined, undefined, function () {
             loadCSS('css/main.css', undefined, undefined, function () {
-                $('#loading').hide('puff');
+                // We apply GoogLeNet color scheme by default
+                loadCSS('css/googlenet.css', undefined, undefined, function () {
+                    $('#loading').hide('puff');
+                });
             });
         });
     }

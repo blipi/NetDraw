@@ -1,0 +1,33 @@
+
+.layer .bg {
+	border: 1px solid #8e8e8e;
+}
+
+.Convolution .bg {
+	background-color: #298CBE;
+}
+
+.Pooling .bg {
+	background-color: #B33B2C;
+}
+
+.LRN .bg {
+	background-color: #36962C;
+}
+
+.InnerProduct .bg {
+	background-color: #8D4FDB;
+}
+
+.Accuracy .bg,
+.SoftmaxWithLoss .bg {
+	background-color: #F2E82F;
+}
+
+.Data .bg {
+	background: #DB6400;
+}
+
+.selected .bg {
+	border: 3px dashed #000 !important;
+}
