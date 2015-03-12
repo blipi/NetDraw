@@ -10,6 +10,7 @@ define(function (require) {
     var top = require('app/top');
     var bottom = require('app/bottom');
 
+    require('caffeconstants');
     require('jquery-ui');
     require('loadCSS');
 
@@ -19,6 +20,127 @@ define(function (require) {
     var canvas = controller.getCanvas();
 
     function createNet(net) {
+        // First of all, clear current cnvas
+        canvas.removeAllLayers();
+
+        var queue = [];
+        var parsed = [];
+        var netDAG = {};
+        var netLayers = {};
+
+        var layerToLevel = {};
+        var levels = [];
+        var currentLevel = 0;
+
+        var addTop = function (current) {
+            if ('top' in current) {
+                if ('value' in current.top) {
+                    netDAG[current.top.value] = current;
+                } else if ($.isArray(current.top)) {
+                    for (var k = 0, end = current.top.length; k < end; ++k) {
+                        netDAG[current.top[k].value] = current;
+                    }
+                }
+            }
+        }
+
+        var follow = function (layer) {
+
+            var stablish = function (fromName) {
+
+                if (fromName in netDAG) {
+                    var netLayer = netDAG[fromName];
+                    var from = netLayers[netLayer.name.value];
+                    var to = netLayers[layer.name.value];
+
+                    // Create relationship
+                    var top = from.createTop(fromName);
+                    relationship.create(from, to);
+
+                    // Update level by getting the topmost
+                    layerToLevel[layer.name.value] = Math.max(
+                        layerToLevel[layer.name.value], layerToLevel[netLayer.name.value] + 1);
+                }
+            };
+
+            // Find all possible tops for all bottoms
+            if ('bottom' in layer) {
+                if ('value' in layer.bottom) {
+                    stablish(layer.bottom.value);
+                } else if ($.isArray(layer.bottom)) {
+                    for (var k = 0, end = layer.bottom.length; k < end; ++k) {
+                        stablish(layer.bottom[k].value);
+                    }
+                }
+            }
+
+            addTop(layer);
+        };
+
+        // Parse both train and test
+        for (var p in Phase) {
+            var phase = Phase[p];
+
+            // Skip invalid (special) phases
+            if (phase < 0) {
+                continue;
+            }
+
+            controller.setPhase(phase);
+
+            // Reset holders
+            queue = [];
+            netDAG = {};
+            netByLevels = [];
+
+            x = 0;
+
+            for (var i = 0, len = net.length; i < len; ++i) {
+                var current = net[i].layer;
+
+                // Check phase
+                if ('include' in current && 'phase' in current.include) {
+                    if ('value' in current.include.phase) {
+                        if (GetPhase(current.include.phase.value) != phase) {
+                            continue;
+                        }
+                    } else if ($.isArray(current.include.phase)) {
+                        var skip = true;
+                        for (var k = 0, end = current.include.phase.length; k < end; ++k) {
+                            if (GetPhase(current.include.phase[k].value) == phase) {
+                                skip = false;
+                                break;
+                            }
+                        }
+
+                        if (skip) {
+                            continue;
+                        }
+                    }
+                }
+
+                var outLayer = layer.createDefinitive(x, 0, current.type.value, current.name.value, current);
+                netLayers[current.name.value] = outLayer;
+                x += 120;
+
+                // Set initial level value to 0
+                layerToLevel[current.name.value] = 0;
+                if ('bottom' in current) {
+                    queue.push(current);
+                } else {
+                    addTop(current);
+                }
+            }
+
+            while (queue.length) {
+                follow(queue.shift());
+            }
+
+            console.log(controller.getDAG());
+        }
+    }
+
+    function createNet_V0(net) {
         console.log('[createNet]');
         canvas.removeAllLayers();
 
@@ -268,6 +390,9 @@ define(function (require) {
         top.initialize();
         bottom.initialize();
 
+        // Set TEST phase
+        controller.setPhase(Phase.TEST);
+
         /* Setup some HTML hooks */
         var wrapper = controller.getWrapper();
         var modeChange = $('#orientation-hor, #orientation-ver');
@@ -298,11 +423,11 @@ define(function (require) {
 
         importOK.click(function () {
             $('#loading').show('puff', function () {
+                var parser = new ProtoBuf();
+                var net = parser.compile(importArea.val());
+                net = parser.upgrade(net);
+                createNet(net);
                 try {
-                    var parser = new ProtoBuf();
-                    var net = parser.compile(importArea.val());
-                    net = parser.upgrade(net);
-                    createNet(net);
                     importCancel.click();
                 } catch (err) {
                     if (!importTimeout) {

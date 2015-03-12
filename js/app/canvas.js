@@ -1,5 +1,7 @@
 define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (require, $, top, bottom, pb) {
 
+    require('caffeconstants');
+
     var controller = null;
     var layer = null;
     var mouse = null;
@@ -323,9 +325,13 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
         // as the canvas element
         // ******************************************************** //
 
-        this.layers = [];
+        this.layers = {};
         this.moving = [];
         this._id = 0;
+
+        this.layers[Phase.MENU] = [];
+        this.layers[Phase.TEST] = [];
+        this.layers[Phase.TRAIN] = [];
 
         // DEPRECATED: TO BE REMOVED SOON
         // Do nothing, css already handles this
@@ -370,17 +376,41 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             });
         };
 
+        this._changePhase = function (phase) {
+            // Skip special cases
+            var current = controller.getPhase();
+
+            // Nothing at all
+            if (current == phase) {
+                return;
+            }
+
+            if (current >= 0) {
+                // Hide all current layers
+                var layers = this.getLayers();
+                for (var i = 0, len = layers.length; i < len; ++i) {
+                    layers[i].visible = false;
+                }
+            }
+
+            var layers = this.layers[phase];
+            for (var i = 0, len = layers.length; i < len; ++i) {
+                layers[i].visible = true;
+            }
+        }
+
         // Return layers array
         this.getLayers = function () {
-            return this.layers;
+            return this.layers[controller.getPhase()];
         };
 
         this.getMainLayers = function () {
+            var layers = this.getLayers();
             var mainLayers = [];
 
             // Find a layer with no bottom (that is, an initial layer)
-            for (var i = 0, len = this.layers.length; i < len; ++i) {
-                var layer = this.layers[i];
+            for (var i = 0, len = layers.length; i < len; ++i) {
+                var layer = layers[i];
 
                 // Skip non deletable layers, that is, menu items
                 if ('deletable' in layer && !layer.deletable) {
@@ -400,18 +430,22 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
 
         // Return a layer
         this.getLayer = function (idx) {
+            var layers = this.getLayers();
+
             if (idx >= 0) {
-                return this.layers[idx];
+                return layers[idx];
             }
 
-            return this.layers[this.layers.length + idx];
+            return layers[layers.length + idx];
         };
 
         // Find a layer
         this.findLayer = function (id) {
-            for (var i in this.layers) {
-                if (this.layers[i]._DOMElement.attr('id') == id) {
-                    return this.layers[i];
+            var layers = this.getLayers();
+
+            for (var i in layers) {
+                if (layers[i]._DOMElement.attr('id') == id) {
+                    return layers[i];
                 }
             }
 
@@ -432,27 +466,41 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
         };
 
         this.removeLayer = function (layer) {
+            // Get layers
+            var layers = this.getLayers();
+
+            // Remove from DOM
             layer._DOMElement.remove();
 
-            for (var i = 0, len = this.layers.length; i < len; ++i) {
-                if (this.layers[i] == layer) {
-                    this.layers.splice(i, 1);
+            for (var i = 0, len = layers.length; i < len; ++i) {
+                if (layers[i] == layer) {
+                    layers.splice(i, 1);
                     break;
                 }
             }
         };
 
         this.removeAllLayers = function () {
-            var start = 0;
-            while (this.layers.length - start > 0) {
-                if ('deletable' in this.layers[start] &&
-                    !this.layers[start].deletable)
-                {
-                    ++start;
+            for (var p in Phase) {
+                if (Phase[p] < 0) {
                     continue;
                 }
 
-                this.layers[start].remove();
+                controller.setPhase(Phase[p]);
+
+                var layers = this.getLayers();
+                var start = 0;
+
+                while (layers.length - start > 0) {
+                    if ('deletable' in layers[start] &&
+                        !layers[start].deletable)
+                    {
+                        ++start;
+                        continue;
+                    }
+
+                    layers[start].remove();
+                }
             }
         };
 
@@ -471,32 +519,52 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             var parser = new ProtoBuf();
             var queue = [];
             var parsed = [];
+            var done = [];
             var proto = '';
 
             var follow = function (layer) {
+                // Check if all our bottoms are already parsed, if not add to queue again
+                var toRelationships = controller.getMappingsFor('to', layer);
+                for (var i = 0, len = toRelationships.length; i < len; ++i) {
+                    var fromLayer = toRelationships[i].node.from;
+
+                    if ($.inArray(fromLayer.node.id, done) < 0) {
+                        queue.push(layer);
+                        return;
+                    }
+                }
+
+                // Add text to prototxt
                 var params = parser.decompile(layer.node.params);
                 params = 'layer {' + params + '}\n';
                 proto += params;
 
+                // Add tops to queue
                 var fromRelationships = controller.getMappingsFor('from', layer);
                 for (var i = 0, len = fromRelationships.length; i < len; ++i) {
-                    var layer = fromRelationships[i].node.to;
+                    var toLayer = fromRelationships[i].node.to;
 
-                    if ($.inArray(layer.node.id, parsed) < 0) {
-                        queue.push(layer);
-                        parsed.push(layer.node.id);
+                    if ($.inArray(toLayer.node.id, parsed) < 0) {
+                        queue.push(toLayer);
+                        parsed.push(toLayer.node.id);
                     }
                 }
+
+                // Done with this layer, it has been added to prototxt
+                done.push(layer.node.id);
             };
 
+            // Get DAG components (V, E)
             var layers = this.getMainLayers();
             var V = [];
             var E = controller.getDAG();
 
+            // Setup V
             for (var i = 0, len = layers.length; i < len; ++i) {
                 V.push(layers[i].node.dagNODE);
             }
 
+            // Call tarjan algorithm
             var strongDAG = tarjan(V, E);
             // Every entry on the array must be an array of size 1!
             for (var i = 0, len = strongDAG.length; i < len; ++i) {
@@ -525,6 +593,8 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                     follow(queue.shift());
                 }
             }
+
+            console.log(proto);
 
             return proto;
         };
@@ -587,7 +657,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             }
 
             var layer = new Layer(element, TYPE.RECT, params);
-            this.layers.push(layer);
+            this.getLayers().push(layer);
 
             ++this._id;
 
@@ -630,7 +700,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             })
             .appendTo(Canvas()._DOMcanvas);
 
-            this.layers.push(new Layer(element, TYPE.LINE, params));
+            this.getLayers().push(new Layer(element, TYPE.LINE, params));
             ++this._id;
 
             return this;
@@ -657,7 +727,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 }
             }
 
-            this.layers.push(new Layer(element, TYPE.ARC, params));
+            this.getLayers().push(new Layer(element, TYPE.ARC, params));
             ++this._id;
 
             var container = into.getStaticDOM();

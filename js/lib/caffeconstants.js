@@ -5,6 +5,12 @@ var Version = {
     V1: 1
 };
 
+var Phase = {
+    MENU: -1,
+    TEST: 0,
+    TRAIN: 1
+};
+
 var V1LayerParameter = {
     LayerType: {
         NONE: -1,
@@ -48,6 +54,14 @@ var V1LayerParameter = {
 
     MaxLayers: 30
 };
+
+var GetPhase = function (phase) {
+    for (var name in Phase) {
+        if (name == phase) {
+            return Phase[name];
+        }
+    }
+}
 
 var UpgradeV0LayerType = function (type) {
     // By CONSTANT usage
