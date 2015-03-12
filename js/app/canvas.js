@@ -70,6 +70,37 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             return bb;
         };
 
+        this.move = function (x, y) {
+            if (typeof(x) !== 'undefined') {
+                this.x = x;
+            }
+            if (typeof(y) !== 'undefined') {
+                this.y = y;
+            }
+
+            var fromRelationships = controller.getMappingsFor('from', this);
+            var toRelationships = controller.getMappingsFor('to', this);
+
+            var n = fromRelationships.length;
+            var i = 0;
+            var line = null;
+
+            for (; i < n; ++i) {
+                line = fromRelationships[i];
+                line.x1 = line.node.top.windowX;
+                line.y1 = line.node.top.windowY;
+            }
+
+            n = toRelationships.length;
+            i = 0;
+
+            for (; i < n; ++i) {
+                line = toRelationships[i];
+                line.x2 = line.node.bottom.windowX;
+                line.y2 = line.node.bottom.windowY;
+            }
+        }
+
         this.createTop = function (name) {
             top.create(this, name);
         };

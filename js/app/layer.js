@@ -148,6 +148,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
                     // HACK: Should not access _scroll_wrapper
                     canvas._scroll_wrapper.scrollTop(scrollGetter(layer).height + 100);
                     layer.y += 100;
+                    layer.move();
                 }
 
                 // TOP
@@ -155,6 +156,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
                     if (scrollGetter(layer).top > 0) {
                         canvas._scroll_wrapper.scrollTop(scrollGetter(layer).top - 75);
                         layer.y -= 75;
+                        layer.move();
                     } else {
                         // TODO: Expand upper limit
                     }
@@ -166,6 +168,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
                     // HACK: Should not access _scroll_wrapper
                     canvas._scroll_wrapper.scrollLeft(scrollGetter(layer).width + 100);
                     layer.x += 100;
+                    layer.move();
                 }
 
                 // TOP
@@ -173,6 +176,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
                     if (scrollGetter(layer).left > 0) {
                         canvas._scroll_wrapper.scrollLeft(scrollGetter(layer).left - 75);
                         layer.x -= 75;
+                        layer.move();
                     } else {
                         // TODO: Expand upper limit
                     }
@@ -201,29 +205,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
             var rect_drag = function (layer) {
                 Layer._checkLimits(layer);
 
-                // TODO: Use newer controller methods
-                var mappings = controller.getMappings();
-                var fromRelationships = mappings.from[layer.node.id];
-                var toRelationships = mappings.to[layer.node.id];
-
-                var n = fromRelationships.length;
-                var i = 0;
-                var line = null;
-
-                for (; i < n; ++i) {
-                    line = fromRelationships[i];
-                    line.x1 = line.node.top.windowX;
-                    line.y1 = line.node.top.windowY;
-                }
-
-                n = toRelationships.length;
-                i = 0;
-
-                for (; i < n; ++i) {
-                    line = toRelationships[i];
-                    line.x2 = line.node.bottom.windowX;
-                    line.y2 = line.node.bottom.windowY;
-                }
+                layer.move();
             };
 
             var rect_dragstop = function (layer, e) {

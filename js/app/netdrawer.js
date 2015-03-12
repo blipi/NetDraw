@@ -27,10 +27,7 @@ define(function (require) {
         var parsed = [];
         var netDAG = {};
         var netLayers = {};
-
         var layerToLevel = {};
-        var levels = [];
-        var currentLevel = 0;
 
         var addTop = function (current) {
             if ('top' in current) {
@@ -91,7 +88,7 @@ define(function (require) {
             // Reset holders
             queue = [];
             netDAG = {};
-            netByLevels = [];
+            layerToLevel = {};
 
             x = 0;
 
@@ -132,174 +129,57 @@ define(function (require) {
                 }
             }
 
+            // Keep parsing until empty
             while (queue.length) {
                 follow(queue.shift());
             }
 
-            console.log(controller.getDAG());
+            // Create levels array
+            var levels = [];
+            for (var layerName in layerToLevel) {
+                var l = layerToLevel[layerName];
+
+                // Set minimum size for this level
+                while (levels.length - 1 < l) {
+                    levels.push([]);
+                }
+
+                // Push layer
+                levels[l].push(netLayers[layerName]);
+            }
+
+            // Pretty draw everything
+            prettyDraw(levels);
         }
     }
 
-    function createNet_V0(net) {
-        console.log('[createNet]');
-        canvas.removeAllLayers();
-
-        var levelMapper = {};
-
-        var exists = function (needle, haystack) {
-            for (var i = 0, len = haystack.length; i < len; ++i) {
-                if (haystack[i].value == needle) {
-                    return i;
-                }
-            }
-
-            return -1;
-        };
-
-        var findLayer = function (search) {
-            var i = net.length;
-            while (--i >= 0) {
-                var layer = net[i].layer;
-
-                if (('top' in layer &&
-                            (('value' in layer.top && search == layer.top.value) ||
-                            ($.isArray(layer.top) && exists(search, layer.top) >= 0))
-                        ) &&
-                    /*layer.top != layer.bottom &&*/
-                    layer.name.value in levelMapper) {
-
-                    return layer;
-                }
-            }
-
-            return null;
-        };
-
-        var i = 0;
-        var n = net.length;
-        var levels = {};
-        var currentLevel = 0;
-        for (; i < n; ++i) {
-            var current = net[i].layer;
-            var found = false;
-
-            if ('bottom' in current) {
-                var bottomName = current.bottom.value;
-                if ($.isArray(current.bottom))
-                {
-                    // Simply use the 1st one, we are not interested in relationships (yet)
-                    // only in jerarchy
-                    bottomName = current.bottom[0].value;
-                }
-
-                if (bottomName != current.name.value) {
-                    var top = findLayer(bottomName);
-                    if (top !== null) {
-                        currentLevel = levelMapper[top.name.value][0] + 1;
-                        found = true;
-                    }
-                }
-            }
-
-            levelMapper[current.name.value] = [currentLevel, current];
-
-            if (!(currentLevel in levels)) {
-                levels[currentLevel] = [];
-            }
-
-            levels[currentLevel].push(i);
-        }
-
-        // Find out the max number of layers in a level of the net
-        var layerSeparation = {x: 160, y: -100};
-        var maxLayersPerLevel = 0;
-        var levelsCount = 0;
-        for (var level in levels) {
-            ++levelsCount;
-            if (levels[level].length > maxLayersPerLevel) {
-                maxLayersPerLevel = levels[level].length;
+    function prettyDraw(netLevels) {
+        // Get the most number of layers on a level
+        var maxLayersOnLevel = 0;
+        for (var i = 0, len = netLevels.length; i < len; ++i) {
+            if (netLevels[i].length > maxLayersOnLevel) {
+                maxLayersOnLevel = netLevels[i].length;
             }
         }
 
-        var maxWidth = maxLayersPerLevel * layerSeparation.x;
-
-        var netToLayers = {};
-        var addToNetLayers = function (netLayer, outLayer) {
-            var _addTop = function (top) {
-                if (netLayer.include) {
-                    if (!netToLayers[top] || !$.isArray(netToLayers[top]))
-                    {
-                        netToLayers[top] = [];
-                    }
-                    netToLayers[top].push(outLayer);
-                } else {
-                    netToLayers[top] = outLayer;
-                }
-            };
-
-            if ('top' in netLayer) {
-                if ('value' in netLayer.top) {
-                    _addTop(netLayer.top.value);
-                } else if ($.isArray(netLayer.top))
-                {
-                    for (var k in netLayer.top) {
-                        _addTop(netLayer.top[k].value);
-                    }
-                }
-            }
-        };
-
-        var createRelationship = function (netLayer, outLayer) {
-            var _stablish = function (from, to, name) {
-                var top = from.createTop(name);
-                relationship.create(from, to);
-            };
-
-            var _create = function (bottom) {
-                if ($.isArray(netToLayers[bottom])) {
-                    for (var k in netToLayers[bottom]) {
-                        _stablish(netToLayers[bottom][k], outLayer, bottom);
-                    }
-                } else {
-                    _stablish(netToLayers[bottom], outLayer, bottom);
-                }
-            };
-
-            if ('bottom' in netLayer) {
-                if ('value' in netLayer.bottom) {
-                    _create(netLayer.bottom.value);
-                } else if ($.isArray(netLayer.bottom))
-                {
-                    for (var k in netLayer.bottom) {
-                        _create(netLayer.bottom[k].value);
-                    }
-                }
-            }
-        };
-
+        // TODO: Magic numbers
         if (controller.verticalDrawing()) {
+            var heightForN = function (n) { return n * 100 + (n - 1) * 20 };
+            var widthForN = function (n) { return n * 100 + 40 };
 
-            var totalHeight = parseInt(canvas.css('height'));
-            var needHeight = maxWidth;
-            totalHeight = needHeight;
-            canvas.css('height', totalHeight);
+            var needHeight = heightForN(maxLayersOnLevel) + 40;
+            needHeight = Math.max(needHeight, $('#wrapper').height() - 20);
+            canvas.css('height', needHeight);
 
-            var centerY = totalHeight / 2;
+            var needWidth = widthForN(netLevels.length);
+            canvas.css('width', needWidth);
+
             var x = 20;
-            for (level in levels) {
-                var layersInLevel = levels[level];
+            for (var i = 0, len = netLevels.length; i < len; ++i) {
+                var y = needHeight / 2 - heightForN(netLevels[i].length) / 2;
 
-                console.log('===============');
-                console.log('Level ' + level);
-
-                var len = levels[level].length;
-                var y = centerY - (len * 120 / 2);
-                for (var i = 0; i < len; ++i) {
-                    var current = net[levels[level][i]].layer;
-                    var outLayer = layer.createDefinitive(x, y, current.type.value, current.name.value, current);
-
-                    createRelationship(current, outLayer);
-                    addToNetLayers(current, outLayer);
+                for (var k = 0, end = netLevels[i].length; k < end; ++k) {
+                    netLevels[i][k].move(x, y);
 
                     y += 120;
                 }
@@ -307,32 +187,27 @@ define(function (require) {
                 x += 100;
             }
         } else {
-            var totalHeight = parseInt(canvas.css('height'));
-            var needHeight = levelsCount * 100;
-            totalHeight = needHeight > totalHeight ? needHeight : totalHeight;
-            canvas.css('height', totalHeight);
+            var heightForN = function (n) { return n * 55 + (n - 1) * 20 };
+            var widthForN = function (n) { return n * 100 + 40 };
 
-            var centerX = (parseInt(canvas.css('width')) - 170) / 2 - maxWidth / 2;
-            var y = totalHeight - 75;
-            for (level in levels) {
-                var layersInLevel = levels[level];
+            var needWidth = widthForN(maxLayersOnLevel) + 40;
+            needWidth = Math.max(needWidth, $('#wrapper').width() - 20);
+            canvas.css('width', needWidth);
 
-                console.log('===============');
-                console.log('Level ' + level);
+            var needHeight = heightForN(netLevels.length);
+            canvas.css('height', needHeight);
 
-                var len = levels[level].length;
-                var x = 170 + centerX + (maxWidth / 2) - (len * layerSeparation.x / 2);
-                for (var i = 0; i < len; ++i) {
-                    var current = net[levels[level][i]].layer;
-                    var outLayer = layer.createDefinitive(x, y, current.type.value, current.name.value, current);
+            var y = needHeight - 20;
+            for (var i = 0, len = netLevels.length; i < len; ++i) {
+                var x = needWidth / 2 - widthForN(netLevels[i].length) / 2;
 
-                    createRelationship(current, outLayer);
-                    addToNetLayers(current, outLayer);
+                for (var k = 0, end = netLevels[i].length; k < end; ++k) {
+                    netLevels[i][k].move(x, y);
 
-                    x += 160;
+                    x += 100;
                 }
 
-                y -= 100;
+                y -= 75;
             }
         }
     }
