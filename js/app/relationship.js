@@ -114,7 +114,14 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
             // Remove bottom point
             canvas.removeLayer(line.node.bottom);
 
-            // TODO: Delete bottom from line.to.node.params
+            // Remove from params
+            var bottomList = line.node.to.node.params.bottom;
+            for (var i = 0, len = bottomList.length; i < len; ++i) {
+                if (bottomList[i].value == line.node.bottom.node.name) {
+                    bottomList.splice(i, 1);
+                    break;
+                }
+            }
 
             // Remove line itself
             canvas.removeLayer(line);

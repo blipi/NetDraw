@@ -168,7 +168,7 @@ define(function (require) {
             var widthForN = function (n) { return n * 100 + 40 };
 
             var needHeight = heightForN(maxLayersOnLevel) + 40;
-            needHeight = Math.max(needHeight, $('#wrapper').height() - 20);
+            needHeight = Math.max(needHeight, $('#scroll_wrapper').height() - 20);
             canvas.css('height', needHeight);
 
             var needWidth = widthForN(netLevels.length);
@@ -191,7 +191,7 @@ define(function (require) {
             var widthForN = function (n) { return n * 100 + 40 };
 
             var needWidth = widthForN(maxLayersOnLevel) + 40;
-            needWidth = Math.max(needWidth, $('#wrapper').width() - 20);
+                needWidth = Math.max(needWidth, $('#scroll_wrapper').width() - 20);
             canvas.css('width', needWidth);
 
             var needHeight = heightForN(netLevels.length);
@@ -210,6 +210,11 @@ define(function (require) {
                 y -= 75;
             }
         }
+
+        $('#scroll_wrapper').animate({
+            scrollTop: $('#canvas').height(),
+            scrollLeft: 0
+        }, 'medium');
     }
 
     function initialize()
@@ -279,16 +284,22 @@ define(function (require) {
         var importTimeout = null;
 
         modeChange.click(function () {
-            controller._drawOrientation = $(this).attr('id') == 'orientation-hor' ? 0 : 1;
+            var id = $(this).attr('id');
 
-            var netDef = canvas.getProto();
-            if (netDef === false) {
-                alert('Your net seems to have a cycle');
-            } else {
-                var parser = new ProtoBuf();
-                var net = parser.compile(netDef);
-                createNet(net);
-            }
+            $('#loading').show('puff', function () {
+                controller._drawOrientation = id == 'orientation-hor' ? 1 : 0;
+
+                var netDef = canvas.getProto();
+                if (netDef === false) {
+                    alert('Your net seems to have a cycle');
+                } else {
+                    var parser = new ProtoBuf();
+                    var net = parser.compile(netDef);
+                    createNet(net);
+                }
+
+                $('#loading').hide('puff');
+            });
         });
 
         importCancel.click(function () {
