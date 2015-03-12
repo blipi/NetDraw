@@ -10,6 +10,12 @@
 	<script data-main="js/main" src="js/lib/require.js"></script>
 
 	<script>
+		requirejs.onError = function (err) {
+	    	document.getElementById("loading-text").innerHTML = 'Something went wrong... Reloading in 5s';
+	        setTimeout(function() {
+	            location.reload();
+	        }, 5000);
+	    };
 	</script>
 
 </head>

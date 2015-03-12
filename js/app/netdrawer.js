@@ -298,11 +298,11 @@ define(function (require) {
 
         importOK.click(function () {
             $('#loading').show('puff', function () {
-                var parser = new ProtoBuf();
-                var net = parser.compile(importArea.val());
-                net = parser.upgrade(net);
-                createNet(net);
                 try {
+                    var parser = new ProtoBuf();
+                    var net = parser.compile(importArea.val());
+                    net = parser.upgrade(net);
+                    createNet(net);
                     importCancel.click();
                 } catch (err) {
                     if (!importTimeout) {
