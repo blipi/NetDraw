@@ -553,13 +553,28 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             var done = [];
             var proto = '';
 
+            var getFalseName = function(layer) {
+                var name = layer.node.params.name.value;
+                if ('include' in layer.node.params && 'phase' in  layer.node.params.include) {
+                    if ('value' in layer.node.params.include.phase) {
+                        name += '$$' + layer.node.params.include.phase.value;
+                    } else {
+                        for (var i = 0, len = layer.node.params.include.phase.length; i < len; ++i) {
+                            name += '$$' + layer.node.params.include.phase[i].value;
+                        }
+                    }
+                }
+                
+                return name;
+            }
+
             var follow = function (layer) {
                 // Check if all our bottoms are already parsed, if not add to queue again
                 var toRelationships = controller.getMappingsFor('to', layer);
                 for (var i = 0, len = toRelationships.length; i < len; ++i) {
                     var fromLayer = toRelationships[i].node.from;
 
-                    if ($.inArray(fromLayer.node.id, done) < 0) {
+                    if ($.inArray(getFalseName(fromLayer), done) < 0) {
                         queue.push(layer);
                         return;
                     }
@@ -575,14 +590,15 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 for (var i = 0, len = fromRelationships.length; i < len; ++i) {
                     var toLayer = fromRelationships[i].node.to;
 
-                    if ($.inArray(toLayer.node.id, parsed) < 0) {
+		    var layerName = getFalseName(toLayer);
+                    if ($.inArray(layerName, parsed) < 0) {
                         queue.push(toLayer);
-                        parsed.push(toLayer.node.id);
+                        parsed.push(layerName);
                     }
                 }
 
                 // Done with this layer, it has been added to prototxt
-                done.push(layer.node.id);
+                done.push(getFalseName(layer));
             };
 
             // Get DAG components (V, E)
@@ -608,6 +624,27 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                     return false;
                 }
             }
+            
+            // Add phase dependant layers
+            // TODO: All this loops... MEH
+            // We should simply loop over both phases and add to queue, be it phase dependant or not
+            for (var p in Phase) {
+                if (Phase[p] < 0) {
+                    continue;
+                }
+                
+                controller.overwritePhase(Phase[p]);
+
+                var phaseLayers = this.getMainLayers();                
+                for (var i = 0, len = phaseLayers.length; i < len; ++i) {
+                    var layer = phaseLayers[i];
+
+                    if ('include' in layer.node.params && 'phase' in  layer.node.params.include) {
+                        queue.push(layer);
+                        parsed.push(getFalseName(layer));
+                    }
+                }
+            }
 
             // Find a layer with no bottom (that is, an initial layer)
             for (var i = 0, len = layers.length; i < len; ++i) {
@@ -615,14 +652,16 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
 
                 var toRelationships = controller.getMappingsFor('to', layer);
                 if (toRelationships.length === 0) {
-                    // Start queue all relationships
-                    follow(layer);
+                    if ($.inArray(getFalseName(layer), parsed) < 0) {
+                        queue.push(layer);
+                        parsed.push(getFalseName(layer));
+                    }
                 }
+            }
 
-                // Until queue is empty, follow queue layer
-                while (queue.length) {
-                    follow(queue.shift());
-                }
+            // Until queue is empty, follow queue layer
+            while (queue.length) {
+                follow(queue.shift());
             }
 
             console.log(proto);

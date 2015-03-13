@@ -50,6 +50,10 @@ define(function (require) {
             canvasObj._changePhase(phase);
             this._phase = phase;
         }
+        
+        this.overwritePhase = function (phase) {
+            this._phase = phase;
+        }
 
         this.autoAdjustArcs = function () {
             return this._autoAdjustArcs;
