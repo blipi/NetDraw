@@ -40,7 +40,7 @@ define(['require', 'jquery'], function (require, $) {
                 }
             }
 
-            var topList = layer.node.parent.node.top;
+            var topList = layer.node.parent.node.params.top;
             for (var i = 0, len = topList.length; i < len; ++i) {
                 if (topList[i].value == layer.node.name) {
                     topList.splice(i, 1);
