@@ -71,23 +71,21 @@ define(['require', 'jquery'], function (require, $) {
 
             ++layer.node.topCount;
 
-            var top_onclick = function (layer, e) {
-                controller.setSelection(layer);
-
+            var top_onclick = function (layer, node, e) {
                 // Stop propagation makes the mouse helper not work
                 e.stopPropagation();
 
                 // Delete top
                 if (mouse.isDoubleClick(layer)) {
                     relationship.validate({pageX:-100, pageY:-100});
-                    layer.remove();
+                    node.remove();
                 }
 
                 // So we must manually call it
                 mouse.click(e);
             };
 
-            var top_mousedown = function (layer, e) {
+            var top_mousedown = function (layer, node, e) {
                 // No drag on layer
                 e.stopPropagation();
 
@@ -95,72 +93,26 @@ define(['require', 'jquery'], function (require, $) {
                 mouse.mousedown(e);
 
                 if (!controller.freeDrawing()) {
-                    controller.setInitialNode(layer.node.parent);
+                    controller.setInitialNode(layer);
                 }
 
-                relationship.create(layer.node.parent, layer.node.parent, false, layer);
+                relationship.create(layer, layer, false, node);
             };
 
-            var top_reenable = function (layer) {
-                // HACK: _DOMElement should not be exposed
-                layer.node.parent._DOMElement.draggable('enable');
-            };
-
-            var top_drag = function (layer) {
-                // HACK: _DOMElement should not be exposed
-                layer.node.parent._DOMElement.draggable('disable');
-
-                var fromRelationships = controller.getMappingsFor('from', layer.node.parent);
-
-                var n = fromRelationships.length;
-                var i = 0;
-
-                for (; i < n; ++i) {
-                    var line = fromRelationships[i];
-                    if (line.node.top == layer) {
-                        line.x1 = layer.windowX;
-                        line.y1 = layer.windowY;
-                    }
-                }
-            };
-
-            var top_dragstop = function (layer) {
-                var left = layer.x;
-                var top = layer.y;
-                var minargs = [left, 97 - left, top, 52 - top];
-                var idx = minargs.indexOf(Math.min.apply(window, minargs));
-
-                if (idx === 0) {
-                    layer.x = 0;
-                } else if (idx == 1) {
-                    layer.x = 97;
-                } else if (idx == 2) {
-                    layer.y = 0;
-                } else {
-                    layer.y = 52;
-                }
-            };
+            var top = new Value(true, topName);
 
             var bb = this.findSuitable(layer);
-            canvas.createLayerArc(layer, {
+            top.DOM = canvas.createLayerArc(layer, {
                 x: bb.x,
                 y: bb.y,
                 radius: 7,
 
-                node: {
-                    parent: layer,
-                    func: 'top',
-                    name: topName
-                },
+                name: topName,
+                parent: layer,
 
                 click: top_onclick,
                 mousedown: top_mousedown,
-                mouseup: top_reenable,
-                mouseout: top_reenable,
             }, 'top');
-
-            var top = canvas.getLayer(-1);
-            layer.node.top.push(top);
 
             // We must now add this top arc to the params
             // Make sure it exists and that it is an array
@@ -171,51 +123,59 @@ define(['require', 'jquery'], function (require, $) {
             }
 
             // Add top
-            layer.node.params.top.push(new Value(true, topName));
+            layer.node.params.top.push(top);
 
-            return top;
+            return top.DOM;
         },
 
         findSuitable: function (layer) {
             var bb = layer.rotationBox();
-            var num = layer.node.top.length;
 
             var r = {x: bb.w, y: bb.h - 4};
+            var me = this;
+            var last = -1;
 
             if (controller.verticalDrawing()) {
-                var min = bb.h / 2 - ((num + 1) * 14 + num * 2) / 2;
-                for (var y = min, e = 0; e < num; ++e, y += 16) {
-                    // TODO: Magic numbers, compensate margin
-                    this.move(layer, layer.node.top[e], layer.node.top[e].x, y + 10);
-                }
+                var arcs = layer.getStaticDOM().children('.arc-top');
+                var min = bb.h / 2 - ((arcs.length + 1) * 14 + arcs.length * 2) / 2;
+                arcs.each(function (i) {
+                    me.move(layer, $(this), $(this).css('left'), min + (i * 16));
+                    last = i;
+                });
 
-                r.y = y + 10;
+                r.y = min + ((last + 1) * 16);
             } else {
-                var min = bb.w / 2 - ((num + 1) * 14 + num * 2) / 2;
-                for (var x = min, e = 0; e < num; ++e, x += 16) {
-                    // TODO: Magic numbers, compensate margin
-                    this.move(layer, layer.node.top[e], x + 10, layer.node.top[e].y);
-                }
+                var arcs = layer.getStaticDOM().children('.arc-top');
+                var min = bb.w / 2 - ((arcs.length + 1) * 14 + arcs.length * 2) / 2;
+                arcs.each(function (i) {
+                    me.move(layer, $(this), min + (i * 16), $(this).css('top'));
+                    last = i;
+                });
 
                 r.y = 0;
-                r.x = x + 10;
+                r.x = min + ((last + 1) * 16);
             }
 
             return r;
         },
 
         move: function (layer, node, x, y) {
-            node.x = x;
-            node.y = y;
+            node.css({
+                left: x,
+                top: y
+            });
 
+            var myName = node.data('name');
+            var coords = controller.screenCoordinates(node);
             var mappings = controller.getMappings();
             var fromRelationships = mappings.from[layer.node.id];
 
             for (var i = 0, n = fromRelationships.length; i < n; ++i) {
                 var line = fromRelationships[i];
-                if (line.node.top == node) {
-                     line.x1 = line.node.top.windowX;
-                    line.y1 = line.node.top.windowY;
+
+                if (line.top == myName) {
+                    line.x1 = coords.x;
+                    line.y1 = coords.y;
                 }
             }
         }

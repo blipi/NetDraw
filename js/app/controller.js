@@ -42,18 +42,26 @@ define(function (require) {
 
         this._phase = Phase.MENU;
 
+
+        this.screenCoordinates = function (e) {
+            return {
+                x: e.offset().left + canvasObj._scroll_wrapper.scrollLeft() - 155,
+                y: e.offset().top + canvasObj._scroll_wrapper.scrollTop()
+            };
+        };
+
         this.getPhase = function () {
             return this._phase;
-        }
+        };
 
         this.setPhase = function (phase) {
             canvasObj._changePhase(phase);
             this._phase = phase;
-        }
-        
+        };
+
         this.overwritePhase = function (phase) {
             this._phase = phase;
-        }
+        };
 
         this.autoAdjustArcs = function () {
             return this._autoAdjustArcs;

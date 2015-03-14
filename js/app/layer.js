@@ -192,7 +192,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
 
             /* Forward declaration of handlers */
             var rect_mousedown = function (layer, e) {
-                if (layer.node.func == 'main') {
+                if (layer.phase == controller.getPhase() || layer.phase == Phase.GLOBAL) {
                     controller.setSelection(layer);
                     e.stopPropagation();
                 }

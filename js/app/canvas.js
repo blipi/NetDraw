@@ -356,13 +356,9 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
         // as the canvas element
         // ******************************************************** //
 
-        this.layers = {};
+        this.layers = [];
         this.moving = [];
         this._id = 0;
-
-        this.layers[Phase.MENU] = [];
-        this.layers[Phase.TEST] = [];
-        this.layers[Phase.TRAIN] = [];
 
         // DEPRECATED: TO BE REMOVED SOON
         // Do nothing, css already handles this
@@ -416,6 +412,8 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 return;
             }
 
+            // TODO: Hide old phase layers
+            /*
             if (current >= 0) {
                 // Hide all current layers
                 var layers = this.getLayers();
@@ -424,15 +422,16 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 }
             }
 
-            var layers = this.layers[phase];
+            var layers = this.layers;
             for (var i = 0, len = layers.length; i < len; ++i) {
                 layers[i].visible = true;
             }
-        }
+            */
+        };
 
         // Return layers array
         this.getLayers = function () {
-            return this.layers[controller.getPhase()];
+            return this.layers;
         };
 
         this.getMainLayers = function () {
@@ -553,7 +552,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             var done = [];
             var proto = '';
 
-            var getFalseName = function(layer) {
+            var getFalseName = function (layer) {
                 var name = layer.node.params.name.value;
                 if ('include' in layer.node.params && 'phase' in  layer.node.params.include) {
                     if ('value' in layer.node.params.include.phase) {
@@ -564,9 +563,9 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                         }
                     }
                 }
-                
+
                 return name;
-            }
+            };
 
             var follow = function (layer) {
                 // Check if all our bottoms are already parsed, if not add to queue again
@@ -590,7 +589,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 for (var i = 0, len = fromRelationships.length; i < len; ++i) {
                     var toLayer = fromRelationships[i].node.to;
 
-		    var layerName = getFalseName(toLayer);
+                    var layerName = getFalseName(toLayer);
                     if ($.inArray(layerName, parsed) < 0) {
                         queue.push(toLayer);
                         parsed.push(layerName);
@@ -624,7 +623,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                     return false;
                 }
             }
-            
+
             // Add phase dependant layers
             // TODO: All this loops... MEH
             // We should simply loop over both phases and add to queue, be it phase dependant or not
@@ -632,10 +631,10 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 if (Phase[p] < 0) {
                     continue;
                 }
-                
+
                 controller.overwritePhase(Phase[p]);
 
-                var phaseLayers = this.getMainLayers();                
+                var phaseLayers = this.getMainLayers();
                 for (var i = 0, len = phaseLayers.length; i < len; ++i) {
                     var layer = phaseLayers[i];
 
@@ -726,6 +725,9 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 params.node.dagNODE = new Node(params.node.id);
             }
 
+            // Add phase
+            params.phase = controller.getPhase();
+
             var layer = new Layer(element, TYPE.RECT, params);
             this.getLayers().push(layer);
 
@@ -776,38 +778,26 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             return this;
         };
 
+        this.arcCallback = function (e, n, f) {
+            var id = n.data('parent');
+            f(Canvas().findLayer(id), n, e);
+        };
+
         this.createLayerArc = function (into, params, className) {
             var element = $('<div class="arc-' + className + '">')
-                .attr({
-                    id: 'layer_' + this._id
-                })
-                .appendTo(into.getStaticDOM());
+                .css({left: params.x, top: params.y})
+                .appendTo(into.getStaticDOM())
+                .data('name', params.name)
+                .data('parent', into._DOMElement.attr('id'));
 
-            if (params.draggable) {
-                if ('dragstart' in params) {
-                    element.on('dragstart', params.dragstart);
-                }
-
-                if ('drag' in params) {
-                    element.on('drag', params.drag);
-                }
-
-                if ('dragstop' in params) {
-                    element.on('dragstop', params.dragstop);
-                }
+            if (params.click) {
+                element.click(function (e) { Canvas().arcCallback(e, $(this), params.click); });
+            }
+            if (params.mousedown) {
+                element.mousedown(function (e) { Canvas().arcCallback(e, $(this), params.mousedown); });
             }
 
-            this.getLayers().push(new Layer(element, TYPE.ARC, params));
-            ++this._id;
-
-            var container = into.getStaticDOM();
-            if (params.draggable) {
-                element.draggable({
-                    containment: container,
-                });
-            }
-
-            return this;
+            return element;
         };
     };
 

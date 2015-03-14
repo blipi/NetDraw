@@ -66,7 +66,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 }
 
                 /* Draw bottom */
-                drawingLine.node.bottom = bottom.create(current, x, y, drawingLine.node.top.node.name);
+                drawingLine.node.bottom = bottom.create(current, x, y, drawingLine.node.top);
                 drawingLine.x2 = drawingLine.node.bottom.windowX;
 
                 break;
@@ -77,8 +77,6 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
             canvas.removeLayer(drawingLine);
         }
 
-        drawingLine.node.from.draggable = true;
-        drawingLine.node.top.draggable = true;
         controller.clearDrawingLine();
     }
 
@@ -139,6 +137,8 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 bottomLayer.node.top[bottomLayer.node.top.length - 1] :  // We start from BottomLayer's Top point!
                 topPoint;
 
+            console.log(topPoint);
+
             // If we are already drawing, delete the line
             var currentLine = controller.getDrawingLine();
             if (currentLine) {
@@ -155,20 +155,21 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 bb.w = 0;
             }
 
+            var coords = controller.screenCoordinates(topPoint);
             canvas.drawLine({
                 x: 0, y: 0,
 
-                x1: topPoint.windowX,
-                y1: topPoint.windowY,
+                x1: coords.x,
+                y1: coords.y,
 
-                x2: bottomLayer == topLayer ? topPoint.windowX : topLayer.windowX + bb.w / 2,
-                y2: bottomLayer == topLayer ? topPoint.windowY : topLayer.windowY + bb.h / 2,
+                x2: bottomLayer == topLayer ? coords.x : topLayer.windowX + bb.w / 2,
+                y2: bottomLayer == topLayer ? coords.y : topLayer.windowY + bb.h / 2,
 
                 node: {
                     func: 'line',
                     from: bottomLayer,
                     to: null,
-                    top: topPoint,
+                    top: topPoint.data('name'),
                     bottom: null,
                 },
 
