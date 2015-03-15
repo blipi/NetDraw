@@ -143,10 +143,6 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 canvas.removeLayer(currentLine);
             }
 
-            var line_click = function (layer) {
-                controller.setSelection(layer);
-            };
-
             var bb = topLayer.rotationBox();
             // HACK: Should not edit this value like this
             if (controller.verticalDrawing()) {
@@ -167,8 +163,6 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 to: null,
                 top: topPoint,
                 bottom: null,
-
-                click: line_click
             });
 
             controller.setDrawingLine(line);
