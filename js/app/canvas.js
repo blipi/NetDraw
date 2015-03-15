@@ -99,7 +99,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 line.x2 = line.node.bottom.windowX;
                 line.y2 = line.node.bottom.windowY;
             }
-        }
+        };
 
         this.createTop = function (name) {
             top.create(this, name);

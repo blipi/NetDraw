@@ -100,7 +100,8 @@ define(['require', 'jquery'], function (require, $) {
                 }
             };
 
-            canvas.createLayerArc(layer, {
+            var bot = new Value(true, bottomName);
+            bot.DOM = canvas.createLayerArc(layer, {
                 draggable: true,
 
                 x: ex,
@@ -131,9 +132,9 @@ define(['require', 'jquery'], function (require, $) {
             }
 
             // Add bottom
-            layer.node.params.bottom.push(new Value(true, bottomName));
+            layer.node.params.bottom.push(bot);
 
-            return canvas.getLayer(-1);
+            return bot.DOM;
         },
     };
 

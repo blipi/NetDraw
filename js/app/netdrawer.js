@@ -164,8 +164,8 @@ define(function (require) {
 
         // TODO: Magic numbers
         if (controller.verticalDrawing()) {
-            var heightForN = function (n) { return n * 100 + (n - 1) * 20 };
-            var widthForN = function (n) { return n * 100 + 40 };
+            var heightForN = function (n) { return n * 100 + (n - 1) * 20; };
+            var widthForN = function (n) { return n * 100 + 40; };
 
             var needHeight = heightForN(maxLayersOnLevel) + 40;
             needHeight = Math.max(needHeight, $('#scroll_wrapper').height() - 20);
@@ -187,11 +187,11 @@ define(function (require) {
                 x += 100;
             }
         } else {
-            var heightForN = function (n) { return n * 55 + (n - 1) * 20 };
-            var widthForN = function (n) { return n * 100 + 40 };
+            var heightForN = function (n) { return n * 55 + (n - 1) * 20; };
+            var widthForN = function (n) { return n * 100 + 40; };
 
             var needWidth = widthForN(maxLayersOnLevel) + 40;
-                needWidth = Math.max(needWidth, $('#scroll_wrapper').width() - 20);
+            needWidth = Math.max(needWidth, $('#scroll_wrapper').width() - 20);
             canvas.css('width', needWidth);
 
             var needHeight = heightForN(netLevels.length);
@@ -223,7 +223,7 @@ define(function (require) {
             var drawingLine = controller.getDrawingLine();
 
             if (drawingLine !== null) {
-                drawingLine.x2 = e.pageX - 155.0; // TODO: Magic numbers
+                drawingLine.x2 = e.pageX + scroll_wrapper.scrollLeft() - 155.0; // TODO: Magic numbers
                 drawingLine.y2 = e.pageY + scroll_wrapper.scrollTop();
             }
         };

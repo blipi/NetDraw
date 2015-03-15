@@ -67,7 +67,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
 
                 /* Draw bottom */
                 drawingLine.node.bottom = bottom.create(current, x, y, drawingLine.node.top);
-                drawingLine.x2 = drawingLine.node.bottom.windowX;
+                drawingLine.x2 = controller.screenCoordinates(drawingLine.node.bottom).x;
 
                 break;
             }
@@ -107,7 +107,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
         },
 
         remove: function (line) {
-            console.log('[relationship.remove] {' + line.node.top.node.name + ' -> ' + line.node.bottom.node.name + '}');
+            console.log('[relationship.remove] {' + line.node.top + ' -> ' + line.node.bottom + '}');
 
             // Remove bottom point
             canvas.removeLayer(line.node.bottom);
