@@ -23,7 +23,7 @@ define(['require', 'jquery'], function (require, $) {
 
             // Bottom points are automatically removed by relationship.remove
             for (; i < n; ++i) {
-                if (toRelationships[i].node.bottom.data('name') == node.data('name')) {
+                if (toRelationships[i].bottom.data('name') == node.data('name')) {
                     relationship.remove(toRelationships[i]);
                     break;
                 }

@@ -1,5 +1,7 @@
 define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require, $, controller, bottom) {
 
+    require('caffeconstants');
+
     var canvas = controller.getCanvas();
     var layer = null;
 
@@ -20,11 +22,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
             var current = layers[i];
 
             var f = null;
-            if ('node' in current && 'func' in current.node) {
-                f = current.node.func;
-            }
-
-            if (current == drawingLine.node.from || f != 'main') {
+            if (current.phase != Phase.TEST && current.phase != Phase.TRAIN) {
                 continue;
             }
 
@@ -36,7 +34,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 drawingLine.y2 <= bb.y + bb.h)
             {
                 connected = true;
-                drawingLine.node.to = current;
+                drawingLine.to = current;
 
                 controller.createMapping(drawingLine);
 
@@ -66,9 +64,9 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 }
 
                 /* Draw bottom */
-                var bot = bottom.create(current, x, y, drawingLine.node.name);
+                var bot = bottom.create(current, x, y, drawingLine.top.data('name'));
                 drawingLine.x2 = controller.screenCoordinates(bot).x;
-                drawingLine.node.bottom = bot;
+                drawingLine.bottom = bot;
 
                 break;
             }
@@ -108,15 +106,15 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
         },
 
         remove: function (line) {
-            console.log('[relationship.remove] {' + line.node.top.data('name') + '}');
+            console.log('[relationship.remove] {' + line.top.data('name') + '}');
 
             // Remove bottom point from DOM
-            line.node.bottom.remove();
+            line.bottom.remove();
 
             // Remove from params
-            var bottomList = line.node.to.node.params.bottom;
+            var bottomList = line.to.node.params.bottom;
             for (var i = 0, len = bottomList.length; i < len; ++i) {
-                if (bottomList[i].value == line.node.bottom.data('name')) {
+                if (bottomList[i].value == line.bottom.data('name')) {
                     bottomList.splice(i, 1);
                     break;
                 }
@@ -135,7 +133,8 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
             validate = typeof(validate) === 'undefined' ? true : validate;
 
             topPoint = typeof(topPoint) === 'undefined' ?
-                bottomLayer.node.top[bottomLayer.node.top.length - 1] :  // We start from BottomLayer's Top point!
+                // We start from BottomLayer's Top point!
+                bottomLayer.node.params.top[bottomLayer.node.params.top.length - 1].value :
                 topPoint;
 
             // If we are already drawing, delete the line
@@ -155,7 +154,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
             }
 
             var coords = controller.screenCoordinates(topPoint);
-            canvas.drawLine({
+            var line = canvas.drawLine({
                 x: 0, y: 0,
 
                 x1: coords.x,
@@ -164,18 +163,15 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 x2: bottomLayer == topLayer ? coords.x : topLayer.windowX + bb.w / 2,
                 y2: bottomLayer == topLayer ? coords.y : topLayer.windowY + bb.h / 2,
 
-                node: {
-                    func: 'line',
-                    from: bottomLayer,
-                    to: null,
-                    top: topPoint,
-                    bottom: null,
-                },
+                from: bottomLayer,
+                to: null,
+                top: topPoint,
+                bottom: null,
 
                 click: line_click
             });
 
-            controller.setDrawingLine(canvas.getLayer(-1));
+            controller.setDrawingLine(line);
             if (validate) {
                 _validateRelationship();
             }

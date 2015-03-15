@@ -1,4 +1,4 @@
-define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (require, $, top, bottom, pb) {
+define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'], function (require, $, top, bottom, line, pb) {
 
     require('caffeconstants');
 
@@ -40,15 +40,6 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             this._DOMElement.css(what, value);
         };
 
-        this._setAngle = function () {
-            if ('_x1' in this && '_y1' in this && '_x2' in this && '_y2' in this) {
-                var angle = Math.atan2(this._y2 - this._y1, this._x2 - this._x1) * 180.0 / Math.PI;
-                this._setCSS('transform-origin', '0 0');
-                this._setCSS('transform', 'rotate(' + angle + 'deg)');
-                this._setCSS('width', Math.sqrt(Math.pow(this._x1 - this._x2, 2) + Math.pow(this._y1 - this._y2, 2)));
-            }
-        };
-
         this.fixTo = function (to) {
             this._DOMElement.draggable({
                 containment: Canvas._DOMcanvas,
@@ -87,7 +78,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
 
             for (; i < n; ++i) {
                 line = fromRelationships[i];
-                var coords = controller.screenCoordinates(line.node.top);
+                var coords = controller.screenCoordinates(line.top);
                 line.x1 = coords.x;
                 line.y1 = coords.y;
             }
@@ -97,7 +88,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
 
             for (; i < n; ++i) {
                 line = toRelationships[i];
-                var coords = controller.screenCoordinates(line.node.bottom);
+                var coords = controller.screenCoordinates(line.bottom);
                 line.x2 = coords.x;
                 line.y2 = coords.y;
             }
@@ -177,29 +168,6 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             this._visible = v;
         },
 
-        // Lines
-        set x1(ex) {
-            this._setCSS('left', ex);
-            this._x1 = ex;
-            this._setAngle();
-        },
-
-        set y1(ey) {
-            this._setCSS('top', ey);
-            this._y1 = ey;
-            this._setAngle();
-        },
-
-        set x2(ex) {
-            this._x2 = ex;
-            this._setAngle();
-        },
-
-        set y2(ey) {
-            this._y2 = ey;
-            this._setAngle();
-        },
-
         set text(t) {
             if (typeof(t) === 'string') {
                 this._DOMWrapper.children('span').html(t);
@@ -248,22 +216,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
             this._DOMElement.unbind('dragstart');
             this._DOMElement.on('dragstart', function (event, ui) {
                 var canvas = Canvas();
-                var layers = canvas.getLayers();
                 var layer = canvas.findLayer($(this).attr('id'));
-                var dragGroups = layer.dragGroups;
-
-                var toMove = [];
-
-                for (var i in layers) {
-                    for (var k in dragGroups) {
-                        if ($.inArray(dragGroups[k], layers[i].dragGroups) >= 0) {
-                            toMove.push(layers[i]);
-                            break;
-                        }
-                    }
-                }
-
-                canvas.moving = toMove;
 
                 layer._dragstart.call(canvas, layer, event);
             });
@@ -277,22 +230,6 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 if (ui && ui.helper && !$(this).hasClass('ui-draggable-disabled')) {
                     var canvas = Canvas();
                     var layer = canvas.findLayer($(this).attr('id'));
-
-                    var x = parseInt(ui.helper.css('left'));
-                    var y = parseInt(ui.helper.css('top'));
-
-                    for (var i in canvas.moving) {
-                        var offsetTop = layer.y - canvas.moving[i].y;
-                        var offsetleft = layer.x - canvas.moving[i].x;
-
-                        canvas.moving[i]._DOMElement.css({
-                            top: y - offsetTop,
-                            left: x - offsetleft
-                        });
-                    }
-
-                    layer._x = x;
-                    layer._y = y;
 
                     layer._drag.call(canvas, layer, event);
                 }
@@ -319,12 +256,8 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
         get rawY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop(); },
         get windowX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft() - 155; }, // TODO: Magic numbers
         get windowY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop(); },
-        get x() { return this._x; },
-        get y() { return this._y; },
-        get x1() { return this._x1; },
-        get y1() { return this._y1; },
-        get x2() { return this._x2; },
-        get y2() { return this._y2; },
+        get x() { return this.windowX; },
+        get y() { return this.windowY; },
         get width() { return parseInt(this._DOMElement.css('width')); },
         get height() { return parseInt(this._DOMElement.css('height')); },
         get text() { return this._DOMWrapper.children('span').html(); },
@@ -768,21 +701,10 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
         };
 
         this.drawLine = function (params) {
-            var element = $('<hr>');
-            element.attr({
-                id: 'layer_' + Canvas()._id
-            })
-            .appendTo(Canvas()._DOMcanvas);
+            var element = $('<hr>')
+                .appendTo(Canvas()._DOMcanvas);
 
-            this.getLayers().push(new Layer(element, TYPE.LINE, params));
-            ++this._id;
-
-            return this;
-        };
-
-        this.arcCallback = function (e, n, f) {
-            var id = n.data('parent');
-            f(Canvas().findLayer(id), n, e);
+            return new Line(element, params);
         };
 
         this.createLayerArc = function (into, params, className) {
@@ -792,15 +714,24 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
                 .data('name', params.name)
                 .data('parent', into._DOMElement.attr('id'));
 
-            if (params.click) {
-                element.click(function (e) { Canvas().arcCallback(e, $(this), params.click); });
+            // Provide some enclosure
+            function setupCallbacks(params, node) {
+                var arcCallback = function (e, me, f) {
+                    var id = me.data('parent');
+                    f(Canvas().findLayer(id), me, e);
+                };
+
+                if (params.click) {
+                    node.click(function (e) { arcCallback(e, node, params.click); });
+                }
+                if (params.dblclick) {
+                    node.dblclick(function (e) { arcCallback(e, node, params.dblclick); });
+                }
+                if (params.mousedown) {
+                    node.mousedown(function (e) { arcCallback(e, node, params.mousedown); });
+                }
             }
-            if (params.dblclick) {
-                element.dblclick(function (e) { Canvas().arcCallback(e, $(this), params.dblclick); });
-            }
-            if (params.mousedown) {
-                element.mousedown(function (e) { Canvas().arcCallback(e, $(this), params.mousedown); });
-            }
+            setupCallbacks(params, element);
 
             return element;
         };

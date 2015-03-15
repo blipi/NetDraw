@@ -152,8 +152,8 @@ define(function (require) {
         };
 
         this.createMapping = function (line) {
-            var from = line.node.from;
-            var to = line.node.to;
+            var from = line.from;
+            var to = line.to;
 
             this._mappings.from[from.node.id].push(line);
             this._mappings.to[to.node.id].push(line);
@@ -186,8 +186,8 @@ define(function (require) {
         };
 
         this.removeBothMappings = function (line) {
-            var from = line.node.from;
-            var to = line.node.to;
+            var from = line.from;
+            var to = line.to;
 
             this.removeMapping('from', from.node.id, line);
             this.removeMapping('to', to.node.id, line);

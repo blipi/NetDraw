@@ -25,7 +25,7 @@ define(['require', 'jquery'], function (require, $) {
 
             // Remove relationships
             for (; i < fromRelationships.length; ++i) {
-                if (fromRelationships[i].node.top.data('name') == node.data('name')) {
+                if (fromRelationships[i].top.data('name') == node.data('name')) {
                     relationship.remove(fromRelationships[i]);
                     --i;
                 }
