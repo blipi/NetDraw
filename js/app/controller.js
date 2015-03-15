@@ -141,7 +141,7 @@ define(function (require) {
 
         this.getDAG = function () {
             return this._DAG[this._phase];
-        }
+        };
 
         this.getMappings = function () {
             return this._mappings;

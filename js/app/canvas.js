@@ -87,8 +87,9 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
 
             for (; i < n; ++i) {
                 line = fromRelationships[i];
-                line.x1 = line.node.top.windowX;
-                line.y1 = line.node.top.windowY;
+                var coords = controller.screenCoordinates(line.node.top);
+                line.x1 = coords.x;
+                line.y1 = coords.y;
             }
 
             n = toRelationships.length;
@@ -96,8 +97,9 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
 
             for (; i < n; ++i) {
                 line = toRelationships[i];
-                line.x2 = line.node.bottom.windowX;
-                line.y2 = line.node.bottom.windowY;
+                var coords = controller.screenCoordinates(line.node.bottom);
+                line.x2 = coords.x;
+                line.y2 = coords.y;
             }
         };
 
@@ -792,6 +794,9 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'protobuf.2'], function (r
 
             if (params.click) {
                 element.click(function (e) { Canvas().arcCallback(e, $(this), params.click); });
+            }
+            if (params.dblclick) {
+                element.dblclick(function (e) { Canvas().arcCallback(e, $(this), params.dblclick); });
             }
             if (params.mousedown) {
                 element.mousedown(function (e) { Canvas().arcCallback(e, $(this), params.mousedown); });

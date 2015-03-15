@@ -66,8 +66,9 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 }
 
                 /* Draw bottom */
-                drawingLine.node.bottom = bottom.create(current, x, y, drawingLine.node.top);
-                drawingLine.x2 = controller.screenCoordinates(drawingLine.node.bottom).x;
+                var bot = bottom.create(current, x, y, drawingLine.node.name);
+                drawingLine.x2 = controller.screenCoordinates(bot).x;
+                drawingLine.node.bottom = bot;
 
                 break;
             }
@@ -107,15 +108,15 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
         },
 
         remove: function (line) {
-            console.log('[relationship.remove] {' + line.node.top + ' -> ' + line.node.bottom + '}');
+            console.log('[relationship.remove] {' + line.node.top.data('name') + '}');
 
-            // Remove bottom point
-            canvas.removeLayer(line.node.bottom);
+            // Remove bottom point from DOM
+            line.node.bottom.remove();
 
             // Remove from params
             var bottomList = line.node.to.node.params.bottom;
             for (var i = 0, len = bottomList.length; i < len; ++i) {
-                if (bottomList[i].value == line.node.bottom.node.name) {
+                if (bottomList[i].value == line.node.bottom.data('name')) {
                     bottomList.splice(i, 1);
                     break;
                 }
@@ -136,8 +137,6 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
             topPoint = typeof(topPoint) === 'undefined' ?
                 bottomLayer.node.top[bottomLayer.node.top.length - 1] :  // We start from BottomLayer's Top point!
                 topPoint;
-
-            console.log(topPoint);
 
             // If we are already drawing, delete the line
             var currentLine = controller.getDrawingLine();
@@ -169,7 +168,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                     func: 'line',
                     from: bottomLayer,
                     to: null,
-                    top: topPoint.data('name'),
+                    top: topPoint,
                     bottom: null,
                 },
 
