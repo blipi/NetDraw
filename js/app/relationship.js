@@ -121,11 +121,11 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 }
             }
 
-            // Remove line itself
-            canvas.removeLayer(line);
-
             // Remove from mappings
             controller.removeBothMappings(line);
+
+            // Remove line itself
+            line._DOMElement.remove();
         },
 
         create: function (bottomLayer, topLayer, validate, topPoint) {

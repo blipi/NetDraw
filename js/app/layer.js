@@ -58,12 +58,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
 
             console.log('[layer.remove] {' + layer.node.id + '}');
 
-            for (var i in layer.node.top) {
-                canvas.removeLayer(layer.node.top[i]);
-            }
-
             var fromRelationships = controller.getMappingsFor('from', layer);
-            var toRelationships = controller.getMappingsFor('to', layer);
 
             // Relationship.remove deletes entries from mappings, thus we must
             // use a while over the array and delete [0]
@@ -71,6 +66,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
                 relationship.remove(fromRelationships[0]);
             }
 
+            var toRelationships = controller.getMappingsFor('to', layer);
             while (toRelationships.length) {
                 relationship.remove(toRelationships[0]);
             }
@@ -78,7 +74,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
             // Remove layer mappings
             controller.removeLayerMappings(layer);
 
-            // Remove line itself
+            // Remove layer itself
             canvas.removeLayer(layer);
 
             if ('input' in layer.node && layer.node.input) {
@@ -266,7 +262,10 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
             }
 
             var currentLayer = canvas.getLayer(-1);
-            controller.createLayerMappings(currentLayer);
+
+            if (controller.getPhase() != Phase.MENU) {
+                controller.createLayerMappings(currentLayer);
+            }
 
             ++_counter;
             return currentLayer;

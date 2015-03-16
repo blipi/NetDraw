@@ -301,8 +301,8 @@ define(function (require) {
         top.initialize();
         bottom.initialize();
 
-        // Set TEST phase
-        controller.setPhase(Phase.TEST);
+        // Set GLOBAL phase
+        controller.setPhase(Phase.GLOBAL);
 
         /* Setup some HTML hooks */
         var wrapper = controller.getWrapper();

@@ -33,7 +33,17 @@ define(['require', 'jquery'], function (require, $) {
         create: function (layer, ex, ey, bottomName) {
             console.log('[bottom.create] {' + layer.node.id + '}');
 
-            bottomName = typeof bottomName === 'undefined' ? layer.text : bottomName;
+            // Check if the top already exists
+            if (typeof(bottomName) !== 'undefined') {
+                // Does it already exist?
+                for (var i = 0, len = layer.node.params.bottom.length; i < len; ++i) {
+                    if (layer.node.params.bottom[i].value == bottomName) {
+                        return layer.node.params.bottom[i].DOM;
+                    }
+                }
+            } else {
+                bottomName = layer.text;
+            }
 
             var bottom_ondblclick = function (layer, node, e) {
                 e.stopPropagation();

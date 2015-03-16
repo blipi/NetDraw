@@ -74,7 +74,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
 
                 // TODO: We should hide this top if no other relationship starts from here
                 //line.top.hide();
-                line.bottom.hide();
+                //line.bottom.hide();
                 line._DOMElement.hide();
             }
 
@@ -86,7 +86,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
 
                 // TODO: We should hide this top if no other relationship starts from here
                 //line.top.hide();
-                line.bottom.hide();
+                //line.bottom.hide();
                 line._DOMElement.hide();
             }
 
@@ -470,7 +470,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
             layer._DOMElement.remove();
 
             for (var i = 0, len = layers.length; i < len; ++i) {
-                if (layers[i] == layer) {
+                if (layers[i].node.id == layer.node.id) {
                     layers.splice(i, 1);
                     break;
                 }
@@ -478,26 +478,16 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
         };
 
         this.removeAllLayers = function () {
-            for (var p in Phase) {
-                if (Phase[p] < 0) {
+            var layers = this.getLayers();
+
+            var start = 0;
+            while (layers.length > start) {
+                if (!ValidPhase(layers[start].phase)) {
+                    ++start;
                     continue;
                 }
 
-                controller.setPhase(Phase[p]);
-
-                var layers = this.getLayers();
-                var start = 0;
-
-                while (layers.length - start > 0) {
-                    if ('deletable' in layers[start] &&
-                        !layers[start].deletable)
-                    {
-                        ++start;
-                        continue;
-                    }
-
-                    layers[start].remove();
-                }
+                layers[start].remove();
             }
         };
 
