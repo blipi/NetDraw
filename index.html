@@ -10,20 +10,19 @@
 	<script data-main="js/main" src="js/lib/require.js"></script>
 
 	<script>
-		requirejs.onError = function (err) {
-	    	document.getElementById("loading-text").innerHTML = 'Something went wrong... Reloading in 5s';
-	        setTimeout(function() {
-	            location.reload();
-	        }, 5000);
-	    };
 	</script>
 
 </head>
 <body>
 
 	<div id="wrapper">
-		<div id="menu">
-			<div id="mode-change">
+		<div class="menu">
+			<div class="categories">
+				<ul>
+
+				</ul>
+			</div>
+			<div class="options">
 				<button id="orientation-hor" type="button" class="btn btn-default btn-circle btn-sm">
 					<span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span>
 				</button>
