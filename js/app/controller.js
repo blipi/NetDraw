@@ -37,14 +37,14 @@ define(function (require) {
         };
 
         this._DAG = {};
-
         this._phase = Phase.MENU;
 
-
         this.screenCoordinates = function (e) {
+            var offset = $('#scroll_wrapper').offset();
+
             return {
-                x: e.offset().left + canvasObj._scroll_wrapper.scrollLeft() - 155,
-                y: e.offset().top + canvasObj._scroll_wrapper.scrollTop()
+                x: e.offset().left + canvasObj._scroll_wrapper.scrollLeft() - offset.left,
+                y: e.offset().top + canvasObj._scroll_wrapper.scrollTop() - offset.top
             };
         };
 

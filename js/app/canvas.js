@@ -284,12 +284,8 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
         // ----------------------------- //
         //          GETTERS              //
         // ----------------------------- //
-        get rawX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft(); },
-        get rawY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop(); },
-        get windowX() { return this._DOMElement.offset().left + Canvas()._scroll_wrapper.scrollLeft() - 155; }, // TODO: Magic numbers
-        get windowY() { return this._DOMElement.offset().top + Canvas()._scroll_wrapper.scrollTop(); },
-        get x() { return this.windowX; },
-        get y() { return this.windowY; },
+        get x() { return controller.screenCoordinates(this._DOMElement).x; },
+        get y() { return controller.screenCoordinates(this._DOMElement).y; },
         get width() { return parseInt(this._DOMElement.css('width')); },
         get height() { return parseInt(this._DOMElement.css('height')); },
         get text() { return this._DOMWrapper.children('span').html(); },

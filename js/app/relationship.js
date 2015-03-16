@@ -22,7 +22,8 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
             var current = layers[i];
 
             var f = null;
-            if (!ValidPhase(current.phase)) {
+            if (!ValidPhase(current.phase) ||
+                current.node.id == drawingLine.from.node.id) {
                 continue;
             }
 
@@ -156,8 +157,8 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 x1: coords.x,
                 y1: coords.y,
 
-                x2: bottomLayer == topLayer ? coords.x : topLayer.windowX + bb.w / 2 + 1,
-                y2: bottomLayer == topLayer ? coords.y : topLayer.windowY + bb.h / 2 + 1,
+                x2: bottomLayer == topLayer ? coords.x : topLayer.x + bb.w / 2 + 1,
+                y2: bottomLayer == topLayer ? coords.y : topLayer.y + bb.h / 2 + 1,
 
                 from: bottomLayer,
                 to: null,

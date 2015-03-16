@@ -39,10 +39,10 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
             return parseInt(canvas.css('height'));
         },
         get currentX() {
-            return this.layer.windowX;
+            return this.layer.x;
         },
         get currentY() {
-            return this.layer.windowY;
+            return this.layer.y;
         }
     };
 
@@ -215,7 +215,7 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
                 // HACK Make double click work on draggable menu items
                 mouse.click(e);
 
-                var canvasLayer = Layer.create(layer.windowX, layer.windowY, layer.node.name, true);
+                var canvasLayer = Layer.create(layer.x, layer.y, layer.node.name, true);
 
                 layer.x = layer.ox;
                 layer.y = layer.oy;

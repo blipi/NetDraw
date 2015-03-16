@@ -47,6 +47,9 @@ define(['require', 'jquery'], function (require, $) {
 
                 // So we must manually call it
                 mouse.click(e);
+
+                // TODO: Set selection to ourself
+                controller.clearSelection();
             };
 
             var bottom_onmousedown = function (layer, node, e) {

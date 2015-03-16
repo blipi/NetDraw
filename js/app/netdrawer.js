@@ -253,8 +253,9 @@ define(function (require) {
             var drawingLine = controller.getDrawingLine();
 
             if (drawingLine !== null) {
-                drawingLine.x2 = e.pageX + scroll_wrapper.scrollLeft() - 155.0; // TODO: Magic numbers
-                drawingLine.y2 = e.pageY + scroll_wrapper.scrollTop();
+                var coords = controller.screenCoordinates($('body'));
+                drawingLine.x2 = e.pageX + coords.x;
+                drawingLine.y2 = e.pageY + coords.y;
             }
         };
 
