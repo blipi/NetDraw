@@ -34,7 +34,7 @@ define(['require', 'jquery'], function (require, $) {
             // Remove from top list
             var topList = layer.node.params.top;
             for (var i = 0, len = topList.length; i < len; ++i) {
-                if (topList[i].value == layer.node.name) {
+                if (topList[i].value == node.data('name')) {
                     topList.splice(i, 1);
                     break;
                 }

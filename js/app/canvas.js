@@ -510,18 +510,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
             var proto = '';
 
             var getFalseName = function (layer) {
-                var name = layer.node.params.name.value;
-                if ('include' in layer.node.params && 'phase' in  layer.node.params.include) {
-                    if ('value' in layer.node.params.include.phase) {
-                        name += '$$' + layer.node.params.include.phase.value;
-                    } else {
-                        for (var i = 0, len = layer.node.params.include.phase.length; i < len; ++i) {
-                            name += '$$' + layer.node.params.include.phase[i].value;
-                        }
-                    }
-                }
-
-                return name;
+                return layer.node.params.name.value + '$$' + layer.phase;
             };
 
             var follow = function (layer) {

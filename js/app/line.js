@@ -14,6 +14,10 @@ var Line = function (DOMElement, params) {
         }
     };
 
+    this.remove = function () {
+        this._DOMElement.remove();
+    };
+
     for (var e in params) {
         this[e] = params[e];
     }

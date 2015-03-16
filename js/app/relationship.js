@@ -74,7 +74,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
         }
 
         if (!connected) {
-            canvas.removeLayer(drawingLine);
+            drawingLine.remove();
         }
 
         controller.clearDrawingLine();
@@ -109,9 +109,6 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
         remove: function (line) {
             console.log('[relationship.remove] {' + line.top.data('name') + '}');
 
-            // Remove bottom point from DOM
-            line.bottom.remove();
-
             // Remove from params
             var bottomList = line.to.node.params.bottom;
             for (var i = 0, len = bottomList.length; i < len; ++i) {
@@ -120,6 +117,9 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                     break;
                 }
             }
+
+            // Remove bottom point from DOM
+            line.bottom.remove();
 
             // Remove from mappings
             controller.removeBothMappings(line);
@@ -141,7 +141,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
             // If we are already drawing, delete the line
             var currentLine = controller.getDrawingLine();
             if (currentLine) {
-                canvas.removeLayer(currentLine);
+                currentLine.remove();
             }
 
             var bb = topLayer.rotationBox();
