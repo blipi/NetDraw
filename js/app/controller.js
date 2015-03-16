@@ -146,7 +146,7 @@ define(function (require) {
         };
 
         this.getMappingsFor = function (origin, layer) {
-            return this._mappings[origin][layer.node.id];
+            return this._mappings[origin][layer.node.id] || [];
         };
 
         this.createMapping = function (line) {

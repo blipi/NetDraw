@@ -101,10 +101,15 @@ define(function (require) {
 
         // Parse both train and test
         x = 0;
-
         for (var i = 0, len = net.length; i < len; ++i) {
             var current = net[i].layer;
             var phase = Phase.GLOBAL;
+
+            // If net is empty or prototxt invalid, skip
+            if (!current) {
+                // TODO: Notify error
+                return;
+            }
 
             // Check phase
             if ('include' in current && 'phase' in current.include) {
@@ -212,8 +217,8 @@ define(function (require) {
                 x += 100;
             }
         } else {
-            var heightForN = function (n) { return n * 55 + (n - 1) * 20; };
-            var widthForN = function (n) { return n * 100 + 40; };
+            var heightForN = function (n) { return n * 85 + 40 };
+            var widthForN = function (n) { return n * 100 + (n - 1) * 50; };
 
             var needWidth = widthForN(maxLayersOnLevel) + 40;
             needWidth = Math.max(needWidth, $('#scroll_wrapper').width() - 20);
@@ -234,10 +239,10 @@ define(function (require) {
 
                     netLevels[i][k].move(x, y);
 
-                    x += 100;
+                    x += 150;
                 }
 
-                y -= 75;
+                y -= 85;
             }
         }
 
@@ -317,6 +322,7 @@ define(function (require) {
         modeChange.click(function () {
             var id = $(this).attr('id');
 
+            controller.getWrapper().css('z-index', '-1');
             $('#loading').show('puff', function () {
                 controller._drawOrientation = id == 'orientation-hor' ? 1 : 0;
 
@@ -329,6 +335,7 @@ define(function (require) {
                     createNet(net);
                 }
 
+                wrapper.css('z-index', 1);
                 $('#loading').hide('puff');
             });
         });
@@ -412,7 +419,6 @@ define(function (require) {
                         activeLayer.textX = layer.getTextX(activeLayer.text);
 
                         activeLayer.node.params.name.value = activeLayer.text;
-                        console.log(activeLayer.node.params);
 
                         activeLayer.node.input = null;
                         $(this).remove();

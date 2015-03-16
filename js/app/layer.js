@@ -112,7 +112,11 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
                 ++_realCounter;
             }
             layer.textX = Layer.getTextX(layer.text);
+
+            // Params layer should be defaulted with:
             layer.node.params.name = new Value(true, layer.text);
+            layer.node.params.top = [];
+            layer.node.params.bottom = [];
 
             layer.node.func = 'main';
             layer.fixTo(controller.getDOMCanvas());
@@ -275,11 +279,6 @@ function ($, pb, controller, relationship, mouse, top, bottom) {
             var layer = Layer.create(x, y, type, true);
 
             layer.node.params = clone(params);
-
-            // Params should not include:
-            layer.node.params.top = [];
-            layer.node.params.bottom = [];
-
             this._onSetDefinitive(layer, name);
 
             return layer;
