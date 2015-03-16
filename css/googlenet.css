@@ -19,6 +19,7 @@
 	background-color: #8D4FDB;
 }
 
+.Softmax .bg,
 .Accuracy .bg,
 .SoftmaxWithLoss .bg {
 	background-color: #F2E82F;
