@@ -22,7 +22,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
             var current = layers[i];
 
             var f = null;
-            if (current.phase != Phase.TEST && current.phase != Phase.TRAIN) {
+            if (!ValidPhase(current.phase)) {
                 continue;
             }
 
@@ -134,7 +134,7 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
 
             topPoint = typeof(topPoint) === 'undefined' ?
                 // We start from BottomLayer's Top point!
-                bottomLayer.node.params.top[bottomLayer.node.params.top.length - 1].value :
+                bottomLayer.node.params.top[bottomLayer.node.params.top.length - 1].DOM :
                 topPoint;
 
             // If we are already drawing, delete the line
@@ -156,8 +156,8 @@ define(['require', 'jquery', 'app/controller', 'app/bottom'], function (require,
                 x1: coords.x,
                 y1: coords.y,
 
-                x2: bottomLayer == topLayer ? coords.x : topLayer.windowX + bb.w / 2,
-                y2: bottomLayer == topLayer ? coords.y : topLayer.windowY + bb.h / 2,
+                x2: bottomLayer == topLayer ? coords.x : topLayer.windowX + bb.w / 2 + 1,
+                y2: bottomLayer == topLayer ? coords.y : topLayer.windowY + bb.h / 2 + 1,
 
                 from: bottomLayer,
                 to: null,

@@ -52,7 +52,7 @@ define(['require', 'jquery'], function (require, $) {
                 // Does it already exist?
                 for (var i = 0, len = layer.node.params.top.length; i < len; ++i) {
                     if (layer.node.params.top[i].value == topName) {
-                        return layer.node.params.top[i].value;
+                        return layer.node.params.top[i].DOM;
                     }
                 }
             } else {

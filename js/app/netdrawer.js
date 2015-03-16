@@ -28,35 +28,60 @@ define(function (require) {
         var netDAG = {};
         var netLayers = {};
         var layerToLevel = {};
+        var phaseCount = 0;
 
         var addTop = function (current) {
+            var _add = function (name) {
+                if (!(name in netDAG)) {
+                    netDAG[name] = [];
+                }
+
+                if (current.phase != Phase.GLOBAL) {
+                    netDAG[name].push(current);
+                } else {
+                    netDAG[name] = [current];
+                }
+            };
+
             if ('top' in current) {
                 if ('value' in current.top) {
-                    netDAG[current.top.value] = current;
+                    _add(current.top.value);
                 } else if ($.isArray(current.top)) {
                     for (var k = 0, end = current.top.length; k < end; ++k) {
-                        netDAG[current.top[k].value] = current;
+                        _add(current.top[k].value);
                     }
                 }
             }
-        }
+        };
+
+        var getFalseName = function (layer, name) {
+            return typeof(name) === 'undefined' ?
+                layer.name.value + '$$' + layer.phase :
+                name + '$$' + layer.phase;
+        };
 
         var follow = function (layer) {
 
             var stablish = function (fromName) {
 
                 if (fromName in netDAG) {
-                    var netLayer = netDAG[fromName];
-                    var from = netLayers[netLayer.name.value];
-                    var to = netLayers[layer.name.value];
+                    for (var j = 0, len = netDAG[fromName].length; j < len; ++j) {
+                        var netLayer = netDAG[fromName][j];
 
-                    // Create relationship
-                    var top = from.createTop(fromName);
-                    relationship.create(from, to);
+                        var falseFromName = getFalseName(netLayer);
+                        var falseLayerName = getFalseName(layer);
 
-                    // Update level by getting the topmost
-                    layerToLevel[layer.name.value] = Math.max(
-                        layerToLevel[layer.name.value], layerToLevel[netLayer.name.value] + 1);
+                        var from = netLayers[falseFromName];
+                        var to = netLayers[falseLayerName];
+
+                        // Create relationship
+                        var top = from.createTop(fromName);
+                        relationship.create(from, to, true, top);
+
+                        // Update level by getting the topmost
+                        layerToLevel[falseLayerName] = Math.max(
+                            layerToLevel[falseLayerName], layerToLevel[falseFromName] + 1);
+                    }
                 }
             };
 
@@ -75,91 +100,86 @@ define(function (require) {
         };
 
         // Parse both train and test
-        for (var p in Phase) {
-            var phase = Phase[p];
+        x = 0;
 
-            // Skip invalid (special) phases
-            if (phase < 0) {
-                continue;
-            }
+        for (var i = 0, len = net.length; i < len; ++i) {
+            var current = net[i].layer;
+            var phase = Phase.GLOBAL;
 
-            controller.setPhase(phase);
-
-            // Reset holders
-            queue = [];
-            netDAG = {};
-            layerToLevel = {};
-
-            x = 0;
-
-            for (var i = 0, len = net.length; i < len; ++i) {
-                var current = net[i].layer;
-
-                // Check phase
-                if ('include' in current && 'phase' in current.include) {
-                    if ('value' in current.include.phase) {
-                        if (GetPhase(current.include.phase.value) != phase) {
-                            continue;
-                        }
-                    } else if ($.isArray(current.include.phase)) {
-                        var skip = true;
-                        for (var k = 0, end = current.include.phase.length; k < end; ++k) {
-                            if (GetPhase(current.include.phase[k].value) == phase) {
-                                skip = false;
-                                break;
-                            }
-                        }
-
-                        if (skip) {
-                            continue;
-                        }
-                    }
-                }
-
-                var outLayer = layer.createDefinitive(x, 0, current.type.value, current.name.value, current);
-                netLayers[current.name.value] = outLayer;
-                x += 120;
-
-                // Set initial level value to 0
-                layerToLevel[current.name.value] = 0;
-                if ('bottom' in current) {
-                    queue.push(current);
-                } else {
-                    addTop(current);
+            // Check phase
+            if ('include' in current && 'phase' in current.include) {
+                if ('value' in current.include.phase) {
+                    phase = GetPhase(current.include.phase.value);
+                } else if ($.isArray(current.include.phase)) {
+                    // TODO: Not quite sure how to handle this, nor if it could ever happen
                 }
             }
 
-            // Keep parsing until empty
-            while (queue.length) {
-                follow(queue.shift());
+            var outLayer = layer.createDefinitive(x, 0, current.type.value, current.name.value, current);
+            current.phase = phase;
+            outLayer.phase = phase;
+
+            var falseCurrentName = getFalseName(current);
+            netLayers[falseCurrentName] = outLayer;
+            x += 120;
+
+            // Set initial level value to 0
+            layerToLevel[falseCurrentName] = 0;
+            if ('bottom' in current) {
+                queue.push(current);
+            } else {
+                addTop(current);
             }
-
-            // Create levels array
-            var levels = [];
-            for (var layerName in layerToLevel) {
-                var l = layerToLevel[layerName];
-
-                // Set minimum size for this level
-                while (levels.length - 1 < l) {
-                    levels.push([]);
-                }
-
-                // Push layer
-                levels[l].push(netLayers[layerName]);
-            }
-
-            // Pretty draw everything
-            prettyDraw(levels);
         }
+
+        // Keep parsing until empty
+        while (queue.length) {
+            follow(queue.shift());
+        }
+
+        // Create levels array
+        var levels = [];
+        for (var layerName in layerToLevel) {
+            var l = layerToLevel[layerName];
+
+            // Set minimum size for this level
+            while (levels.length - 1 < l) {
+                levels.push([]);
+            }
+
+            // Push layer
+            levels[l].push(netLayers[layerName]);
+        }
+
+        // Pretty draw everything
+        prettyDraw(levels, Phase.TRAIN);
     }
 
-    function prettyDraw(netLevels) {
+    function prettyDraw(netLevels, phase) {
+        // Real level lengths (taking into account phase)
+        var realLength = [];
+
+        var suitable = function (layer) {
+            return layer.phase == phase || layer.phase == Phase.GLOBAL;
+        };
+
         // Get the most number of layers on a level
         var maxLayersOnLevel = 0;
         for (var i = 0, len = netLevels.length; i < len; ++i) {
-            if (netLevels[i].length > maxLayersOnLevel) {
-                maxLayersOnLevel = netLevels[i].length;
+            // Check layers phase
+            var n = 0;
+            for (var j = 0, end = netLevels[i].length; j < end; ++j) {
+                if (suitable(netLevels[i][j])) {
+                    ++n;
+                }
             }
+
+            // Check if it is bigger than max
+            if (n > maxLayersOnLevel) {
+                maxLayersOnLevel = n;
+            }
+
+            realLength.push(n);
         }
 
         // TODO: Magic numbers
@@ -176,9 +196,14 @@ define(function (require) {
 
             var x = 20;
             for (var i = 0, len = netLevels.length; i < len; ++i) {
-                var y = needHeight / 2 - heightForN(netLevels[i].length) / 2;
+                var y = needHeight / 2 - heightForN(realLength[i]) / 2;
 
                 for (var k = 0, end = netLevels[i].length; k < end; ++k) {
+                    if (!suitable(netLevels[i][k])) {
+                        netLevels[i][k].hide();
+                        continue;
+                    }
+
                     netLevels[i][k].move(x, y);
 
                     y += 120;
@@ -199,9 +224,14 @@ define(function (require) {
 
             var y = needHeight - 20;
             for (var i = 0, len = netLevels.length; i < len; ++i) {
-                var x = needWidth / 2 - widthForN(netLevels[i].length) / 2;
+                var x = needWidth / 2 - widthForN(realLength[i]) / 2;
 
                 for (var k = 0, end = netLevels[i].length; k < end; ++k) {
+                    if (!suitable(netLevels[i][k])) {
+                        netLevels[i][k].hide();
+                        continue;
+                    }
+
                     netLevels[i][k].move(x, y);
 
                     x += 100;

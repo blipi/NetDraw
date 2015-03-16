@@ -7,8 +7,9 @@ var Version = {
 
 var Phase = {
     MENU: -1,
-    TEST: 0,
-    TRAIN: 1
+    GLOBAL: 0,
+    TEST: 1,
+    TRAIN: 2
 };
 
 var V1LayerParameter = {
@@ -61,7 +62,13 @@ var GetPhase = function (phase) {
             return Phase[name];
         }
     }
-}
+};
+
+var ValidPhase = function (phase) {
+    return phase == Phase.GLOBAL ||
+        phase == Phase.TEST ||
+        phase == Phase.TRAIN;
+};
 
 var UpgradeV0LayerType = function (type) {
     // By CONSTANT usage

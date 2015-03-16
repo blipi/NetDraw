@@ -61,6 +61,38 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
             return bb;
         };
 
+        this.hide = function () {
+            var fromRelationships = controller.getMappingsFor('from', this);
+            var toRelationships = controller.getMappingsFor('to', this);
+
+            var n = fromRelationships.length;
+            var i = 0;
+            var line = null;
+
+            for (; i < n; ++i) {
+                line = fromRelationships[i];
+
+                // TODO: We should hide this top if no other relationship starts from here
+                //line.top.hide();
+                line.bottom.hide();
+                line._DOMElement.hide();
+            }
+
+            n = toRelationships.length;
+            i = 0;
+
+            for (; i < n; ++i) {
+                line = toRelationships[i];
+
+                // TODO: We should hide this top if no other relationship starts from here
+                //line.top.hide();
+                line.bottom.hide();
+                line._DOMElement.hide();
+            }
+
+            this.visible = false;
+        };
+
         this.move = function (x, y) {
             if (typeof(x) !== 'undefined') {
                 this.x = x;
@@ -95,7 +127,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
         };
 
         this.createTop = function (name) {
-            top.create(this, name);
+            return top.create(this, name);
         };
 
         this.createBottom = function () {
@@ -339,27 +371,23 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
         };
 
         this._changePhase = function (phase) {
+            // TODO: This might be deleted!
+            /*
             // Skip special cases
             var current = controller.getPhase();
 
             // Nothing at all
-            if (current == phase) {
+            if (current == phase || current < 0) {
                 return;
             }
 
-            // TODO: Hide old phase layers
-            /*
-            if (current >= 0) {
-                // Hide all current layers
-                var layers = this.getLayers();
-                for (var i = 0, len = layers.length; i < len; ++i) {
-                    layers[i].visible = false;
-                }
-            }
-
-            var layers = this.layers;
+            var layers = this.getMainLayers();
             for (var i = 0, len = layers.length; i < len; ++i) {
-                layers[i].visible = true;
+                if (layers[i].phase == current) {
+                    layers[i].visible = false;
+                } else if (layers[i].phase == phase) {
+                    layers[i].visible = true;
+                }
             }
             */
         };
@@ -378,12 +406,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
                 var layer = layers[i];
 
                 // Skip non deletable layers, that is, menu items
-                if ('deletable' in layer && !layer.deletable) {
-                    continue;
-                }
-
-                // Skip non layers (ie. lines or top/bot)
-                if (layer.node.func != 'main') {
+                if (!ValidPhase(layer.phase)) {
                     continue;
                 }
 
@@ -410,6 +433,19 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
 
             for (var i in layers) {
                 if (layers[i]._DOMElement.attr('id') == id) {
+                    return layers[i];
+                }
+            }
+
+            return null;
+        };
+
+        // Find a layer
+        this.findLayerByName = function (name) {
+            var layers = this.getMainLayers();
+
+            for (var i in layers) {
+                if (layers[i].node.params.name.value == name) {
                     return layers[i];
                 }
             }
