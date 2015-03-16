@@ -595,28 +595,14 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
                 }
             }
 
-            // Add phase dependant layers
-            // TODO: All this loops... MEH
-            // We should simply loop over both phases and add to queue, be it phase dependant or not
-            for (var i = 0, len = layers.length; i < len; ++i) {
-                var layer = layers[i];
-
-                if (layer.phase != Phase.GLOBAL) {
-                    queue.push(layer);
-                    parsed.push(getFalseName(layer));
-                }
-            }
-
             // Find a layer with no bottom (that is, an initial layer)
             for (var i = 0, len = layers.length; i < len; ++i) {
                 var layer = layers[i];
 
                 var toRelationships = controller.getMappingsFor('to', layer);
                 if (toRelationships.length === 0) {
-                    if ($.inArray(getFalseName(layer), parsed) < 0) {
-                        queue.push(layer);
-                        parsed.push(getFalseName(layer));
-                    }
+                    queue.push(layer);
+                    parsed.push(getFalseName(layer));
                 }
             }
 
