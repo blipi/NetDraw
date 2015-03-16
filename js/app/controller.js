@@ -37,8 +37,6 @@ define(function (require) {
         };
 
         this._DAG = {};
-        this._DAG[Phase.TEST] = {};
-        this._DAG[Phase.TRAIN] = {};
 
         this._phase = Phase.MENU;
 
@@ -140,7 +138,7 @@ define(function (require) {
         };
 
         this.getDAG = function () {
-            return this._DAG[this._phase];
+            return this._DAG;
         };
 
         this.getMappings = function () {

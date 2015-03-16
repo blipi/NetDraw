@@ -542,7 +542,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
                 // Check if all our bottoms are already parsed, if not add to queue again
                 var toRelationships = controller.getMappingsFor('to', layer);
                 for (var i = 0, len = toRelationships.length; i < len; ++i) {
-                    var fromLayer = toRelationships[i].node.from;
+                    var fromLayer = toRelationships[i].from;
 
                     if ($.inArray(getFalseName(fromLayer), done) < 0) {
                         queue.push(layer);
@@ -558,7 +558,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
                 // Add tops to queue
                 var fromRelationships = controller.getMappingsFor('from', layer);
                 for (var i = 0, len = fromRelationships.length; i < len; ++i) {
-                    var toLayer = fromRelationships[i].node.to;
+                    var toLayer = fromRelationships[i].to;
 
                     var layerName = getFalseName(toLayer);
                     if ($.inArray(layerName, parsed) < 0) {
@@ -598,21 +598,12 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
             // Add phase dependant layers
             // TODO: All this loops... MEH
             // We should simply loop over both phases and add to queue, be it phase dependant or not
-            for (var p in Phase) {
-                if (Phase[p] < 0) {
-                    continue;
-                }
+            for (var i = 0, len = layers.length; i < len; ++i) {
+                var layer = layers[i];
 
-                controller.overwritePhase(Phase[p]);
-
-                var phaseLayers = this.getMainLayers();
-                for (var i = 0, len = phaseLayers.length; i < len; ++i) {
-                    var layer = phaseLayers[i];
-
-                    if ('include' in layer.node.params && 'phase' in  layer.node.params.include) {
-                        queue.push(layer);
-                        parsed.push(getFalseName(layer));
-                    }
+                if (layer.phase != Phase.GLOBAL) {
+                    queue.push(layer);
+                    parsed.push(getFalseName(layer));
                 }
             }
 
