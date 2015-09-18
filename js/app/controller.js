@@ -53,7 +53,6 @@ define(function (require) {
         };
 
         this.setPhase = function (phase) {
-            canvasObj._changePhase(phase);
             this._phase = phase;
         };
 
