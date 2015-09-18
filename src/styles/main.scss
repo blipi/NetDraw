@@ -1,0 +1,25 @@
+
+body {
+  cursor: default;
+  -webkit-user-select: none;
+}
+
+a, a:hover, a:visited, a:active, a:focus {
+  text-decoration: none;
+}
+
+#app {
+    height: 100%;
+    width: 100%;
+}
+
+.main {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.layer {
+    border: 1px solid red;
+    height: 20px;
+    width: 20px;
+}
