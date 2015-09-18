@@ -73,8 +73,8 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
                 line = fromRelationships[i];
 
                 // TODO: We should hide this top if no other relationship starts from here
-                //line.top.hide();
-                //line.bottom.hide();
+                // line.top.hide();
+                // line.bottom.hide();
                 line._DOMElement.hide();
             }
 
@@ -85,8 +85,8 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
                 line = toRelationships[i];
 
                 // TODO: We should hide this top if no other relationship starts from here
-                //line.top.hide();
-                //line.bottom.hide();
+                // line.top.hide();
+                // line.bottom.hide();
                 line._DOMElement.hide();
             }
 
@@ -367,25 +367,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
         };
 
         this._changePhase = function (phase) {
-            // TODO: This might be deleted!
-            /*
-            // Skip special cases
-            var current = controller.getPhase();
-
-            // Nothing at all
-            if (current == phase || current < 0) {
-                return;
-            }
-
-            var layers = this.getMainLayers();
-            for (var i = 0, len = layers.length; i < len; ++i) {
-                if (layers[i].phase == current) {
-                    layers[i].visible = false;
-                } else if (layers[i].phase == phase) {
-                    layers[i].visible = true;
-                }
-            }
-            */
+            throw 'DEPRECATED';
         };
 
         // Return layers array
@@ -527,7 +509,7 @@ define(['require', 'jquery', 'app/top', 'app/bottom', 'app/line', 'protobuf.2'],
 
                 // Add text to prototxt
                 var params = parser.decompile(layer.node.params);
-                params = 'layer {' + params + '}\n';
+                params = 'layer {\n' + params + '}\n';
                 proto += params;
 
                 // Add tops to queue

@@ -50,10 +50,11 @@ var V1LayerParameter = {
         POWER: 26,
         MEMORY_DATA: 27,
         DUMMY_DATA: 28,
-        SLICE: 29
+        SLICE: 29,
+        ELTWISE: 30
     },
 
-    MaxLayers: 30
+    MaxLayers: 31
 };
 
 var GetPhase = function (phase) {
@@ -127,6 +128,8 @@ var UpgradeV0LayerType = function (type) {
         return V1LayerParameter.LayerType.TANH;
     } else if (type == 'window_data') {
         return V1LayerParameter.LayerType.WINDOW_DATA;
+    } else if (type == 'eltwise') {
+        return V1LayerParameter.LayerType.ELTWISE;
     } else {
         return V1LayerParameter.LayerType.NONE;
     }
@@ -214,6 +217,8 @@ var UpgradeV1LayerType = function (type) {
             return 'WindowData';
         case V1LayerParameter.LayerType.THRESHOLD:
             return 'Threshold';
+        case V1LayerParameter.LayerType.ELTWISE:
+            return 'Eltwise';
         default:
             return '';
     }
@@ -301,6 +306,8 @@ var GetV0LayerType = function (type) {
             return 'WINDOW_DATA';
         case 'Threshold':
             return 'THRESHOLD';
+        case 'Eltwise':
+            return 'ELTWISE';
         default:
             return '';
     }

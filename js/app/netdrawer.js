@@ -117,6 +117,7 @@ define(function (require) {
                     phase = GetPhase(current.include.phase.value);
                 } else if ($.isArray(current.include.phase)) {
                     // TODO: Not quite sure how to handle this, nor if it could ever happen
+                    ;
                 }
             }
 
@@ -217,7 +218,7 @@ define(function (require) {
                 x += 100;
             }
         } else {
-            var heightForN = function (n) { return n * 85 + 40 };
+            var heightForN = function (n) { return n * 85 + 40; };
             var widthForN = function (n) { return n * 100 + (n - 1) * 50; };
 
             var needWidth = widthForN(maxLayersOnLevel) + 40;

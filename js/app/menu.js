@@ -52,7 +52,8 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                 V1LayerParameter.LayerType.SPLIT,
                 V1LayerParameter.LayerType.FLATTEN,
                 V1LayerParameter.LayerType.CONCAT,
-                V1LayerParameter.LayerType.SLICE
+                V1LayerParameter.LayerType.SLICE,
+                V1LayerParameter.LayerType.ELTWISE
             ];
 
             var showImport = function () {
@@ -93,10 +94,10 @@ define(['jquery', 'protobuf.2', 'app/layer', 'app/relationship', 'app/controller
                                 'animation-holder': 90
                             },
                             {
-                            duration: 150,
-                            step: function (now, fx) {
-                                    $(this).css('transform', 'rotateX(' + (-90 + now) + 'deg)');
-                                }
+                                duration: 150,
+                                step: function (now, fx) {
+                                        $(this).css('transform', 'rotateX(' + (-90 + now) + 'deg)');
+                                    }
                             });
                     };
 
