@@ -9,7 +9,13 @@ let template = [{
     submenu: [
         {
             label: 'Quit',
-            accelerator: 'Command+Q',
+            accelerator: (function () {
+                if (process.platform == 'darwin') {
+                    return 'Command+Q';
+                } else {
+                    return 'Ctrl+Shift+Q';
+                }
+            })(),
             click: function () {app.quit();}
         },
         {

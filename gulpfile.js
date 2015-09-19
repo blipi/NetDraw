@@ -31,6 +31,19 @@ gulp.task('compile:styles', function () {
     ;
 });
 
+// Incremental compile ES6, JSX files with sourcemaps
+gulp.task('compile:styles:watch', function (done) {
+    gulp.src(srcDir + '/styles/**/*.scss')
+        .pipe($.watch(srcDir + '/styles/**/*.scss', {verbose: true}))
+        .pipe($.plumber())
+        .pipe($.sourcemaps.init())
+        .pipe($.sass())
+        .pipe($.sourcemaps.write('.'))
+        .pipe(gulp.dest(serveDir + '/styles'))
+    ;
+    done();
+});
+
 // Inject *.css(compiled and depedent) files into *.html
 gulp.task('inject:css', ['compile:styles'], function () {
     return gulp.src(srcDir + '/**/*.html')
@@ -187,7 +200,7 @@ gulp.task('clean', function (done) {
     });
 });
 
-gulp.task('serve', ['inject:css', 'compile:scripts:watch', 'compile:styles', 'misc'], function () {
+gulp.task('serve', ['inject:css', 'compile:scripts:watch', 'compile:styles:watch', 'misc'], function () {
     var electron = electronServer.create();
     electron.start();
     gulp.watch(['bower.json', srcDir + '/renderer/index.html'], ['inject:css']);

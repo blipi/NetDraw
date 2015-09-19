@@ -17,7 +17,8 @@
   "license": "MIT",
   "dependencies": {
     "lodash": "^3.9.3",
-    "react": "^0.13.3"
+    "react": "^0.13.3",
+    "jquery": "~3.0.0-alpha"
   },
   "devDependencies": {
     "babel": "^5.4.7",
@@ -38,7 +39,6 @@
     "gulp-uglify": "^1.2.0",
     "gulp-useref": "^1.2.0",
     "gulp-watch": "^4.2.4",
-    "jquery": "~3.0.0-alpha",
     "main-bower-files": "^2.8.0",
     "merge2": "^0.3.5",
     "optimist": "^0.6.1",

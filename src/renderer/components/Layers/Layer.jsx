@@ -4,19 +4,45 @@ import React from 'react';
 import shell from 'shell';
 
 export default class Layer extends React.Component {
-
-    defaultProps = {
-        // allow the initial position to be passed in as a prop
-        initialPos: {x: 0, y: 0},
-
-        // is it allowed to move?
-        movable: true,
-    }
-
     state = {
-        pos: this.defaultProps.initialPos,
+        pos: {x: 0, y: 0},
         dragging: false,
         rel: null // position relative to the cursor
+    }
+
+    constructor (props) {
+        /* TODO: Not yet in babel
+        // Abstract class
+        if (new.target === Layer) {
+            throw new TypeError('Cannot construct Layer instances directly');
+        }
+        */
+
+        super(props);
+
+        if ('pos' in this.props) {
+            this.state.pos = this.props.pos;
+        }
+
+        // Abstract methods
+        if (typeof this.checkRequiredParams !== 'function') {
+            throw new TypeError('Must override checkRequiredParams');
+        }
+        if (typeof this.getDefaultParams !== 'function') {
+            throw new TypeError('Must override getDefaultParams');
+        }
+        if (typeof this.disambiguate !== 'function') {
+            throw new TypeError('Must override disambiguate');
+        }
+        if (typeof this.processInput !== 'function') {
+            throw new TypeError('Must override processInput');
+        }
+
+        // Bind
+        this.onMouseMove = this.onMouseMove.bind(this);
+        this.onMouseDown = this.onMouseDown.bind(this);
+        this.onMouseUp = this.onMouseUp.bind(this);
+        this.onMouseMove = this.onMouseMove.bind(this);
     }
 
     // we could get away with not having this (and just having the listeners on
@@ -40,7 +66,14 @@ export default class Layer extends React.Component {
             return;
         }
 
-        var pos = $(React.findDOMNode(this)).offset();
+        let self = $(React.findDOMNode(this));
+
+        // Update current selection
+        $('.layer.last').removeClass('last');
+        self.addClass('last');
+
+        // Update relative position
+        var pos = self.position();
         this.setState({
             dragging: true,
             rel: {
@@ -74,37 +107,6 @@ export default class Layer extends React.Component {
 
         e.stopPropagation();
         e.preventDefault();
-    }
-
-    constructor () {
-        /* TODO: Not yet in babel
-        // Abstract class
-        if (new.target === Layer) {
-            throw new TypeError('Cannot construct Layer instances directly');
-        }
-        */
-
-        super();
-
-        // Abstract methods
-        if (typeof this.checkRequiredParams !== 'function') {
-            throw new TypeError('Must override checkRequiredParams');
-        }
-        if (typeof this.getDefaultParams !== 'function') {
-            throw new TypeError('Must override getDefaultParams');
-        }
-        if (typeof this.disambiguate !== 'function') {
-            throw new TypeError('Must override disambiguate');
-        }
-        if (typeof this.processInput !== 'function') {
-            throw new TypeError('Must override processInput');
-        }
-
-        // Bind
-        this.onMouseMove = this.onMouseMove.bind(this);
-        this.onMouseDown = this.onMouseDown.bind(this);
-        this.onMouseUp = this.onMouseUp.bind(this);
-        this.onMouseMove = this.onMouseMove.bind(this);
     }
 
     render () {
