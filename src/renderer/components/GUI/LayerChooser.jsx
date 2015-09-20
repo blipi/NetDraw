@@ -69,7 +69,8 @@ export default class LayerChooser extends React.Component {
                                 pos: {
                                     x: SPACING + j * layerWidth + j * SPACING,
                                     y: SELF_HEIGHT / 2 - layerHeight / 2
-                                }
+                                },
+                                isMenu: true
                             })
                         )}
 

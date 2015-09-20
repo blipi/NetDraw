@@ -3,6 +3,8 @@
 import React from 'react';
 import shell from 'shell';
 
+import Actions from '../Events/Actions';
+
 export default class Layer extends React.Component {
     state = {
         pos: {x: 0, y: 0},
@@ -74,12 +76,17 @@ export default class Layer extends React.Component {
 
         // Update relative position
         var pos = self.position();
+        var offset = self.offset();
         this.setState({
             dragging: true,
             rel: {
                 x: e.pageX - pos.left,
                 y: e.pageY - pos.top
-            }
+            },
+            offset: {
+                x: e.pageX - offset.left,
+                y: e.pageY - offset.top
+            },
         });
 
         e.stopPropagation();
@@ -88,6 +95,16 @@ export default class Layer extends React.Component {
 
     onMouseUp (e) {
         this.setState({dragging: false});
+
+        if (this.props.isMenu) {
+            Actions.addLayer(this, {
+                x: e.pageX - this.state.offset.x,
+                y: e.pageY - this.state.offset.y
+            });
+            this.setState({
+                pos: this.props.pos
+            });
+        }
 
         e.stopPropagation();
         e.preventDefault();
