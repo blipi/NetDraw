@@ -9,4 +9,11 @@ export default class Actions {
             position: position
         });
     }
+
+    static movingLayer (layer) {
+        return AppDispatcher.dispatch({
+            actionType: Constants.LAYER_MOVING,
+            layer: layer
+        });
+    }
 }

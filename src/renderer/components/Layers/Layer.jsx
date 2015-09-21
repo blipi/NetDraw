@@ -3,10 +3,17 @@
 import React from 'react';
 import shell from 'shell';
 
+import Relationship from './Relationship';
+import Actuator from '../Actuator';
+
+import Constants from '../Events/Constants';
 import Actions from '../Events/Actions';
+import AppDispatcher from '../Events/AppDispatcher';
 
 export default class Layer extends React.Component {
     state = {
+        id: Layer.id++,
+        relationships: [],
         pos: {x: 0, y: 0},
         dragging: false,
         rel: null // position relative to the cursor
@@ -45,6 +52,17 @@ export default class Layer extends React.Component {
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
+        this.onClick = this.onClick.bind(this);
+    }
+
+    componentDidMount () {
+        AppDispatcher.register((payload) => {
+            switch (payload.actionType) {
+                case Constants.LAYER_MOVING:
+                    this.moveRelationships(payload.layer);
+                    break;
+            }
+        });
     }
 
     // we could get away with not having this (and just having the listeners on
@@ -61,6 +79,25 @@ export default class Layer extends React.Component {
         }
     }
 
+    getAdjust (force) {
+        return {
+            x: (force || !this.props.isMenu) && Actuator.isVertical()
+                ? Actuator.layerDims().width / 2 : 0,
+            y: 0,
+        };
+    }
+
+    onClick (e) {
+        if (!this.props.isMenu) {
+            Actuator.doRelationship(this);
+
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
+        Actuator.setDisabled(false); // Prevent drag click
+    }
+
     // calculate relative position to the mouse and set dragging=true
     onMouseDown (e) {
         // only left mouse button
@@ -75,13 +112,15 @@ export default class Layer extends React.Component {
         self.addClass('last');
 
         // Update relative position
-        var pos = self.position();
-        var offset = self.offset();
+        let pos = self.position();
+        let offset = self.offset();
+        let adjust = this.getAdjust();
+
         this.setState({
             dragging: true,
             rel: {
-                x: e.pageX - pos.left,
-                y: e.pageY - pos.top
+                x: e.pageX - pos.left - adjust.x,
+                y: e.pageY - pos.top - adjust.y
             },
             offset: {
                 x: e.pageX - offset.left,
@@ -97,9 +136,11 @@ export default class Layer extends React.Component {
         this.setState({dragging: false});
 
         if (this.props.isMenu) {
+            let adjust = this.getAdjust(true);
+
             Actions.addLayer(this, {
-                x: e.pageX - this.state.offset.x,
-                y: e.pageY - this.state.offset.y
+                x: e.pageX - this.state.offset.x + adjust.x * 1.5,
+                y: e.pageY - this.state.offset.y + adjust.y
             });
             this.setState({
                 pos: this.props.pos
@@ -115,6 +156,9 @@ export default class Layer extends React.Component {
             return;
         }
 
+        Actuator.setDisabled(true); // Prevent drag click
+
+        let oldPos = {x: this.state.pos.x, y: this.state.pos.y};
         this.setState({
             pos: {
                 x: e.pageX - this.state.rel.x,
@@ -122,8 +166,37 @@ export default class Layer extends React.Component {
             }
         });
 
+        let relMov = {
+            x: this.state.pos.x - oldPos.x,
+            y: this.state.pos.y - oldPos.y
+        };
+
+        // Update positions
+        if (!this.props.isMenu) {
+            this.moveRelationships();
+        }
+
+        // Update positions from dest
+        Actions.movingLayer();
+
         e.stopPropagation();
         e.preventDefault();
+    }
+
+    moveRelationships (layer) {
+        layer = layer || false;
+
+        for (let i = 0; i < this.state.relationships.length; ++i) {
+            let obj = this.refs['rel_' + i];
+            if (!layer || obj.props.from.state.id == layer.state.id) {
+                obj.move();
+            }
+        }
+    }
+
+    addRelationship (to) {
+        this.state.relationships.push(to);
+        this.setState({relationships: this.state.relationships});
     }
 
     render () {
@@ -131,11 +204,23 @@ export default class Layer extends React.Component {
             <div
                 className={'layer ' + this.constructor.name}
                 onMouseDown={this.onMouseDown}
+                onClick={this.onClick}
+                data-id={this.state.id}
                 style={{
-                        position: 'absolute',
                         left: this.state.pos.x + 'px',
                         top: this.state.pos.y + 'px'
-                    }} />
-            );
+                    }} >
+
+                {[...Array(this.state.relationships.length)].map((x,i) =>
+                    <Relationship
+                        ref={'rel_' + i}
+                        key={i}
+                        from={this}
+                        to={this.state.relationships[i]} />
+                )}
+            </div>
+        );
     }
 }
+
+Layer.id = 0;

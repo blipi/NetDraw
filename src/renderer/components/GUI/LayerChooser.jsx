@@ -2,7 +2,9 @@
 
 import React from 'react';
 import shell from 'shell';
+
 import * as Types from '../Layers/Types';
+import Actuator from '../Actuator';
 
 const SPACING = 20;
 const SELF_HEIGHT = 60;
@@ -44,9 +46,7 @@ export default class LayerChooser extends React.Component {
         let categories = this.state.categories;
         let keys = Object.keys(categories);
 
-        // TODO: Read current style JSON values
-        let layerWidth = 80;
-        let layerHeight = 40;
+        let dims = Actuator.layerDims();
 
         return <div className='layer_chooser'>
 
@@ -58,7 +58,7 @@ export default class LayerChooser extends React.Component {
                 {/* Render categories */}
                 {[...Array(keys.length)].map((x, i) =>
                     <div key={keys[i]} className='category' style={{
-                            width: (categories[keys[i]].length * layerWidth +
+                            width: (categories[keys[i]].length * dims.width +
                                 (categories[keys[i]].length + 1)  * SPACING) + 'px'
                         }}>
 
@@ -67,8 +67,8 @@ export default class LayerChooser extends React.Component {
                             React.createElement(categories[keys[i]][j], {
                                 key: j,
                                 pos: {
-                                    x: SPACING + j * layerWidth + j * SPACING,
-                                    y: SELF_HEIGHT / 2 - layerHeight / 2
+                                    x: SPACING + j * dims.width + j * SPACING,
+                                    y: SELF_HEIGHT / 2 - dims.height / 2
                                 },
                                 isMenu: true
                             })

@@ -48,10 +48,24 @@ a, a:hover, a:visited, a:active, a:focus {
 }
 
 .layer {
+    position: absolute;
     z-index: $layer_zIndex;
     border: 1px solid red;
     height: 40px;
     width: 80px;
+
+    .relationship {
+        position: absolute;
+        height: 1px;
+        width: 10px;
+        background-color: black;
+        transform-origin: 0 0;
+    }
+}
+
+div:not(.category) > .layer.vertical {
+    transform: rotate(90deg);
+    transform-origin: 0 0;
 }
 
 .layer.last {

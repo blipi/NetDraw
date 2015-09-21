@@ -7,6 +7,7 @@ import * as Types from '../Layers/Types';
 
 import AppDispatcher from '../Events/AppDispatcher';
 import Constants from '../Events/Constants';
+import Actuator from '../Actuator';
 
 const SPACING = 20;
 const SELF_HEIGHT = 60;
@@ -36,6 +37,10 @@ export default class LayerChooser extends React.Component {
                 default:
 
             }
+        });
+
+        window.addEventListener('click', () => {
+            Actuator.doRelationship(null);
         });
     }
 
