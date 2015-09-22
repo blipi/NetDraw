@@ -56,6 +56,8 @@ export default class Layer extends React.Component {
     }
 
     componentDidMount () {
+        Actuator.doLayer(this);
+
         AppDispatcher.register((payload) => {
             switch (payload.actionType) {
                 case Constants.LAYER_MOVING:

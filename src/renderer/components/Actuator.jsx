@@ -1,5 +1,7 @@
 'use strict';
 
+import Dag from 'dag-map';
+
 export default class Actuator {
     static showError (err) {
         let obj = document.querySelector('#toast_err');
@@ -19,6 +21,10 @@ export default class Actuator {
         return true;
     }
 
+    static doLayer (layer) {
+        Actuator._dag.add(layer);
+    }
+
     static doRelationship (layer) {
         if (!Actuator._isDisabled) {
             if (layer && !Actuator._drawingRelationship) {
@@ -33,7 +39,12 @@ export default class Actuator {
                     this._checkRelationshipsOf(layer, Actuator._drawingFrom);
 
                 if (valid) {
-                    Actuator._drawingFrom.addRelationship(layer);
+                    try {
+                        Actuator._dag.addEdge(Actuator._drawingFrom, layer);
+                        Actuator._drawingFrom.addRelationship(layer);
+                    } catch (e) {
+                        this.showError('This union would create a cycle');
+                    }
                 } else {
                     this.showError('Cannot have duplicate connections');
                 }
@@ -57,7 +68,25 @@ export default class Actuator {
     }
 }
 
+class LayersDag {
+    _dag = new Dag();
+
+    _idOf (layer) {
+        return 'v' + layer.state.id;
+    }
+
+    add (layer) {
+        this._dag.add(this._idOf(layer));
+    }
+
+    addEdge (from, to) {
+        this._dag.addEdge(this._idOf(from), this._idOf(to));
+    }
+}
+
 // HACK: Until ES7 we don't have static attributes
+Actuator._dag = new LayersDag();
+
 Actuator._drawingRelationship = false;
 Actuator._drawingFrom = null;
 Actuator._isDisabled = false;

@@ -113,6 +113,12 @@
             }
         </style>
 
+        <style is="custom-style">
+            #toast_err {
+                background-color: var(--paper-red-600);
+            }
+        </style>
+
     </head>
     <body>
         <div id="app" class="expand"></div>
@@ -125,7 +131,7 @@
 
         <script src="bootstrap.js"></script>
 
-        <paper-toast id="toast_err" text=""></paper-toast>
+        <paper-toast id="toast_err" class="red" text=""></paper-toast>
 
         <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop modal>
             <h2>Import Prototxt</h2>
