@@ -133,19 +133,24 @@ export default class Layer extends React.Component {
     }
 
     onMouseUp (e) {
-        this.setState({dragging: false});
-
-        if (this.props.isMenu) {
+        if (this.props.isMenu && this.state.dragging) {
             let adjust = this.getAdjust(true);
 
-            Actions.addLayer(this, {
-                x: e.pageX - this.state.offset.x + adjust.x * 1.5,
-                y: e.pageY - this.state.offset.y + adjust.y
-            });
+            if (e.pageY < $('.canvas').position().top) {
+                Actuator.showError('Layers must be dragged to editor area');
+            } else {
+                Actions.addLayer(this, {
+                    x: e.pageX - this.state.offset.x + adjust.x * 1.5,
+                    y: e.pageY - this.state.offset.y + adjust.y
+                });
+            }
+
             this.setState({
                 pos: this.props.pos
             });
         }
+
+        this.setState({dragging: false});
 
         e.stopPropagation();
         e.preventDefault();

@@ -12,10 +12,19 @@ export class Main extends React.Component {
         super();
     }
 
+    doImport () {
+        document.getElementById('animated').open();
+    }
+
     render () {
         return <div className='expand'>
                 <LayerChooser layers={Layers} />
                 <Canvas />
+
+                <paper-fab id='fab-import' icon='create' title='done'
+                    tabIndex='0' className='blue' onClick={this.doImport}/>
+
+                <paper-fab id='fab-done' icon='done' title='done' tabIndex='0' className='green'></paper-fab>
             </div>
         ;
     }

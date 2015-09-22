@@ -9,14 +9,23 @@ export default class Relationship extends React.Component {
     constructor (props) {
         super(props);
 
+        let adjust = {
+            x: Actuator.isVertical() ?
+                Actuator.layerDims().width / 2 - Actuator.layerDims().height :
+                Actuator.layerDims().width / 2,
+            y: Actuator.isVertical() ?
+                0 :
+                Actuator.layerDims().height
+        };
+
         this.state = {
             from: {
-                x: 0, // this.props.from.state.pos.x,
-                y: 0 // this.props.from.state.pos.y
+                x: Actuator.layerDims().width / 2,
+                y: 0
             },
             to: {
-                x: this.props.to.state.pos.x - this.props.from.state.pos.x,
-                y: this.props.to.state.pos.y - this.props.from.state.pos.y
+                x: this.props.to.state.pos.x - this.props.from.state.pos.x + adjust.x,
+                y: this.props.to.state.pos.y - this.props.from.state.pos.y + adjust.y
             }
         };
 
@@ -28,8 +37,17 @@ export default class Relationship extends React.Component {
     }
 
     move () {
-        let x = this.props.to.state.pos.x - this.props.from.state.pos.x;
-        let y = this.props.to.state.pos.y - this.props.from.state.pos.y;
+        let adjust = {
+            x: Actuator.isVertical() ?
+                -Actuator.layerDims().height :
+                0,
+            y: Actuator.isVertical() ?
+                0 :
+                Actuator.layerDims().width / 2
+        };
+
+        let x = this.props.to.state.pos.x - this.props.from.state.pos.x + adjust.x;
+        let y = this.props.to.state.pos.y - this.props.from.state.pos.y + adjust.y;
         let width = Math.sqrt(x * x + y * y);
         let rot = Math.atan2(y, x) * 180 / Math.PI;
 

@@ -13,8 +13,8 @@ body {
 
     width: 100%;
     height: 100%;
-    margin: 0;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 a, a:hover, a:visited, a:active, a:focus {
@@ -76,4 +76,20 @@ div:not(.category) > .layer.vertical {
     width: 100%;
     height: calc(100% - 90px);
     border: 1px solid green;
+}
+
+.horizontal-section {
+    min-width: 200px;
+}
+
+#fab-import {
+    position: fixed;
+    top: 100px;
+    right: 5%;
+}
+
+#fab-done {
+    position: fixed;
+    top: 170px;
+    right: 5%;
 }
