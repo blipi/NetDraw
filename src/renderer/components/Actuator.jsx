@@ -2,6 +2,9 @@
 
 import Dag from 'dag-map';
 
+export const TRAINING = 'TRAIN';
+export const TESTING = 'TEST';
+
 export default class Actuator {
     static showError (err) {
         let obj = document.querySelector('#toast_err');
@@ -61,6 +64,24 @@ export default class Actuator {
         }
     }
 
+    static getPhase () {
+        return Actuator._phase;
+    }
+
+    static checkPhase (phase) {
+        return phase == TRAINING || Actuator._phase == phase;
+    }
+
+    static togglePhase () {
+        if (Actuator._phase == TRAINING) {
+            Actuator._phase = TESTING;
+        } else {
+            Actuator._phase = TRAINING;
+        }
+
+        return Actuator.getPhase();
+    }
+
     static setDisabled (disabled) {
         Actuator._isDisabled = disabled;
     }
@@ -99,3 +120,5 @@ Actuator._drawingFrom = null;
 Actuator._isDisabled = false;
 
 Actuator._isVertical = false;
+
+Actuator._phase = TRAINING;

@@ -4,7 +4,7 @@ import React from 'react';
 import shell from 'shell';
 
 import Relationship from './Relationship';
-import Actuator from '../Actuator';
+import Actuator,{TRAINING,TESTING} from '../Actuator';
 
 import Constants from '../Events/Constants';
 import Actions from '../Events/Actions';
@@ -13,6 +13,7 @@ import AppDispatcher from '../Events/AppDispatcher';
 export default class Layer extends React.Component {
     state = {
         id: Layer.id++,
+        phase: Actuator.getPhase(),
         relationships: [],
         drawing: false,
         pos: {x: 0, y: 0},
@@ -241,6 +242,7 @@ export default class Layer extends React.Component {
 
     render () {
         return (
+            (this.props.isMenu || Actuator.checkPhase(this.state.phase)) &&
             <div
                 className={'layer ' + this.constructor.name}
                 onMouseDown={this.onMouseDown}
@@ -259,7 +261,8 @@ export default class Layer extends React.Component {
                         to={this.state.relationships[i]} />
                 )}
 
-                { this.state.drawing && <Relationship from={this} to={this.state.drawing} ref='drawing_rel' /> }
+                { this.state.drawing &&
+                    <Relationship temp={true} from={this} to={this.state.drawing} ref='drawing_rel' /> }
             </div>
         );
     }

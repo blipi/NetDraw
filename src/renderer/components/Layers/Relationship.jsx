@@ -67,17 +67,18 @@ export default class Relationship extends React.Component {
     }
 
     render () {
-        return <div
-            className='relationship'
-            style={{
-                left: this.state.from.x,
-                top: this.state.from.y,
-                width: this.state.width,
-                transform: 'rotate(' +
-                    (this.state.rot - (Actuator.isVertical() ? 90 : 0))
-                    + 'deg)'
-            }}>
-        </div>;
+        return (this.props.temp || Actuator.checkPhase(this.props.to.state.phase)) &&
+            <div
+                className='relationship'
+                style={{
+                    left: this.state.from.x,
+                    top: this.state.from.y,
+                    width: this.state.width,
+                    transform: 'rotate(' +
+                        (this.state.rot - (Actuator.isVertical() ? 90 : 0))
+                        + 'deg)'
+                }}>
+            </div>;
     }
 
 }

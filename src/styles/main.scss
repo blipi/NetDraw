@@ -82,6 +82,23 @@ div:not(.category) > .layer.vertical {
     min-width: 200px;
 }
 
+#phase-display {
+    position: fixed;
+    top: 100px;
+    right: -1%;
+    width: 20px;
+    height: 200px;
+    text-align: center;
+
+    .vertical-text {
+        position: relative;
+    	transform: rotate(90deg);
+    	transform-origin: 0 0;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+}
+
 #fab-import {
     position: fixed;
     top: 100px;
@@ -91,5 +108,12 @@ div:not(.category) > .layer.vertical {
 #fab-done {
     position: fixed;
     top: 170px;
+    right: 5%;
+}
+
+#fab-swap
+{
+    position: fixed;
+    top: 240px;
     right: 5%;
 }
