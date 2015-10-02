@@ -28,30 +28,37 @@ export default class Actuator {
     static doRelationship (layer) {
         if (!Actuator._isDisabled) {
             if (layer && !Actuator._drawingRelationship) {
-                Actuator._drawingFrom = layer;
                 Actuator._drawingRelationship = true;
+                Actuator._drawingFrom = layer;
+                Actuator._drawingFrom.startDrawing();
                 return; // Avoid unsetting
             } else if (layer && Actuator._drawingFrom && layer.state.id == Actuator._drawingFrom.state.id) {
                 this.showError('Cannot connect a layer with itself');
             } else if (layer) {
                 // Check if it already exists
-                let valid = this._checkRelationshipsOf(Actuator._drawingFrom, layer) &&
-                    this._checkRelationshipsOf(layer, Actuator._drawingFrom);
+                let notDuplicate = this._checkRelationshipsOf(Actuator._drawingFrom, layer);
+                let notRecursive = this._checkRelationshipsOf(layer, Actuator._drawingFrom);
 
-                if (valid) {
+                if (notDuplicate && notRecursive) {
                     try {
                         Actuator._dag.addEdge(Actuator._drawingFrom, layer);
                         Actuator._drawingFrom.addRelationship(layer);
                     } catch (e) {
                         this.showError('This union would create a cycle');
                     }
-                } else {
+                } else if (!notDuplicate) {
                     this.showError('Cannot have duplicate connections');
+                } else if (!notRecursive) {
+                    this.showError('Cannot have recursive connections');
                 }
             }
         }
 
         Actuator._drawingRelationship = false;
+        if (Actuator._drawingFrom)
+        {
+            Actuator._drawingFrom.stopDrawing();
+        }
     }
 
     static setDisabled (disabled) {

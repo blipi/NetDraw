@@ -14,6 +14,7 @@ export default class Layer extends React.Component {
     state = {
         id: Layer.id++,
         relationships: [],
+        drawing: false,
         pos: {x: 0, y: 0},
         dragging: false,
         rel: null // position relative to the cursor
@@ -48,7 +49,6 @@ export default class Layer extends React.Component {
         }
 
         // Bind
-        this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
@@ -72,7 +72,7 @@ export default class Layer extends React.Component {
     // anything w/ a higher z-index that gets in the way, then you're toast,
     // etc.
     componentDidUpdate (props, state) {
-        if (this.state.dragging && !state.dragging) {
+        if ((this.state.dragging && !state.dragging) || this.state.drawing) {
             document.addEventListener('mousemove', this.onMouseMove);
             document.addEventListener('mouseup', this.onMouseUp);
         } else if (!this.state.dragging && state.dragging) {
@@ -160,6 +160,10 @@ export default class Layer extends React.Component {
 
     onMouseMove (e) {
         if (!this.state.dragging) {
+            if (this.state.drawing)
+            {
+                this.startDrawing({x: e.pageX, y: e.pageY});
+            }
             return;
         }
 
@@ -201,6 +205,35 @@ export default class Layer extends React.Component {
         }
     }
 
+    startDrawing (pos) {
+        pos = pos || {
+            x: this.state.pos.x,
+            y: this.state.pos.y
+        };
+
+        let moveAdjust = Relationship.getMoveAdjust();
+        let initialAdjust = Relationship.getInitialAdjust();
+        pos.x -= moveAdjust.x + initialAdjust.x;
+        pos.y -= moveAdjust.y;
+
+        this.setState({
+            drawing: {
+                state: {
+                    pos: pos
+                }
+            }
+        });
+
+        if (this.refs.drawing_rel)
+        {
+            this.refs.drawing_rel.move();
+        }
+    }
+
+    stopDrawing () {
+        this.setState({drawing: false});
+    }
+
     addRelationship (to) {
         this.state.relationships.push(to);
         this.setState({relationships: this.state.relationships});
@@ -225,6 +258,8 @@ export default class Layer extends React.Component {
                         from={this}
                         to={this.state.relationships[i]} />
                 )}
+
+                { this.state.drawing && <Relationship from={this} to={this.state.drawing} ref='drawing_rel' /> }
             </div>
         );
     }

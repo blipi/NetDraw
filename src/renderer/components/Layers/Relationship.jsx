@@ -6,10 +6,8 @@ import Actuator from '../Actuator';
 
 export default class Relationship extends React.Component {
 
-    constructor (props) {
-        super(props);
-
-        let adjust = {
+    static getInitialAdjust () {
+        return {
             x: Actuator.isVertical() ?
                 Actuator.layerDims().width / 2 - Actuator.layerDims().height :
                 Actuator.layerDims().width / 2,
@@ -17,6 +15,23 @@ export default class Relationship extends React.Component {
                 0 :
                 Actuator.layerDims().height
         };
+    }
+
+    static getMoveAdjust () {
+        return {
+            x: Actuator.isVertical() ?
+                -Actuator.layerDims().height :
+                0,
+            y: Actuator.isVertical() ?
+                0 :
+                Actuator.layerDims().width / 2
+        };
+    }
+
+    constructor (props) {
+        super(props);
+
+        let adjust = Relationship.getInitialAdjust();
 
         this.state = {
             from: {
@@ -37,14 +52,7 @@ export default class Relationship extends React.Component {
     }
 
     move () {
-        let adjust = {
-            x: Actuator.isVertical() ?
-                -Actuator.layerDims().height :
-                0,
-            y: Actuator.isVertical() ?
-                0 :
-                Actuator.layerDims().width / 2
-        };
+        let adjust = Relationship.getMoveAdjust();
 
         let x = this.props.to.state.pos.x - this.props.from.state.pos.x + adjust.x;
         let y = this.props.to.state.pos.y - this.props.from.state.pos.y + adjust.y;
