@@ -44,11 +44,21 @@ export default class LayerChooser extends React.Component {
         });
     }
 
+    getAllLayers () {
+        let layers = [];
+        for (let i = 0; i < this.state.layers.length; ++i) {
+            layers.push(this.refs['layer_' + i]);
+        }
+
+        return layers;
+    }
+
     render () {
         return <div className='canvas'>
             {[...Array(this.state.layers.length)].map((x,i) =>
                 React.createElement(this.state.layers[i].layer, {
                     key: i,
+                    ref: 'layer_' + i,
                     pos: this.state.layers[i].position
                 })
             )}
