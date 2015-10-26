@@ -16,4 +16,10 @@ export default class Actions {
             layer: layer
         });
     }
+
+    static clearLayers () {
+        return AppDispatcher.dispatch({
+            actionType: Constants.LAYERS_ERASE
+        });
+    }
 }

@@ -11,6 +11,8 @@ import Actions from '../Events/Actions';
 import AppDispatcher from '../Events/AppDispatcher';
 
 export default class Layer extends React.Component {
+    registerToken = 0;
+
     state = {
         id: Layer.id++,
         phase: Actuator.getPhase(),
@@ -59,7 +61,7 @@ export default class Layer extends React.Component {
     componentDidMount () {
         Actuator.doLayer(this);
 
-        AppDispatcher.register((payload) => {
+        this.registerToken = AppDispatcher.register((payload) => {
             switch (payload.actionType) {
                 case Constants.LAYER_MOVING:
                     this.moveRelationships(payload.layer);
@@ -80,6 +82,14 @@ export default class Layer extends React.Component {
             document.removeEventListener('mousemove', this.onMouseMove);
             document.removeEventListener('mouseup', this.onMouseUp);
         }
+    }
+
+    componentWillUnmount ()
+    {        
+        document.removeEventListener('mousemove', this.onMouseMove);
+        document.removeEventListener('mouseup', this.onMouseUp);
+        console.log(this.registerToken);
+        AppDispatcher.unregister(this.registerToken);
     }
 
     getAdjust (force) {

@@ -34,8 +34,12 @@ export default class LayerChooser extends React.Component {
                     this.setState({layers: this.state.layers});
                     break;
 
-                default:
+                case Constants.LAYERS_ERASE:
+                    this.setState({layers: []});
+                    break;
 
+                default:
+                    break;
             }
         });
 

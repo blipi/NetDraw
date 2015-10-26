@@ -8,6 +8,10 @@ import Canvas from './GUI/Canvas';
 import * as Layers from './Layers/ALL';
 import Actuator,{TRAINING,TESTING} from './Actuator';
 
+import Constants from './Events/Constants';
+import Actions from './Events/Actions';
+import AppDispatcher from './Events/AppDispatcher';
+
 export class Main extends React.Component {
     state = {
         phase: Actuator.getPhase()
@@ -17,10 +21,18 @@ export class Main extends React.Component {
         super();
 
         this.changePhase = this.changePhase.bind(this);
+        this.doImport = this.doImport.bind(this);
+        this.importDone = this.importDone.bind(this);
     }
 
     doImport () {
         document.getElementById('animated').open();
+        document.getElementById('dialog-import').onclick = this.importDone;
+    }
+
+    importDone () {
+        this.setState({phase: Actuator.togglePhase()});
+        Actions.clearLayers();
     }
 
     changePhase () {
